@@ -227,7 +227,7 @@ Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour les décisions techniques et leurs 
 ./gradlew test
 ```
 
-86 tests unitaires couvrent le cœur du produit :
+96 tests unitaires couvrent le cœur du produit :
 
 | Suite | Ce qu'elle protège |
 |---|---|

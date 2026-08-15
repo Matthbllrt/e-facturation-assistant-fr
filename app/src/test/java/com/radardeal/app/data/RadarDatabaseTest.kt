@@ -21,6 +21,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.concurrent.Executor
 
 /**
  * Exercises the real Room database on an in-memory SQLite instance: the full lifecycle of a
@@ -40,7 +41,12 @@ class RadarDatabaseTest {
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             RadarDatabase::class.java,
-        ).allowMainThreadQueries().build()
+        )
+            .allowMainThreadQueries()
+            // Run Room's own work inline so that a Flow query emits deterministically
+            // within the test body instead of on a background executor.
+            .setQueryExecutor(Executor(Runnable::run))
+            .build()
 
         watchRepository = WatchRepository(database.watchDao(), database.listingDao())
         listingRepository = ListingRepository(database.listingDao(), database.pricePointDao())

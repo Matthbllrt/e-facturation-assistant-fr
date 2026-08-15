@@ -18,6 +18,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.json.JSONObject
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.coroutines.resume
 
@@ -51,7 +52,11 @@ class WebViewVintedFetcher(private val context: Context) {
     @Volatile
     private var unavailable = false
 
-    private val pending = HashMap<String, CancellableContinuation<BridgeResult?>>()
+    /**
+     * Concurrent on purpose: entries are added on the main thread, removed there by the
+     * bridge, but [clearPending] also runs from whichever coroutine context hit the timeout.
+     */
+    private val pending = ConcurrentHashMap<String, CancellableContinuation<BridgeResult?>>()
 
     private data class BridgeResult(val status: Int, val body: String)
 

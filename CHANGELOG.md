@@ -84,7 +84,7 @@ installée » puis des plantages systématiques au démarrage.
   du téléphone.
 
 **Qualité**
-- 86 tests unitaires (JVM et Robolectric) couvrant le démarrage de l'application, le moteur de
+- 96 tests unitaires (JVM et Robolectric) couvrant le démarrage de l'application, le moteur de
   comparaison, l'analyse des réponses Vinted, la construction des requêtes, le détecteur de
   bonnes affaires, la base Room et le formatage.
 - APK release minifié par R8 (2,3 Mo) et signé avec les schémas de signature v2 et v3.

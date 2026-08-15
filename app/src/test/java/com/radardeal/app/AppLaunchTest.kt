@@ -74,6 +74,7 @@ class AppLaunchTest {
         val graph = RadarDealApp.graph(context)
         assertThat(graph.watchRepository.getAll()).isEmpty()
         assertThat(graph.listingRepository.observeRecent().first()).isEmpty()
+
         graph.database.close()
     }
 

@@ -126,6 +126,15 @@ android {
         unitTests {
             isIncludeAndroidResources = true
             isReturnDefaultValues = true
+
+            all {
+                // Robolectric loads a full Android runtime and the launch tests compose real
+                // Activities. Gradle's default 512 MB test heap runs out partway through the
+                // suite, which surfaces as an unrelated test failing with
+                // "uncaught exceptions before the test started".
+                it.maxHeapSize = "2g"
+                it.jvmArgs("-XX:MaxMetaspaceSize=768m")
+            }
         }
     }
 
