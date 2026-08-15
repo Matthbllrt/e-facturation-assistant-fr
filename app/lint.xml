@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<lint>
+    <!--
+      The adaptive launcher icon must live in `mipmap-anydpi-v26`. Lint suggests dropping the
+      `-v26` qualifier because minSdk is already 26, but AAPT2 does not resolve a bare
+      `mipmap-anydpi` folder and the build fails with "resource mipmap/ic_launcher not found".
+      The qualifier stays; the advice is only correct in theory.
+    -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="src/main/res/mipmap-anydpi-v26" />
+    </issue>
+</lint>

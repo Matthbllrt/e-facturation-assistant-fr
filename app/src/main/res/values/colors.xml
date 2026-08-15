@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The full palette lives in Kotlin (ui/theme/Theme.kt) because the whole UI is Compose.
+  Only the colours the platform itself needs before Compose exists are declared here: the
+  window background that prevents a white flash, and the splash-screen ground.
+-->
+<resources>
+    <color name="rd_background">#FF070B10</color>
+</resources>

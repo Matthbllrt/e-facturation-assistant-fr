@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!--
+      Base theme. RadarDeal renders its entire UI with Jetpack Compose, so this theme only
+      has to provide a correct window background (avoiding a white flash before the first
+      frame) and system bar behaviour. It intentionally extends an AppCompat DayNight theme
+      that is guaranteed to exist on every supported API level.
+    -->
+    <style name="Theme.RadarDeal" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/rd_background</item>
+        <item name="android:colorBackground">@color/rd_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+
+    <style name="Theme.RadarDeal.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/rd_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.RadarDeal</item>
+    </style>
+
+</resources>

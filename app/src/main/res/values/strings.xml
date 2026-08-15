@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RadarDeal</string>
+
+    <!-- Foreground service -->
+    <string name="service_channel_name">Radar actif</string>
+    <string name="service_channel_description">Notification permanente affichée pendant la surveillance.</string>
+    <string name="service_title">RadarDeal actif</string>
+    <string name="service_stop">Arrêter</string>
+
+    <!-- Alert channels -->
+    <string name="channel_new_items_name">Nouvelles annonces</string>
+    <string name="channel_new_items_description">Alerte lorsqu\'une nouvelle annonce correspond à une veille.</string>
+    <string name="channel_price_drops_name">Baisses de prix</string>
+    <string name="channel_price_drops_description">Alerte lorsqu\'une annonce suivie baisse de prix.</string>
+
+    <string name="notification_new_item_title">Nouvelle annonce</string>
+    <string name="notification_price_drop_title">Baisse de prix</string>
+
+    <string name="disclaimer">RadarDeal n\'est ni affilié ni approuvé par Vinted.</string>
+</resources>
