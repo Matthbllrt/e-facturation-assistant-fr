@@ -128,11 +128,15 @@ android {
             isReturnDefaultValues = true
 
             all {
-                // Robolectric loads a full Android runtime and the launch tests compose real
-                // Activities. Gradle's default 512 MB test heap runs out partway through the
-                // suite, which surfaces as an unrelated test failing with
-                // "uncaught exceptions before the test started".
-                it.maxHeapSize = "2g"
+                // Each ActivityScenario launch in AppLaunchTest leaves a Compose Recomposer
+                // and its coroutines behind — Robolectric does not tear the Android runtime
+                // down between tests the way a real device does. Accumulated over a whole
+                // suite in one JVM that ends in OutOfMemoryError, which kotlinx-coroutines-test
+                // then reports against whichever test starts next rather than the one that
+                // caused it. A fresh JVM per test class keeps the leak from accumulating; the
+                // heap bump covers the heaviest single class.
+                it.forkEvery = 1
+                it.maxHeapSize = "1536m"
                 it.jvmArgs("-XX:MaxMetaspaceSize=768m")
             }
         }
