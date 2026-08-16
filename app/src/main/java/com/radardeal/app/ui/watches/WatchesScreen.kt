@@ -246,9 +246,16 @@ private fun WatchCard(
             }
 
             Row(horizontalArrangement = Arrangement.spacedBy(spacing.sm)) {
+                if (watch.isUltra) {
+                    BadgePill(text = "⚡ ULTRA")
+                }
                 BadgePill(
-                    text = Formatters.duration(watch.intervalSeconds),
-                    contentColor = RadarColors.TextSecondary,
+                    text = if (watch.isUltra) {
+                        watch.frequency.description
+                    } else {
+                        Formatters.duration(watch.intervalSeconds)
+                    },
+                    contentColor = if (watch.isUltra) RadarColors.Accent else RadarColors.TextSecondary,
                     background = RadarColors.SurfaceElevated,
                 )
                 BadgePill(

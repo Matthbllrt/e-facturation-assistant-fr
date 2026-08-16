@@ -18,12 +18,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Radar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -191,9 +193,17 @@ fun WatchEditorScreen(
             }
 
             Text(
-                text = "Les fréquences rapides nécessitent que la surveillance tourne au premier " +
-                    "plan, avec la notification permanente « RadarDeal actif ». Android n'autorise " +
-                    "aucune application à scanner toutes les 15 secondes en arrière-plan sans elle.",
+                text = if (state.frequency == ScanFrequency.ULTRA) {
+                    "Le mode Ultra ne peut être actif que sur une seule veille à la fois, et " +
+                        "tourne à pleine vitesse tant que RadarDeal est actif avec sa " +
+                        "notification permanente. Android peut réduire la fréquence quand " +
+                        "l'application passe en arrière-plan ou que l'écran s'éteint."
+                } else {
+                    "Les fréquences rapides nécessitent que la surveillance tourne au premier " +
+                        "plan, avec la notification permanente « RadarDeal actif ». Android " +
+                        "n'autorise aucune application à scanner toutes les quelques secondes " +
+                        "en arrière-plan sans elle."
+                },
                 style = MaterialTheme.typography.labelSmall,
                 color = RadarColors.TextTertiary,
             )
@@ -216,6 +226,33 @@ fun WatchEditorScreen(
             )
         }
     }
+
+    state.ultraConflict?.let { conflict ->
+        AlertDialog(
+            onDismissRequest = viewModel::dismissUltraConflict,
+            containerColor = RadarColors.SurfaceElevated,
+            titleContentColor = RadarColors.TextPrimary,
+            textContentColor = RadarColors.TextSecondary,
+            title = { Text("Le mode Ultra est déjà utilisé") },
+            text = {
+                Text(
+                    "Le mode Ultra ne peut être actif que sur une seule veille à la fois.\n\n" +
+                        "Il est actuellement sur « ${conflict.holderName} ». Veux-tu le " +
+                        "transférer à cette veille ?"
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = viewModel::confirmUltraTransfer) {
+                    Text("Transférer", color = RadarColors.Accent)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = viewModel::dismissUltraConflict) {
+                    Text("Annuler", color = RadarColors.TextSecondary)
+                }
+            },
+        )
+    }
 }
 
 @Composable
@@ -225,6 +262,7 @@ private fun FrequencyRow(
     onClick: () -> Unit,
 ) {
     val spacing = LocalSpacing.current
+    val isUltra = frequency == ScanFrequency.ULTRA
     RdCard(
         modifier = Modifier.fillMaxWidth(),
         color = if (selected) RadarColors.AccentSoft else RadarColors.Surface,
@@ -236,11 +274,19 @@ private fun FrequencyRow(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = frequency.label,
-                style = MaterialTheme.typography.titleLarge,
-                color = if (selected) RadarColors.Accent else RadarColors.TextPrimary,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "${frequency.badge} ${frequency.label}",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = if (selected) RadarColors.Accent else RadarColors.TextPrimary,
+                )
+                // The battery cost is stated up front rather than discovered later.
+                Text(
+                    text = frequency.costHint,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isUltra) RadarColors.Warning else RadarColors.TextTertiary,
+                )
+            }
             Text(
                 text = frequency.description,
                 style = MaterialTheme.typography.bodyMedium,

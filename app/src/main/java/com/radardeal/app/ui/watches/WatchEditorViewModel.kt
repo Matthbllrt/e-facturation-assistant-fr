@@ -19,6 +19,9 @@ import kotlinx.coroutines.launch
 /** Which of the two ways of defining a search the user picked. */
 enum class WatchMode { CRITERIA, URL }
 
+/** The watch currently holding Ultra, when the user asks for it on a different one. */
+data class UltraConflict(val holderId: Long, val holderName: String)
+
 data class WatchEditorUiState(
     val isLoading: Boolean = true,
     val isEditing: Boolean = false,
@@ -28,9 +31,14 @@ data class WatchEditorUiState(
     val brand: String = "",
     val maxPrice: String = "",
     val sourceUrl: String = "",
-    val frequency: ScanFrequency = ScanFrequency.FAST,
+    val frequency: ScanFrequency = ScanFrequency.STANDARD,
     val urlError: String? = null,
     val saved: Boolean = false,
+    /**
+     * Set when the user picked Ultra while another watch already holds it. The editor asks
+     * whether to transfer the slot rather than silently taking or refusing it.
+     */
+    val ultraConflict: UltraConflict? = null,
 ) {
     /** The name field is optional: a sensible one is derived from the criteria when left blank. */
     val effectiveName: String
@@ -80,12 +88,12 @@ class WatchEditorViewModel(
                     isLoading = false,
                     isEditing = true,
                     mode = if (existing.isUrlBased) WatchMode.URL else WatchMode.CRITERIA,
+                    frequency = existing.frequency,
                     name = existing.name,
                     keyword = existing.keyword.orEmpty(),
                     brand = existing.brand.orEmpty(),
                     maxPrice = existing.maxPrice?.let { formatPrice(it) }.orEmpty(),
                     sourceUrl = existing.sourceUrl.orEmpty(),
-                    frequency = ScanFrequency.fromSeconds(existing.intervalSeconds),
                 )
             }
         }
@@ -95,7 +103,34 @@ class WatchEditorViewModel(
     fun setName(value: String) = _state.update { it.copy(name = value) }
     fun setKeyword(value: String) = _state.update { it.copy(keyword = value) }
     fun setBrand(value: String) = _state.update { it.copy(brand = value) }
-    fun setFrequency(value: ScanFrequency) = _state.update { it.copy(frequency = value) }
+    /**
+     * Ultra is a single slot. Choosing it while another watch holds it raises a conflict the
+     * user resolves explicitly — RadarDeal never silently moves it or silently refuses.
+     */
+    fun setFrequency(value: ScanFrequency) {
+        if (value != ScanFrequency.ULTRA) {
+            _state.update { it.copy(frequency = value, ultraConflict = null) }
+            return
+        }
+
+        viewModelScope.launch {
+            val holder = runCatching { watchRepository.getUltraWatch() }.getOrNull()
+            if (holder == null || holder.id == watchId) {
+                _state.update { it.copy(frequency = ScanFrequency.ULTRA, ultraConflict = null) }
+            } else {
+                _state.update {
+                    it.copy(ultraConflict = UltraConflict(holder.id, holder.name))
+                }
+            }
+        }
+    }
+
+    /** "Transférer" — the new watch takes the slot when it is saved. */
+    fun confirmUltraTransfer() = _state.update {
+        it.copy(frequency = ScanFrequency.ULTRA, ultraConflict = null)
+    }
+
+    fun dismissUltraConflict() = _state.update { it.copy(ultraConflict = null) }
 
     /** Digits and one separator only — the field must never accept something unparseable. */
     fun setMaxPrice(value: String) {
@@ -129,7 +164,12 @@ class WatchEditorViewModel(
                 brand = if (urlBased) null else current.brand.trim().ifBlank { null },
                 maxPrice = if (urlBased) null else parsePrice(current.maxPrice),
                 sourceUrl = if (urlBased) current.sourceUrl.trim().ifBlank { null } else null,
-                intervalSeconds = current.frequency.seconds,
+                intervalSeconds = if (current.frequency == ScanFrequency.ULTRA) {
+                    ScanFrequency.FAST.seconds
+                } else {
+                    current.frequency.seconds
+                },
+                isUltra = current.frequency == ScanFrequency.ULTRA,
                 isActive = existing?.isActive ?: true,
                 notifyEnabled = existing?.notifyEnabled ?: true,
                 createdAt = existing?.createdAt ?: System.currentTimeMillis(),
@@ -147,12 +187,20 @@ class WatchEditorViewModel(
                     // the old query are no longer a valid baseline for the new one.
                     if (criteriaChanged(existing, watch)) {
                         watchRepository.resetBaseline(existing.id)
+                        // The collected ids describe the old query; drop the cache with them.
+                        coordinator.invalidate(existing.id)
                     }
                     existing.id
                 }
             }.getOrNull()
 
             if (savedId != null) {
+                // Granting Ultra revokes it from whoever held it, in one transaction.
+                if (current.frequency == ScanFrequency.ULTRA) {
+                    runCatching { watchRepository.grantUltra(savedId) }
+                } else if (existing?.isUltra == true) {
+                    runCatching { watchRepository.revokeUltra(savedId) }
+                }
                 coordinator.markDueNow(savedId)
                 // Creating a watch is a clear signal that the user wants the radar running.
                 runCatching { settingsStore.setMonitoringRequested(true) }

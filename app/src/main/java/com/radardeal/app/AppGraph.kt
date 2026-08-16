@@ -5,13 +5,18 @@ import com.radardeal.app.data.local.RadarDatabase
 import com.radardeal.app.data.prefs.SettingsStore
 import com.radardeal.app.data.repository.ListingRepository
 import com.radardeal.app.data.repository.WatchRepository
+import com.radardeal.app.monitoring.KnownIdCache
 import com.radardeal.app.monitoring.RadarCoordinator
 import com.radardeal.app.monitoring.ScanEngine
 import com.radardeal.app.notifications.RadarNotifications
 import com.radardeal.app.web.HttpVintedFetcher
+import com.radardeal.app.web.LiveDomChannel
 import com.radardeal.app.web.VintedFetcher
 import com.radardeal.app.web.VintedSession
 import com.radardeal.app.web.WebViewVintedFetcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 /**
  * RadarDeal's object graph.
@@ -43,6 +48,21 @@ class AppGraph(context: Context) {
 
     val notifications: RadarNotifications by lazy { RadarNotifications(appContext) }
 
+    /**
+     * The in-memory known-id index. A single instance for the whole process so the polling
+     * engine and the live DOM channel cannot announce the same listing twice.
+     */
+    val knownIdCache: KnownIdCache by lazy { KnownIdCache() }
+
+    /**
+     * Scope for work that must outlive a single scan but not the process: persistence and
+     * enrichment queued after a notification has already gone out. Supervised, so one failure
+     * cannot tear down the others.
+     */
+    val engineScope: CoroutineScope by lazy {
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    }
+
     val fetcher: VintedFetcher by lazy {
         VintedFetcher(
             http = HttpVintedFetcher(session),
@@ -51,10 +71,20 @@ class AppGraph(context: Context) {
     }
 
     val scanEngine: ScanEngine by lazy {
-        ScanEngine(fetcher, watchRepository, listingRepository, notifications)
+        ScanEngine(
+            fetcher = fetcher,
+            watchRepository = watchRepository,
+            listingRepository = listingRepository,
+            notifications = notifications,
+            knownIds = knownIdCache,
+            backgroundScope = engineScope,
+        )
     }
 
+    /** The persistent WebView used by the Ultra watch's live detection channel. */
+    val liveDomChannel: LiveDomChannel by lazy { LiveDomChannel(appContext) }
+
     val coordinator: RadarCoordinator by lazy {
-        RadarCoordinator(watchRepository, scanEngine, settingsStore)
+        RadarCoordinator(watchRepository, scanEngine, settingsStore, knownIdCache, liveDomChannel)
     }
 }

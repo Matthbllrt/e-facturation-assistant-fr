@@ -6,6 +6,7 @@
     <string name="service_channel_name">Radar actif</string>
     <string name="service_channel_description">Notification permanente affichée pendant la surveillance.</string>
     <string name="service_title">RadarDeal actif</string>
+    <string name="service_title_ultra">RadarDeal Ultra actif</string>
     <string name="service_stop">Arrêter</string>
 
     <!-- Alert channels -->

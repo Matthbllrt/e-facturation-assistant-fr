@@ -42,6 +42,33 @@ interface WatchDao {
     @Query("UPDATE watches SET isActive = :active WHERE id = :id")
     suspend fun setActive(id: Long, active: Boolean)
 
+    /** Only ids are needed to load the known-id cache — never the whole listing rows. */
+    @Query("SELECT itemId FROM listings WHERE watchId = :watchId")
+    suspend fun knownItemIds(watchId: Long): List<String>
+
+    @Query("SELECT * FROM watches WHERE isUltra = 1 LIMIT 1")
+    suspend fun getUltraWatch(): WatchEntity?
+
+    @Query("SELECT * FROM watches WHERE isUltra = 1 LIMIT 1")
+    fun observeUltraWatch(): Flow<WatchEntity?>
+
+    /**
+     * Grants Ultra to exactly one watch. Ultra is a single slot by design, so the grant and the
+     * revocation of every other holder happen in one transaction — two watches must never be
+     * observable as Ultra at the same time.
+     */
+    @Transaction
+    suspend fun grantUltra(id: Long) {
+        clearUltraExcept(id)
+        setUltra(id, true)
+    }
+
+    @Query("UPDATE watches SET isUltra = 0 WHERE id != :id")
+    suspend fun clearUltraExcept(id: Long)
+
+    @Query("UPDATE watches SET isUltra = :ultra WHERE id = :id")
+    suspend fun setUltra(id: Long, ultra: Boolean)
+
     @Query("UPDATE watches SET lastScanAt = :at, lastScanStatus = :status WHERE id = :id")
     suspend fun recordScan(id: Long, at: Long, status: String)
 

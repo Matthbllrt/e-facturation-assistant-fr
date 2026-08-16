@@ -15,7 +15,13 @@ data class Watch(
     val minPrice: Double? = null,
     val maxPrice: Double? = null,
     val sourceUrl: String? = null,
-    val intervalSeconds: Int = ScanFrequency.FAST.seconds,
+    val intervalSeconds: Int = ScanFrequency.STANDARD.seconds,
+    /**
+     * Ultra is a single-slot mode: at most one watch may hold it at a time. One search polled
+     * every few seconds is worth far more than ten searches saturating the device and getting
+     * the session rate limited.
+     */
+    val isUltra: Boolean = false,
     val isActive: Boolean = true,
     val notifyEnabled: Boolean = true,
     val createdAt: Long = System.currentTimeMillis(),
@@ -31,6 +37,14 @@ data class Watch(
     /** True when this watch was created by pasting a Vinted search URL. */
     val isUrlBased: Boolean get() = !sourceUrl.isNullOrBlank()
 
+    /** The frequency preset this watch's interval corresponds to. */
+    val frequency: ScanFrequency
+        get() = if (isUltra) ScanFrequency.ULTRA else ScanFrequency.fromSeconds(intervalSeconds)
+
+    /** Effective polling floor in milliseconds, before adaptive back-off is applied. */
+    val baseIntervalMs: Long
+        get() = if (isUltra) ScanFrequency.ULTRA.millis else intervalSeconds * 1000L
+
     /** Short human summary shown under the watch name, e.g. "≤ 80 € · 30 sec". */
     fun criteriaSummary(): String {
         val parts = mutableListOf<String>()
@@ -45,16 +59,35 @@ data class Watch(
     }
 }
 
-/** Preset polling intervals offered in the UI. */
-enum class ScanFrequency(val seconds: Int, val label: String, val description: String) {
-    TURBO(15, "Turbo", "15 secondes"),
-    FAST(30, "Rapide", "30 secondes"),
-    STANDARD(60, "Standard", "1 minute"),
-    ECO(120, "Éco", "2 minutes");
+/**
+ * Preset polling intervals offered in the UI.
+ *
+ * These are *floors on how often RadarDeal asks*, not promises about how fast Vinted publishes.
+ * A listing that only becomes visible server-side after ten seconds cannot be detected sooner,
+ * whatever this value says — see PERFORMANCE.md for what is actually measurable.
+ */
+enum class ScanFrequency(
+    val seconds: Int,
+    val label: String,
+    val description: String,
+    /** Shown under the label so the battery cost is never a surprise. */
+    val costHint: String,
+    val badge: String,
+) {
+    ULTRA(3, "Ultra", "2–3 sec", "Vitesse maximale · consommation élevée", "⚡"),
+    FAST(5, "Rapide", "5 sec", "Très réactif", "🔥"),
+    STANDARD(15, "Standard", "15 sec", "Bon équilibre", "●"),
+    ECO(30, "Éco", "30 sec", "Économe en batterie", "🌙");
+
+    val millis: Long get() = seconds * 1000L
 
     companion object {
+        /** Presets a watch can be assigned directly; Ultra is granted through its own path. */
+        val selectable: List<ScanFrequency> get() = entries
+
         fun fromSeconds(seconds: Int): ScanFrequency =
-            entries.minByOrNull { kotlin.math.abs(it.seconds - seconds) } ?: FAST
+            entries.filter { it != ULTRA }
+                .minByOrNull { kotlin.math.abs(it.seconds - seconds) } ?: STANDARD
     }
 }
 
@@ -85,11 +118,22 @@ enum class ScanStatus {
     NETWORK_ERROR,
 
     /** Reached Vinted, but the response could not be understood. */
-    PARSE_ERROR;
+    PARSE_ERROR,
+
+    /**
+     * Monitoring stopped itself because Vinted asked for a human check. RadarDeal makes no
+     * further request for this watch until the user has cleared it — hammering a site that is
+     * explicitly refusing is both rude and counter-productive.
+     */
+    PAUSED_VERIFICATION;
 
     val isProblem: Boolean
-        get() = this == NEEDS_LOGIN || this == NEEDS_VERIFICATION ||
+        get() = this == NEEDS_LOGIN || this == NEEDS_VERIFICATION || this == PAUSED_VERIFICATION ||
             this == RATE_LIMITED || this == NETWORK_ERROR || this == PARSE_ERROR
+
+    /** True when RadarDeal must stop requesting until the user acts. */
+    val haltsScanning: Boolean
+        get() = this == PAUSED_VERIFICATION
 
     /** Short label shown on the watch card. */
     val label: String
@@ -102,6 +146,7 @@ enum class ScanStatus {
             RATE_LIMITED -> "Trop de requêtes — pause"
             NETWORK_ERROR -> "Erreur réseau"
             PARSE_ERROR -> "Réponse illisible"
+            PAUSED_VERIFICATION -> "Surveillance en pause — vérification Vinted"
         }
 
     /** Full sentence shown when the user opens the watch or the radar page. */
@@ -118,5 +163,8 @@ enum class ScanStatus {
                 "automatiquement puis réessaiera. Choisissez une fréquence plus lente si cela se répète."
             NETWORK_ERROR -> "Impossible de joindre Vinted. Vérifiez votre connexion internet."
             PARSE_ERROR -> "La réponse de Vinted n'a pas pu être analysée. RadarDeal réessaiera au prochain scan."
+            PAUSED_VERIFICATION -> "Une vérification Vinted est nécessaire.\n\n" +
+                "RadarDeal a arrêté d'interroger Vinted pour cette veille. Ouvrez Vinted, " +
+                "terminez la vérification, puis relancez la surveillance."
         }
 }

@@ -262,6 +262,13 @@ fun SettingsScreen(onOpenLogin: () -> Unit) {
             }
         }
 
+        // Debug builds only; BuildConfig.VERBOSE_LOGGING is a compile-time constant so R8
+        // strips this entirely from the release APK.
+        if (BuildConfig.VERBOSE_LOGGING) {
+            item(key = "diagnostics-header") { SectionHeader(title = "Diagnostics") }
+            item(key = "diagnostics") { UltraDiagnosticsPanel() }
+        }
+
         item(key = "limits") {
             RdCard(
                 modifier = Modifier.fillMaxWidth(),
@@ -278,11 +285,13 @@ fun SettingsScreen(onOpenLogin: () -> Unit) {
                         color = RadarColors.TextPrimary,
                     )
                     Text(
-                        text = "Une surveillance toutes les 15 à 60 secondes n'est possible que " +
-                            "pendant que le service au premier plan tourne — c'est la notification " +
-                            "« RadarDeal actif ». Si Android l'interrompt (économie de batterie, " +
-                            "mémoire, quota du système), RadarDeal continue à scanner environ " +
-                            "toutes les 15 minutes et relance le service dès qu'il le peut.\n\n" +
+                        text = "Le mode Ultra tourne à pleine vitesse (≈ 3 s) tant que RadarDeal " +
+                            "est actif avec sa notification permanente. Quand l'application passe " +
+                            "en arrière-plan ou que l'écran s'éteint, Android peut réduire cette " +
+                            "fréquence — aucune application ne peut l'en empêcher.\n\n" +
+                            "Si Android interrompt le service (économie de batterie, mémoire, " +
+                            "quota système), RadarDeal continue à scanner environ toutes les 15 " +
+                            "minutes et relance le service dès qu'il le peut.\n\n" +
                             "Pour une surveillance vraiment continue, autorise RadarDeal à " +
                             "s'exécuter sans restriction de batterie dans les réglages Android.",
                         style = MaterialTheme.typography.bodyMedium,

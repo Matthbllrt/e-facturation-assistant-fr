@@ -45,6 +45,8 @@ data class RadarUiState(
     val problem: ScanStatus? = null,
     val monitoringRunning: Boolean = false,
     val isScanning: Boolean = false,
+    /** Name of the watch holding the single Ultra slot, when one does. */
+    val ultraWatchName: String? = null,
     val settings: AppSettings = AppSettings(),
 ) {
     val hasWatches: Boolean get() = watchCount > 0
@@ -104,6 +106,8 @@ class RadarViewModel(
             problem = watches
                 .mapNotNull { it.watch.lastScanStatus.takeIf { status -> status.isProblem } }
                 .minByOrNull { it.priority() },
+            ultraWatchName = watches.firstOrNull { it.watch.isUltra && it.watch.isActive }
+                ?.watch?.name,
             settings = settings,
         )
     }

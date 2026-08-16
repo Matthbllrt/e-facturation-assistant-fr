@@ -107,6 +107,7 @@ fun RadarScreen(
                     greeting = state.greeting,
                     activeWatches = state.activeWatchCount,
                     running = state.monitoringRunning,
+                    ultraWatchName = state.ultraWatchName,
                     modifier = Modifier.statusBarsPadding(),
                 )
             }
@@ -258,6 +259,7 @@ private fun RadarHeader(
     greeting: String,
     activeWatches: Int,
     running: Boolean,
+    ultraWatchName: String?,
     modifier: Modifier = Modifier,
 ) {
     val spacing = LocalSpacing.current
@@ -278,15 +280,20 @@ private fun RadarHeader(
         ) {
             LiveDot(active = running)
             Text(
-                text = if (running) "Radar actif" else "Radar en pause",
+                text = when {
+                    running && ultraWatchName != null -> "RADAR ULTRA ACTIF"
+                    running -> "Radar actif"
+                    else -> "Radar en pause"
+                },
                 style = MaterialTheme.typography.titleLarge,
                 color = if (running) RadarColors.Live else RadarColors.TextSecondary,
             )
         }
         Text(
-            text = when (activeWatches) {
-                0 -> "Aucune recherche surveillée"
-                1 -> "1 recherche surveillée"
+            text = when {
+                ultraWatchName != null && running -> "⚡ $ultraWatchName · balayage continu"
+                activeWatches == 0 -> "Aucune recherche surveillée"
+                activeWatches == 1 -> "1 recherche surveillée"
                 else -> "$activeWatches recherches surveillées"
             },
             style = MaterialTheme.typography.bodyMedium,

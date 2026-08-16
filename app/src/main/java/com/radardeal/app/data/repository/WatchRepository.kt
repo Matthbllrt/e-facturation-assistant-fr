@@ -58,6 +58,18 @@ class WatchRepository(
 
     suspend fun setActive(id: Long, active: Boolean) = watchDao.setActive(id, active)
 
+    /** Ids only — this feeds the in-memory cache that keeps Room off the detection path. */
+    suspend fun knownItemIds(watchId: Long): List<String> = watchDao.knownItemIds(watchId)
+
+    suspend fun getUltraWatch(): Watch? = watchDao.getUltraWatch()?.toDomain()
+
+    fun observeUltraWatch(): Flow<Watch?> = watchDao.observeUltraWatch().map { it?.toDomain() }
+
+    /** Moves the single Ultra slot to [id], revoking it from whichever watch held it. */
+    suspend fun grantUltra(id: Long) = watchDao.grantUltra(id)
+
+    suspend fun revokeUltra(id: Long) = watchDao.setUltra(id, false)
+
     suspend fun recordScan(id: Long, status: ScanStatus, at: Long = System.currentTimeMillis()) =
         watchDao.recordScan(id, at, status.name)
 

@@ -81,7 +81,13 @@ class RadarService : LifecycleService() {
         loopJob?.cancel()
         loopJob = null
         _isRunning.value = false
-        runCatching { graph().fetcher.release() }
+        runCatching {
+            val graph = graph()
+            graph.coordinator.liveEventSink = null
+            graph.fetcher.release()
+            // Detaching touches the WebView, which must happen on the main thread.
+            lifecycleScope.launch(Dispatchers.Main) { graph.liveDomChannel.detach() }
+        }
         super.onDestroy()
     }
 
@@ -95,6 +101,23 @@ class RadarService : LifecycleService() {
         // subtitle as soon as we know the real number of active watches.
         refreshNotification()
 
+        // The live DOM channel reports from the WebView's thread; give it a scope that can run
+        // suspending work without blocking the observer.
+        graph.coordinator.liveEventSink = { watchId, events, isChallenge ->
+            lifecycleScope.launch(Dispatchers.Default) {
+                runCatching {
+                    if (isChallenge) {
+                        graph.coordinator.pauseForVerification(watchId)
+                        refreshNotification()
+                    } else {
+                        val detected = graph.coordinator.processLiveDetections(watchId, events)
+                        if (detected > 0) refreshNotification()
+                    }
+                }.onFailure { RdLog.w("Service", "live event handling failed", it) }
+            }
+        }
+        runCatching { graph.coordinator.syncLiveChannel() }
+
         while (lifecycleScope.isActive) {
             val result = runCatching { graph.coordinator.tick() }
                 .onFailure { throwable ->
@@ -102,6 +125,9 @@ class RadarService : LifecycleService() {
                     RdLog.e("Service", "tick failed", throwable)
                 }
                 .getOrNull()
+
+            // Keep the live channel parked on whichever watch currently holds Ultra.
+            runCatching { graph.coordinator.syncLiveChannel() }
 
             if (result != null && result.scanned > 0) {
                 RdLog.d(
@@ -121,23 +147,24 @@ class RadarService : LifecycleService() {
                 return
             }
 
-            delay(loopDelayMs(graph.coordinator.shortestInterval()))
+            // Sleep exactly until the next watch is due instead of ticking on a fixed cadence.
+            // The old loop had a 5 s floor and slept for a third of the shortest interval, which
+            // alone made anything faster than 15 s pointless. The floor here exists only so a
+            // pathological schedule cannot spin the CPU.
+            val sleep = runCatching { graph.coordinator.millisUntilNextDue() }
+                .getOrDefault(DEFAULT_SLEEP_MS)
+                .coerceIn(MIN_SLEEP_MS, MAX_SLEEP_MS)
+            delay(sleep)
         }
     }
-
-    /**
-     * How long to sleep between two passes. Bounded below by [MIN_LOOP_MS] so that even a
-     * 15-second "Turbo" watch cannot spin the CPU, and above by [MAX_LOOP_MS] so the service
-     * stays responsive to a watch becoming due.
-     */
-    private fun loopDelayMs(shortestIntervalSeconds: Int): Long =
-        (shortestIntervalSeconds * 1000L / 3).coerceIn(MIN_LOOP_MS, MAX_LOOP_MS)
 
     private suspend fun refreshNotification() {
         val graph = graph()
         val count = runCatching { graph.watchRepository.getActive().size }.getOrDefault(0)
+        val ultra = runCatching { graph.watchRepository.getUltraWatch() }.getOrNull()
+            ?.takeIf { it.isActive }
         lastKnownActiveCount = count
-        runCatching { graph.notifications.refreshServiceNotification(count) }
+        runCatching { graph.notifications.refreshServiceNotification(count, ultra?.name) }
             .onFailure { RdLog.w("Service", "could not refresh notification") }
     }
 
@@ -145,7 +172,7 @@ class RadarService : LifecycleService() {
 
     private fun promoteToForeground(): Boolean = try {
         val graph = graph()
-        val notification = graph.notifications.buildServiceNotification(activeWatchesHint)
+        val notification = graph.notifications.buildServiceNotification(activeWatchesHint, null)
         ServiceCompat.startForeground(
             this,
             RadarNotifications.SERVICE_NOTIFICATION_ID,
@@ -182,8 +209,10 @@ class RadarService : LifecycleService() {
         const val ACTION_START = "com.radardeal.app.action.START"
         const val ACTION_STOP = "com.radardeal.app.action.STOP"
 
-        private const val MIN_LOOP_MS = 5_000L
-        private const val MAX_LOOP_MS = 30_000L
+        /** Low enough for Ultra's ~3 s target, high enough that the loop cannot busy-wait. */
+        private const val MIN_SLEEP_MS = 250L
+        private const val MAX_SLEEP_MS = 30_000L
+        private const val DEFAULT_SLEEP_MS = 5_000L
 
         private val _isRunning = MutableStateFlow(false)
         val isRunning: StateFlow<Boolean> = _isRunning.asStateFlow()

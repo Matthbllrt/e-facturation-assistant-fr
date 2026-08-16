@@ -51,19 +51,24 @@ class RadarNotifications(private val context: Context) {
     }
 
     /** The persistent notification shown while the foreground service is running. */
-    fun buildServiceNotification(activeWatches: Int): android.app.Notification =
-        serviceNotificationBuilder(activeWatches).build()
+    fun buildServiceNotification(
+        activeWatches: Int,
+        ultraWatchName: String? = null,
+    ): android.app.Notification = serviceNotificationBuilder(activeWatches, ultraWatchName).build()
 
     /**
      * Updates the ongoing notification in place, e.g. after the number of active watches
      * changed. Silently does nothing when the user has revoked the notification permission —
      * the service itself keeps running, it just stops describing itself.
      */
-    fun refreshServiceNotification(activeWatches: Int) {
-        post(SERVICE_NOTIFICATION_ID, serviceNotificationBuilder(activeWatches))
+    fun refreshServiceNotification(activeWatches: Int, ultraWatchName: String? = null) {
+        post(SERVICE_NOTIFICATION_ID, serviceNotificationBuilder(activeWatches, ultraWatchName))
     }
 
-    private fun serviceNotificationBuilder(activeWatches: Int): NotificationCompat.Builder {
+    private fun serviceNotificationBuilder(
+        activeWatches: Int,
+        ultraWatchName: String?,
+    ): NotificationCompat.Builder {
         createServiceChannel()
 
         val stopIntent = PendingIntent.getBroadcast(
@@ -74,15 +79,22 @@ class RadarNotifications(private val context: Context) {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
-        val subtitle = when (activeWatches) {
-            0 -> "Aucune recherche active"
-            1 -> "1 recherche surveillée"
+        val subtitle = when {
+            ultraWatchName != null -> "$ultraWatchName surveillé"
+            activeWatches == 0 -> "Aucune recherche active"
+            activeWatches == 1 -> "1 recherche surveillée"
             else -> "$activeWatches recherches surveillées"
+        }
+
+        val title = if (ultraWatchName != null) {
+            context.getString(R.string.service_title_ultra)
+        } else {
+            context.getString(R.string.service_title)
         }
 
         return NotificationCompat.Builder(context, CHANNEL_SERVICE)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(context.getString(R.string.service_title))
+            .setContentTitle(title)
             .setContentText(subtitle)
             .setContentIntent(openAppIntent())
             .addAction(0, context.getString(R.string.service_stop), stopIntent)
