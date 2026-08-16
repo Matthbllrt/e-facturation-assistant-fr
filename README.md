@@ -5,6 +5,8 @@ les rescanne à intervalle régulier et signale immédiatement les nouvelles ann
 baisses de prix.
 
 - Application Android native — Kotlin, Jetpack Compose, Material 3.
+- Moteur de détection incrémental : **⚡ Ultra 3 s**, Rapide 5 s, Standard 15 s, Éco 30 s.
+  Voir [PERFORMANCE.md](PERFORMANCE.md) pour les mesures réelles.
 - **Aucun backend.** Aucun serveur, aucune API payante, aucun compte RadarDeal, aucun
   abonnement. Tout est stocké sur le téléphone.
 - Paiement unique : rien n'est verrouillé derrière une fonctionnalité premium.
@@ -12,10 +14,10 @@ baisses de prix.
 | | |
 |---|---|
 | Package | `com.radardeal.app` |
-| Version | 1.0.0 (versionCode 1) |
+| Version | 1.1.0 (versionCode 2) |
 | minSdk | 26 — Android 8.0 |
 | targetSdk / compileSdk | 36 — Android 16 |
-| APK release | `app/build/outputs/apk/release/RadarDeal-Android-v1.0.0.apk` |
+| APK release | `app/build/outputs/apk/release/RadarDeal-Android-v1.1.0.apk` |
 
 ---
 
@@ -34,7 +36,7 @@ echo "sdk.dir=/chemin/vers/Android/Sdk" > local.properties
 ```
 
 L'APK de debug est écrit dans
-`app/build/outputs/apk/debug/RadarDeal-Android-v1.0.0-debug.apk`.
+`app/build/outputs/apk/debug/RadarDeal-Android-v1.1.0-debug.apk`.
 
 Rien d'autre n'est nécessaire : pas de clé d'API, pas de fichier de configuration, pas de
 service externe. Le wrapper Gradle télécharge lui-même la bonne version de Gradle.
@@ -100,7 +102,7 @@ keyPassword=…
 ./gradlew assembleRelease
 
 $ANDROID_HOME/build-tools/36.0.0/apksigner verify --verbose \
-  app/build/outputs/apk/release/RadarDeal-Android-v1.0.0.apk
+  app/build/outputs/apk/release/RadarDeal-Android-v1.1.0.apk
 ```
 
 La sortie attendue confirme les schémas modernes :
@@ -164,10 +166,15 @@ qu'il n'a pas au moins 8 annonces avec un prix. Les libellés le disent explicit
 
 Ces limites viennent du système, pas de l'application.
 
-- **Une fréquence de 15 à 60 secondes exige un service au premier plan.** Aucun planificateur
+- **Une fréquence de quelques secondes exige un service au premier plan.** Aucun planificateur
   Android n'exécute une tâche de fond plus souvent que toutes les 15 minutes. RadarDeal utilise
   donc un vrai foreground service, avec la notification permanente « RadarDeal actif » et son
   action « Arrêter ».
+- **Le mode Ultra (≈ 3 s) n'est tenu que RadarDeal actif au premier plan.** En arrière-plan ou
+  écran éteint, Android peut réduire la fréquence, et aucune application ne peut l'en empêcher.
+  L'application l'affiche explicitement plutôt que de promettre l'inverse.
+- **RadarDeal ne peut pas détecter une annonce avant que Vinted ne la publie.** Le seul délai
+  que l'application maîtrise — et qu'elle mesure — est « réponse reçue → notification envoyée ».
 - **Android 15+ limite un service de type `dataSync`** à environ 6 heures d'exécution par
   tranche de 24 heures. Les surcouches constructeur (Xiaomi, Samsung, Huawei…) peuvent
   l'interrompre plus tôt.
@@ -227,7 +234,7 @@ Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour les décisions techniques et leurs 
 ./gradlew test
 ```
 
-96 tests unitaires couvrent le cœur du produit :
+126 tests unitaires couvrent le cœur du produit :
 
 | Suite | Ce qu'elle protège |
 |---|---|
@@ -238,6 +245,10 @@ Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour les décisions techniques et leurs 
 | `DealEngineTest` | La médiane et la retenue du détecteur de bonnes affaires |
 | `RadarDatabaseTest` | Room : cycle de vie d'une veille, persistance, favoris, cascade de suppression |
 | `FormattersTest` | L'absence de « null » dans l'interface |
+| `KnownIdCacheTest` | L'index mémoire des ids, y compris la course entre le polling et le canal DOM |
+| `EnginePerfTest` | Le coût du chemin critique sur 100 / 500 / 1000 annonces |
+| `MigrationTest` | La migration v1 → v2 : aucune veille, aucun favori, aucun prix perdu |
+| `UltraSlotTest` | Ultra reste limité à une seule veille, quoi qu'il arrive |
 
 ---
 

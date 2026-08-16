@@ -6,6 +6,65 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ---
 
+## [1.1.0] — 2026-08-16
+
+Version consacrée à la **vitesse de détection**. L'architecture, le stockage et le design de la
+1.0.0 sont conservés ; seul le moteur de surveillance a été retravaillé.
+
+### Ajouté
+
+- **⚡ Mode Ultra**, limité à une seule veille à la fois, avec transfert explicite si une autre
+  veille le détient déjà. La contrainte est appliquée par une transaction en base, pas par
+  l'interface.
+- Nouveau palier de fréquences : **Ultra 3 s · Rapide 5 s · Standard 15 s · Éco 30 s**
+  (auparavant 15 / 30 / 60 / 120 s).
+- **Index mémoire des annonces connues** (`KnownIdCache`) : la question « ai-je déjà vu cette
+  annonce ? » ne touche plus la base de données.
+- **Canal de détection en direct** : WebView persistante, `MutationObserver` et
+  `WebViewCompat.addWebMessageListener`, avec messages structurés et origine restreinte à
+  Vinted. Sa contribution réelle est mesurable dans le panneau de diagnostics.
+- **Polling adaptatif** : plancher tant que la veille produit, dérive progressive quand elle est
+  calme, retour immédiat au plancher dès qu'une annonce apparaît.
+- **Instrumentation de latence** (`RadarPerf`) et panneau **Ultra Radar Diagnostics**, compilé
+  uniquement dans les builds debug.
+- État `PAUSED_VERIFICATION` : une vérification Vinted **arrête** la veille au lieu de la
+  ralentir. Aucun contournement, aucune requête supplémentaire.
+- `PERFORMANCE.md`, avec les mesures avant/après.
+
+### Modifié
+
+- La notification part **avant** la persistance, le diff complet et le calcul de la médiane. Le
+  badge « deal » arrive quelques millisecondes plus tard, sur la carte.
+- La boucle du service dort jusqu'à l'échéance exacte de la prochaine veille au lieu de ticker
+  toutes les 5 secondes minimum.
+- Les baisses de prix sont traitées lors des resynchronisations, jamais avant une nouvelle
+  annonce.
+- Back-off d'erreur 2,5 / 5 / 10 / 30 s ; pause bien plus longue sur HTTP 429.
+- Resynchronisation complète toutes les 90 secondes, sans bloquer la détection incrémentale.
+- La notification du service affiche « RadarDeal Ultra actif — <veille> surveillé ».
+
+### Corrigé
+
+- **Scans concurrents possibles** : « Scanner maintenant » ne prenait aucun verrou et pouvait
+  s'exécuter en même temps qu'un scan planifié. Tous les points d'entrée passent désormais par
+  un mutex unique.
+- Suppression de l'espacement artificiel de 1,5 s entre veilles ; Ultra est planifié en premier.
+- Suite de tests : une animation Compose infinie empêchait la boucle principale de Robolectric
+  de devenir inactive, faisant passer `AppLaunchTest` de 33 secondes à plus de 30 minutes.
+
+### Base de données
+
+- Schéma **v2** : ajout de la colonne `isUltra`, par une vraie migration `ALTER TABLE`.
+- `fallbackToDestructiveMigration` **retiré**. Une mise à jour depuis la 1.0.0 conserve les
+  veilles, les favoris, l'historique et les prix — vérifié par `MigrationTest`, qui construit
+  une vraie base v1 et contrôle les données après migration.
+
+### Qualité
+
+- 126 tests unitaires (contre 96), tous verts sur les variantes debug et release.
+
+---
+
 ## [1.0.0] — 2026-08-15
 
 Première version publiable. Le projet a été **entièrement reconstruit depuis zéro** avec une

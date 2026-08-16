@@ -137,26 +137,60 @@ tenu avec deux ordres de grandeur de marge.
 
 ## 6. Vérification sur émulateur
 
-Mesures relevées sur l'émulateur API 28 en émulation logicielle. **Ces chiffres sont
-pessimistes** : sans KVM, le CPU émulé est environ 20 à 50 fois plus lent qu'un téléphone
-réel, et l'émulateur n'avait pas d'accès réseau à Vinted.
+Émulateur Android 9 (API 28), x86_64, **sans accélération matérielle**. Le CPU émulé est
+environ 20 à 50 fois plus lent qu'un téléphone réel et l'émulateur n'avait **aucun accès
+réseau à Vinted** : les latences réseau relevées ici ne veulent donc rien dire, seul le
+comportement compte.
 
-Ce qui a été observé :
+### Migration depuis la 1.0.0 — vérifiée sur l'appareil
 
-- L'application démarre, atteint son écran principal, aucune exception fatale.
-- La création d'une veille démarre le service au premier plan (`isForeground=true`,
-  `foregroundId=1001`, canal `radar_service`, action « Arrêter »).
-- Une veille en Ultra affiche « RADAR ULTRA ACTIF » et la notification devient
-  « RadarDeal Ultra actif — <nom> surveillé ».
-- Vinted étant injoignable depuis l'émulateur, le back-off réseau s'est déclenché comme prévu
-  et l'écran a affiché « Erreur réseau », sans boucle agressive.
+Une base v1 réelle (schéma exporté de la 1.0.0, avec deux veilles, un favori et deux relevés de
+prix) a été déposée dans le stockage de l'application, puis l'application 1.1.0 l'a ouverte :
 
-**Ce qui n'a pas pu être mesuré ici :** la latence réelle « annonce publiée sur Vinted →
-notification », qui dépend d'un compte Vinted réel et d'un réseau réel. Le KPI interne
-(réponse reçue → notification envoyée) est instrumenté et lisible dans le panneau
-*Ultra Radar Diagnostics* d'un build debug, sur un vrai téléphone.
+```
+user_version : 2
+isUltra col  : isUltra
+watches      : 1 | Nike Air Max 95   | interval=30 | isUltra=0
+               2 | Levis 501 vintage | interval=60 | isUltra=0
+favourite    : 4821337 price=39.0 prev=70.0 fav=1
+price points : 2
+[Room] database opened (v2)
+crash lines  : 0
+```
 
----
+Les deux veilles s'affichent correctement dans l'écran Veilles après migration, avec leurs
+critères, leurs intervalles et le compteur d'annonces. **Aucune donnée perdue.**
+
+Une mise à jour APK en place (`adb install -r` de la 1.0.0 signée vers la 1.1.0 signée) a
+également été effectuée : installation acceptée, application relancée, aucun crash.
+
+### Mode Ultra — vérifié sur l'appareil
+
+```
+watches        : 1 | Nike Air Max 95   | isUltra=0
+                 2 | Levis 501 vintage | isUltra=1
+ultra holders  : 1
+service        : isForeground=true foregroundId=1001
+notification   : android.title=String (RadarDeal Ultra actif)
+crash lines    : 0
+```
+
+- Activer Ultra sur une deuxième veille affiche bien le dialogue « Le mode Ultra ne peut être
+  actif que sur une seule veille à la fois » avec l'option **Transférer**.
+- Le sélecteur affiche « ⚡ Ultra · 2–3 sec » et l'avertissement
+  « Vitesse maximale · consommation élevée ».
+- L'instrumentation émet ses traces au format demandé :
+  `[RadarPerf] source=POLL request_to_response=… response_to_parsed=… total=… cards=… new=…`
+
+### Ce qui n'a pas pu être mesuré ici
+
+La latence réelle « annonce publiée sur Vinted → notification », qui exige un compte Vinted
+réel et un réseau réel. Sur l'émulateur, chaque requête est allée au bout de son timeout
+(~45 s, soit le `callTimeout` OkHttp puis l'escalade WebView), ce qui a d'ailleurs permis de
+vérifier que le back-off d'erreur fonctionne : les scans se sont espacés au lieu de marteler.
+
+Le KPI interne — réponse reçue → notification envoyée — est instrumenté et lisible dans le
+panneau *Ultra Radar Diagnostics* d'un build debug, sur un vrai téléphone.
 
 ## 7. Canal DOM en direct — ce qu'il vaut réellement
 

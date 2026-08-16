@@ -1,14 +1,17 @@
 package com.radardeal.app
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.Settings
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -28,6 +31,31 @@ import org.robolectric.annotation.Config
 class AppLaunchTest {
 
     private val context: Context get() = ApplicationProvider.getApplicationContext()
+
+    /**
+     * Robolectric drives the main looper until it goes idle. RadarDeal's onboarding artwork and
+     * its live dot use `rememberInfiniteTransition`, which requests a frame forever, so the
+     * looper never idles and `ActivityScenario.launch` spins for tens of minutes.
+     *
+     * Setting the animator duration scale to zero makes Compose's infinite transitions settle
+     * immediately. This is a property of the test environment only — nothing in the app reads
+     * or depends on it.
+     */
+    @Before
+    fun disableInfiniteAnimations() {
+        Settings.Global.putFloat(
+            context.contentResolver,
+            Settings.Global.ANIMATOR_DURATION_SCALE,
+            0f,
+        )
+        // ValueAnimator.setDurationScale is a hidden API; reach it reflectively when the
+        // runtime allows it, and simply carry on when it does not.
+        runCatching {
+            ValueAnimator::class.java
+                .getDeclaredMethod("setDurationScale", Float::class.javaPrimitiveType)
+                .invoke(null, 0f)
+        }
+    }
 
     @Test
     fun `application class is the one declared in the manifest`() {
