@@ -66,4 +66,13 @@ class WidgetConfigStore(context: Context) {
     }
 
     private fun key(appWidgetId: Int) = stringPreferencesKey("widget_$appWidgetId")
+
+    companion object {
+        /**
+         * Pseudo-id holding the defaults a newly added widget starts from.
+         *
+         * Real app widget ids are positive, so a negative id cannot collide.
+         */
+        const val DEFAULTS_ID = -1
+    }
 }
