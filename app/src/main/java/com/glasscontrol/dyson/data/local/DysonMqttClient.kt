@@ -37,6 +37,8 @@ import kotlin.coroutines.resumeWithException
 class DysonMqttClient(
     private val connectTimeoutMs: Long = 6_000L,
     private val readTimeoutMs: Long = 5_000L,
+    /** Overridable so tests can drive the client against a local broker. */
+    private val port: Int = MQTT_PORT,
 ) {
 
     /** An open session. Only valid inside [withSession]. */
@@ -154,7 +156,7 @@ class DysonMqttClient(
         val messages = Channel<String>(capacity = Channel.BUFFERED)
         // MQTT 3.1 caps the client id at 23 characters.
         val clientId = "dgc" + UUID.randomUUID().toString().replace("-", "").take(16)
-        val client = MqttAsyncClient("tcp://$host:$MQTT_PORT", clientId, MemoryPersistence())
+        val client = MqttAsyncClient("tcp://$host:$port", clientId, MemoryPersistence())
 
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {

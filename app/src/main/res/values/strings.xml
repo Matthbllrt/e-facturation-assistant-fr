@@ -3,7 +3,6 @@
     <string name="widget_compact_description">Contrôle Dyson compact</string>
     <string name="widget_hero_description">Contrôle Dyson complet</string>
     <string name="widget_preview_subtitle">Contrôle direct</string>
-    <string name="widget_config_title">Configurer le widget</string>
     <string name="widget_hero_label">Dyson · Grand</string>
     <string name="widget_compact_label">Dyson · Compact</string>
     <string name="wordmark" translatable="false">DYSON</string>
