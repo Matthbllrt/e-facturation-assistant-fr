@@ -3,7 +3,7 @@
     android:configure="com.glasscontrol.dyson.widget.WidgetConfigurationActivity"
     android:description="@string/widget_compact_description"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:minHeight="110dp"
+    android:minHeight="130dp"
     android:minResizeHeight="100dp"
     android:minResizeWidth="250dp"
     android:minWidth="250dp"

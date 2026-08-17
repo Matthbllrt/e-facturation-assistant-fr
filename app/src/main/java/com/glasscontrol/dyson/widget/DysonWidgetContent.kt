@@ -2,12 +2,14 @@ package com.glasscontrol.dyson.widget
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
+import androidx.glance.LocalSize
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.action.actionStartActivity
@@ -79,10 +81,10 @@ fun HeroWidgetContent(ui: WidgetUiState) {
 
             Spacer(GlanceModifier.height(10.dp))
             if (ui.capabilities.fanSpeed) {
-                SpeedRow(ui, theme)
+                SpeedRow(ui, theme, 38.dp)
                 Spacer(GlanceModifier.height(8.dp))
             }
-            ControlRow(ui, theme)
+            ControlRow(ui, theme, 38.dp)
         }
     }
 }
@@ -92,6 +94,11 @@ fun HeroWidgetContent(ui: WidgetUiState) {
 fun CompactWidgetContent(ui: WidgetUiState) {
     val context = LocalContext.current
     val theme = ResolvedWidgetTheme.resolve(context, ui.config)
+    val size = LocalSize.current
+    // A 4x2 cell can be as short as ~110dp on some launchers. Rather than let the
+    // layout clip, the speed row is dropped when there is not room for both rows.
+    val roomForSpeedRow = size.height >= 132.dp
+    val chipHeight = if (size.height >= 132.dp) 34.dp else 32.dp
 
     GlassPanel(theme) {
         if (!ui.configured) {
@@ -107,13 +114,13 @@ fun CompactWidgetContent(ui: WidgetUiState) {
             Spacer(GlanceModifier.width(10.dp))
 
             Column(modifier = GlanceModifier.defaultWeight()) {
-                Header(ui, theme, showModel = true)
-                Spacer(GlanceModifier.height(8.dp))
-                if (ui.capabilities.fanSpeed) {
-                    SpeedRow(ui, theme)
+                Header(ui, theme, showModel = size.height >= 120.dp)
+                Spacer(GlanceModifier.height(6.dp))
+                if (ui.capabilities.fanSpeed && roomForSpeedRow) {
+                    SpeedRow(ui, theme, chipHeight)
                     Spacer(GlanceModifier.height(6.dp))
                 }
-                ControlRow(ui, theme)
+                ControlRow(ui, theme, chipHeight)
             }
         }
     }
@@ -317,7 +324,7 @@ private fun renderDeviceBitmap(
 
 /** Minus / current speed / plus. */
 @Composable
-private fun SpeedRow(ui: WidgetUiState, theme: ResolvedWidgetTheme) {
+private fun SpeedRow(ui: WidgetUiState, theme: ResolvedWidgetTheme, chipHeight: Dp) {
     val speedLabel = when {
         ui.state.autoMode -> "AUTO"
         ui.state.fanSpeed != null -> ui.state.fanSpeed.toString().padStart(2, '0')
@@ -334,6 +341,7 @@ private fun SpeedRow(ui: WidgetUiState, theme: ResolvedWidgetTheme) {
             active = false,
             command = WidgetCommands.SPEED_DOWN,
             description = "Diminuer la vitesse",
+            chipHeight = chipHeight,
         )
         Box(
             modifier = GlanceModifier.defaultWeight(),
@@ -354,13 +362,14 @@ private fun SpeedRow(ui: WidgetUiState, theme: ResolvedWidgetTheme) {
             active = false,
             command = WidgetCommands.SPEED_UP,
             description = "Augmenter la vitesse",
+            chipHeight = chipHeight,
         )
     }
 }
 
 /** The quick controls the user chose, filtered by what the machine supports. */
 @Composable
-private fun ControlRow(ui: WidgetUiState, theme: ResolvedWidgetTheme) {
+private fun ControlRow(ui: WidgetUiState, theme: ResolvedWidgetTheme, chipHeight: Dp) {
     val controls = ui.config.quickControls.filter { it.isSupported(ui.capabilities) }
     if (controls.isEmpty()) return
 
@@ -378,6 +387,7 @@ private fun ControlRow(ui: WidgetUiState, theme: ResolvedWidgetTheme) {
                 warm = control == QuickControl.HEAT,
                 command = control.command(),
                 description = control.label(),
+                chipHeight = chipHeight,
                 modifier = GlanceModifier.defaultWeight(),
             )
         }
@@ -391,6 +401,7 @@ private fun IconChip(
     active: Boolean,
     command: String,
     description: String,
+    chipHeight: Dp,
     warm: Boolean = false,
     modifier: GlanceModifier = GlanceModifier,
 ) {
@@ -407,7 +418,7 @@ private fun IconChip(
 
     Box(
         modifier = modifier
-            .height(38.dp)
+            .height(chipHeight)
             .background(ImageProvider(background))
             .clickable(
                 actionRunCallback<DysonCommandAction>(
@@ -420,7 +431,7 @@ private fun IconChip(
             provider = ImageProvider(iconRes),
             contentDescription = description,
             colorFilter = ColorFilter.tint(tint),
-            modifier = GlanceModifier.size(19.dp),
+            modifier = GlanceModifier.size(chipHeight * 0.5f),
         )
     }
 }

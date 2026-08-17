@@ -101,6 +101,9 @@ data class DysonCapabilities(
                 oscillation = false,
             )
 
+            // An unrecognised product type is most likely a machine newer than
+            // this build. Power is still offered because every post-Link machine
+            // uses the same `fpwr` field, but nothing else is assumed.
             DysonFamily.UNSUPPORTED -> DysonCapabilities(
                 fanSpeed = false,
                 autoMode = false,
