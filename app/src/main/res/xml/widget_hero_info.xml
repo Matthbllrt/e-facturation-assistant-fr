@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:configure="com.glasscontrol.dyson.widget.WidgetConfigurationActivity"
+    android:description="@string/widget_hero_description"
+    android:initialLayout="@layout/glance_default_loading_layout"
+    android:minHeight="220dp"
+    android:minResizeHeight="180dp"
+    android:minResizeWidth="250dp"
+    android:minWidth="250dp"
+    android:previewLayout="@layout/widget_preview_hero"
+    android:resizeMode="horizontal|vertical"
+    android:targetCellHeight="4"
+    android:targetCellWidth="4"
+    android:updatePeriodMillis="0"
+    android:widgetCategory="home_screen" />

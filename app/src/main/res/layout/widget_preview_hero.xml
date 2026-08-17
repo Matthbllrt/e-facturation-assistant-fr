@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown in the launcher's widget picker before the widget is placed. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/glass_panel_dark_2"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="14dp">
+
+    <ImageView
+        android:layout_width="70dp"
+        android:layout_height="106dp"
+        android:contentDescription="@string/widget_hero_description"
+        android:src="@drawable/ic_launcher_foreground" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:letterSpacing="0.18"
+        android:text="DYSON"
+        android:textColor="#F2F7FB"
+        android:textSize="12sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/widget_preview_subtitle"
+        android:textColor="#B3C7D6E2"
+        android:textSize="11sp" />
+</LinearLayout>

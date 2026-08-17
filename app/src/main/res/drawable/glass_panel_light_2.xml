@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated glass panel, opacity bucket 2. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="30dp" />
+            <gradient
+                android:type="linear"
+                android:angle="270"
+                android:startColor="#99FFFFFF"
+                android:centerColor="#87F2F6FA"
+                android:endColor="#6EDCE5EE" />
+            <stroke android:width="1dp" android:color="#5CFFFFFF" />
+        </shape>
+    </item>
+    <item android:height="2dp" android:gravity="top" android:left="18dp" android:right="18dp" android:top="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="2dp" />
+            <gradient
+                android:type="linear"
+                android:angle="0"
+                android:startColor="#00FFFFFF"
+                android:centerColor="#91FFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+</layer-list>
