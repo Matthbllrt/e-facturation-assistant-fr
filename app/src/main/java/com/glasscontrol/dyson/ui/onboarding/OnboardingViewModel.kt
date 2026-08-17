@@ -68,7 +68,23 @@ class OnboardingViewModel : ViewModel() {
     fun onOtpChange(value: String) = _state.update { it.copy(otpCode = value.trim()) }
     fun onPasswordChange(value: String) = _state.update { it.copy(password = value) }
     fun onManualHostChange(value: String) = _state.update { it.copy(manualHost = value.trim()) }
-    fun onManualSerialChange(value: String) = _state.update { it.copy(manualSerial = value.trim().uppercase()) }
+    /**
+     * Accepts either a bare serial or the machine's full Wi-Fi SSID.
+     *
+     * The sticker shows `DYSON-NN2-EU-ABC1234A-438` next to the Wi-Fi password,
+     * so pasting it fills in the device type too.
+     */
+    fun onManualSerialChange(value: String) {
+        val entered = value.trim().uppercase()
+        val parsed = DysonCrypto.parseWifiSsid(entered)
+        _state.update {
+            if (parsed != null) {
+                it.copy(manualSerial = parsed.first, manualDeviceType = parsed.second)
+            } else {
+                it.copy(manualSerial = entered)
+            }
+        }
+    }
     fun onManualTypeChange(value: String) = _state.update { it.copy(manualDeviceType = value.trim().uppercase()) }
     fun onManualCredentialChange(value: String) = _state.update { it.copy(manualCredential = value.trim()) }
     fun onWifiPasswordChange(value: String) = _state.update { it.copy(manualWifiPassword = value) }

@@ -153,19 +153,6 @@ fun ReadoutRow(label: String, value: String, accent: Boolean = false) {
     }
 }
 
-/** Full-bleed app background. */
-@Composable
-fun GlassBackground(content: @Composable () -> Unit) {
-    val glass = LocalGlassColors.current
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(glass.background),
-    ) {
-        content()
-    }
-}
-
 /** Ambient light behind the device render, tinted by what the machine is doing. */
 @Composable
 fun AmbientGlow(color: Color, intensity: Float, modifier: Modifier = Modifier) {

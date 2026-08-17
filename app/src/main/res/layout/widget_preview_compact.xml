@@ -25,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:letterSpacing="0.18"
-            android:text="DYSON"
+            android:text="@string/wordmark"
             android:textColor="#F2F7FB"
             android:textSize="12sp" />
 

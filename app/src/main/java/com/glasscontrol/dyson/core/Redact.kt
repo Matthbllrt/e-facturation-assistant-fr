@@ -10,13 +10,6 @@ import android.util.Log
  */
 object Redact {
 
-    /** Keeps only the shape of a secret so logs stay useful for debugging. */
-    fun redact(secret: String?): String = when {
-        secret == null -> "null"
-        secret.isEmpty() -> "empty"
-        else -> "***(${secret.length})"
-    }
-
     /** Serial numbers are identifying; keep the model prefix only (e.g. "NN2-EU-…"). */
     fun serial(serial: String?): String {
         if (serial.isNullOrEmpty()) return "unknown"
@@ -37,8 +30,6 @@ private const val TAG = "DysonGlass"
 internal fun logD(message: String) {
     if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, message)
 }
-
-internal fun logI(message: String) = Log.i(TAG, message).let { }
 
 internal fun logW(message: String, error: Throwable? = null) {
     if (error != null) Log.w(TAG, message, error) else Log.w(TAG, message)

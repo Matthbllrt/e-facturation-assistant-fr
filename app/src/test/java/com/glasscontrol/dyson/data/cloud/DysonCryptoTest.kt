@@ -49,6 +49,13 @@ class DysonCryptoTest {
     }
 
     @Test
+    fun `a bare serial is not mistaken for an SSID`() {
+        // The manual setup field accepts either form, so a plain serial must fall
+        // through untouched rather than being split.
+        assertNull(DysonCrypto.parseWifiSsid("NN2-EU-ABC1234A"))
+    }
+
+    @Test
     fun `rejects an SSID that is not a Dyson`() {
         assertNull(DysonCrypto.parseWifiSsid("Livebox-1234"))
         assertNull(DysonCrypto.parseWifiSsid("DYSON-broken"))

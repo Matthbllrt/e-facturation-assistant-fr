@@ -299,7 +299,12 @@ private fun SensorCard(ui: DysonUiState) {
 }
 
 private fun formatIndex(value: Float): String =
-    if (value % 1f == 0f) value.roundToInt().toString() else String.format("%.1f", value)
+    if (value % 1f == 0f) {
+        value.roundToInt().toString()
+    } else {
+        // Explicit locale: the decimal separator should follow the user's setting.
+        String.format(java.util.Locale.getDefault(), "%.1f", value)
+    }
 
 internal fun airQualityLabel(quality: AirQuality): String = when (quality) {
     AirQuality.GOOD -> "Bonne"

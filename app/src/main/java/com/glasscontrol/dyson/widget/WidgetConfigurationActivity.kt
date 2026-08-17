@@ -77,9 +77,9 @@ class WidgetConfigurationActivity : ComponentActivity() {
         val prefsStore = AppPrefsStore(applicationContext)
 
         setContent {
-            val theme by prefsStore.prefs
-                .map { it.theme }
-                .collectAsStateWithLifecycle(initialValue = AppTheme.SYSTEM)
+            // Remembered so the derived flow is built once, not per recomposition.
+            val themeFlow = remember(prefsStore) { prefsStore.prefs.map { it.theme } }
+            val theme by themeFlow.collectAsStateWithLifecycle(initialValue = AppTheme.SYSTEM)
 
             DysonGlassTheme(appTheme = theme) {
                 ConfigurationContent(

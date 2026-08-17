@@ -277,7 +277,8 @@ private fun ManualSetup(
     val glass = LocalGlassColors.current
 
     SectionTitle("Configuration manuelle")
-    Subtitle("Ces informations figurent sur l'étiquette sous l'appareil ou derrière le filtre.")
+    Subtitle("Ces informations figurent sur l'étiquette sous l'appareil ou derrière le filtre. " +
+        "Collez le SSID complet (DYSON-…-438) pour remplir le type automatiquement.")
 
     TextButton(onClick = viewModel::scanNetwork, modifier = Modifier.padding(top = 8.dp)) {
         Text("Rechercher sur le Wi-Fi", color = glass.accent)
@@ -310,7 +311,7 @@ private fun ManualSetup(
     GlassField(
         value = state.manualSerial,
         onValueChange = viewModel::onManualSerialChange,
-        label = "Numéro de série (ex. NN2-EU-ABC1234A)",
+        label = "Numéro de série ou SSID de l'étiquette",
         modifier = Modifier.padding(top = 12.dp),
     )
     GlassField(
