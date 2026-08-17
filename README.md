@@ -226,6 +226,10 @@ app/src/main/java/com/radardeal/app/
 
 Voir [ARCHITECTURE.md](ARCHITECTURE.md) pour les décisions techniques et leurs raisons.
 
+Le portage iOS vit dans [`ios/`](ios/) et possède son propre
+[README](ios/README.md) — à lire avant d'y toucher : ce que la plateforme autorise et ce qui a
+réellement été vérifié y diffèrent nettement d'Android.
+
 ---
 
 ## 7. Tests

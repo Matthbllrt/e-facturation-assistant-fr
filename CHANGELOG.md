@@ -6,6 +6,40 @@ Le format suit [Keep a Changelog](https://keepachangelog.com/fr/1.1.0/) et le pr
 
 ---
 
+## iOS [1.0.0] — 2026-08-17
+
+Premier portage iOS, dans [`ios/`](ios/). La version Android n'est pas modifiée.
+
+### Ajouté
+
+- `RadarDealCore`, paquet Swift sans interface : modèles, construction des URL de catalogue,
+  parseur Vinted, diff de scan, médiane robuste, cache d'ids en mémoire, formateurs.
+  **74 tests, tous verts** (`swift test`, Swift 6.0.3).
+- Application SwiftUI : 10 écrans, même charte que la version Android, stockage SwiftData,
+  session Vinted via `WKWebView` / `WKWebsiteDataStore`, notifications locales.
+- Coordinateur reprenant les constantes du moteur Android : plancher 2,5 s, plafond Ultra 5 s,
+  backoff 2,5 / 5 / 10 / 30 s, pause longue sur 429, `PAUSED_VERIFICATION` sur vérification
+  Vinted, resync complète toutes les 90 s, Ultra limité à une veille.
+- `BGAppRefreshTask` (`com.radardeal.app.refresh`) pour les réveils que le système veut bien
+  accorder, spec XcodeGen (`ios/project.yml`) et icône 1024×1024.
+
+### Corrigé
+
+- Distinction booléen/nombre du parseur : `CFGetTypeID` est propre à Darwin, remplacé par un
+  test sur `objCType`.
+- Lecture de la chaîne de requête faite à la main : `URLComponents` décode différemment selon la
+  Foundation utilisée, ce qui donnait `air%2520max` au lieu de `air max`.
+
+### Connu
+
+- La couche application (SwiftUI / SwiftData / WebKit) **n'a pas été compilée** : l'environnement
+  de développement était Linux. Seul `RadarDealCore` est vérifié. Détail en
+  [ios/README.md § 6](ios/README.md).
+- La surveillance continue écran éteint est impossible sur iOS ; Ultra 3 s ne vaut que pendant
+  que l'application est ouverte.
+
+---
+
 ## [1.1.0] — 2026-08-16
 
 Version consacrée à la **vitesse de détection**. L'architecture, le stockage et le design de la

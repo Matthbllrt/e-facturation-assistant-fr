@@ -18,6 +18,15 @@ keystore.properties
 *.keystore
 signing/
 
+# Xcode / Swift — le .xcodeproj est régénéré par `xcodegen generate`
+*.xcodeproj/
+*.xcworkspace/
+xcuserdata/
+DerivedData/
+.swiftpm/
+ios/**/.build/
+Package.resolved
+
 # OS
 .DS_Store
 Thumbs.db
