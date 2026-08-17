@@ -22,28 +22,33 @@ class DysonStateParser(private val family: DysonFamily) {
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
+    /** Which kind of payload was recognised, so callers can wait for the right one. */
+    enum class MessageKind { STATE, ENVIRONMENTAL, NONE }
+
     /** Result of feeding one payload in. */
-    data class ParseResult(val state: DysonState, val handled: Boolean)
+    data class ParseResult(val state: DysonState, val kind: MessageKind) {
+        val handled: Boolean get() = kind != MessageKind.NONE
+    }
 
     fun parse(payload: String, previous: DysonState): ParseResult =
         runCatching { parseObject(json.parseToJsonElement(payload) as JsonObject, previous) }
-            .getOrElse { ParseResult(previous, handled = false) }
+            .getOrElse { ParseResult(previous, MessageKind.NONE) }
 
     fun parseObject(root: JsonObject, previous: DysonState): ParseResult {
         return when (root[F.MSG]?.jsonPrimitive?.contentOrNull) {
             F.MSG_CURRENT_STATE, F.MSG_STATE_CHANGE -> {
                 val productState = root[F.PRODUCT_STATE] as? JsonObject
-                    ?: return ParseResult(previous, handled = false)
-                ParseResult(mergeProductState(productState, previous), handled = true)
+                    ?: return ParseResult(previous, MessageKind.NONE)
+                ParseResult(mergeProductState(productState, previous), MessageKind.STATE)
             }
 
             F.MSG_ENVIRONMENTAL -> {
                 val data = root[F.DATA] as? JsonObject
-                    ?: return ParseResult(previous, handled = false)
-                ParseResult(mergeEnvironmental(data, previous), handled = true)
+                    ?: return ParseResult(previous, MessageKind.NONE)
+                ParseResult(mergeEnvironmental(data, previous), MessageKind.ENVIRONMENTAL)
             }
 
-            else -> ParseResult(previous, handled = false)
+            else -> ParseResult(previous, MessageKind.NONE)
         }
     }
 

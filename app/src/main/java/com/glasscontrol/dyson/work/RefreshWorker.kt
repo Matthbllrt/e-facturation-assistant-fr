@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.glasscontrol.dyson.DysonServices
+import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.widget.DysonWidgetUpdater
 import java.util.concurrent.TimeUnit
 
@@ -41,7 +42,14 @@ object RefreshScheduler {
     private const val WORK_NAME = "dyson_periodic_refresh"
     private const val INTERVAL_MINUTES = 30L
 
-    fun ensureScheduled(context: Context) {
+    /**
+     * Registers the periodic refresh.
+     *
+     * Scheduling is best-effort: the widget still works through direct taps and
+     * the app's own reads, so a WorkManager that is not ready must never stop
+     * the app from starting.
+     */
+    fun ensureScheduled(context: Context) = runCatching {
         val request = PeriodicWorkRequestBuilder<RefreshWorker>(
             INTERVAL_MINUTES, TimeUnit.MINUTES,
         )
@@ -58,5 +66,5 @@ object RefreshScheduler {
             ExistingPeriodicWorkPolicy.KEEP,
             request,
         )
-    }
+    }.onFailure { logW("Periodic refresh could not be scheduled", it) }.let { }
 }

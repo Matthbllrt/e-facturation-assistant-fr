@@ -58,17 +58,25 @@ class DysonMqttClient(
         suspend fun readState(previous: DysonState): DysonState {
             publish(MqttMessages.requestState())
             publish(MqttMessages.requestEnvironmental())
-            return collectState(previous, expectMessages = 2)
+            return collectState(
+                previous,
+                await = setOf(
+                    DysonStateParser.MessageKind.STATE,
+                    DysonStateParser.MessageKind.ENVIRONMENTAL,
+                ),
+            )
         }
 
         /** Publishes a STATE-SET and waits briefly for the machine to confirm. */
         suspend fun applyCommand(data: Map<String, String>, previous: DysonState): DysonState {
             publish(MqttMessages.stateSet(data), qos = 1)
-            // The machine echoes a STATE-CHANGE; if it does not, re-read explicitly
-            // so the returned state is never a guess.
-            val afterChange = collectState(previous, expectMessages = 1)
-            return if (afterChange.lastUpdatedEpochMs > previous.lastUpdatedEpochMs) {
-                afterChange
+
+            // Wait specifically for a product-state message: an unrelated sensor
+            // update must not be mistaken for confirmation, or a rejected command
+            // would leave the optimistic value showing.
+            val confirmed = collectState(previous, await = setOf(DysonStateParser.MessageKind.STATE))
+            return if (confirmed.lastUpdatedEpochMs > previous.lastUpdatedEpochMs) {
+                confirmed
             } else {
                 readState(previous)
             }
@@ -99,17 +107,27 @@ class DysonMqttClient(
             }
         }
 
-        /** Drains incoming payloads into a state, stopping once satisfied. */
-        private suspend fun collectState(previous: DysonState, expectMessages: Int): DysonState {
+        /**
+         * Drains incoming payloads until every awaited message kind has arrived.
+         *
+         * Machines answer the state and sensor requests separately and also push
+         * unsolicited updates, so waiting on kinds rather than a message count is
+         * what makes a confirmation trustworthy. Whatever arrived within the read
+         * window is returned; a machine with its sensors off never sends
+         * environmental data at all.
+         */
+        private suspend fun collectState(
+            previous: DysonState,
+            await: Set<DysonStateParser.MessageKind>,
+        ): DysonState {
             var current = previous.copy(connection = ConnectionStatus.ONLINE)
-            var handled = 0
+            val outstanding = await.toMutableSet()
             withTimeoutOrNull(readTimeoutMs) {
-                while (handled < expectMessages) {
-                    val payload = messages.receive()
-                    val result = parser.parse(payload, current)
+                while (outstanding.isNotEmpty()) {
+                    val result = parser.parse(messages.receive(), current)
                     if (result.handled) {
                         current = result.state
-                        handled++
+                        outstanding -= result.kind
                     }
                 }
             }
