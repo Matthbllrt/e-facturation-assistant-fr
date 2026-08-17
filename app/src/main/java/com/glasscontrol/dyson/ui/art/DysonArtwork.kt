@@ -236,6 +236,9 @@ object DysonArtwork {
         canvas: Canvas, paint: Paint, centerX: Float,
         top: Float, bottom: Float, topWidth: Float, bottomWidth: Float, dark: Boolean,
     ) {
+        // A pale body needs far less darkening at the foot, or the shading reads
+        // as a smudge rather than as a curved surface turning away from the light.
+        val footShade = if (dark) 165 else 80
         val capHeight = topWidth * 0.16f
         val footHeight = bottomWidth * 0.15f
 
@@ -291,13 +294,14 @@ object DysonArtwork {
         paint.shader = null
 
         // Darken towards the floor so the cylinder reads as a volume.
+        val shadeTop = bottom - (bottom - top) * (if (dark) 0.30f else 0.20f)
         paint.shader = LinearGradient(
-            0f, bottom - (bottom - top) * 0.30f, 0f, bottom + footHeight,
-            intArrayOf(Color.argb(0, 9, 14, 19), Color.argb(165, 9, 14, 19)),
+            0f, shadeTop, 0f, bottom + footHeight,
+            intArrayOf(Color.argb(0, 9, 14, 19), Color.argb(footShade, 9, 14, 19)),
             null, Shader.TileMode.CLAMP,
         )
         canvas.drawRect(
-            centerX - bottomWidth, bottom - (bottom - top) * 0.30f,
+            centerX - bottomWidth, shadeTop,
             centerX + bottomWidth, bottom + footHeight, paint,
         )
         paint.shader = null
