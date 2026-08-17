@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Dyson Glass</string>
+    <string name="widget_compact_description">Contrôle Dyson compact</string>
+    <string name="widget_hero_description">Contrôle Dyson complet</string>
+</resources>

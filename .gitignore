@@ -1,0 +1,24 @@
+# Gradle / build
+.gradle/
+build/
+app/build/
+captures/
+.cxx/
+
+# Local configuration & secrets — never commit
+local.properties
+keystore.properties
+*.jks
+*.keystore
+secrets.properties
+**/google-services.json
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Output
+*.apk
+*.aab
+*.apks

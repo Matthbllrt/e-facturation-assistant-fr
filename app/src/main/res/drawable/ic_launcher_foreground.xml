@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Dyson-style loop amplifier, centred in the 72dp adaptive safe zone -->
+    <path
+        android:pathData="M54,26m-19,0a19,19 0 1,0 38,0a19,19 0 1,0 -38,0"
+        android:strokeWidth="7"
+        android:strokeColor="#7FE3F5"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M46,45 L46,74 Q46,80 54,82 Q62,80 62,74 L62,45"
+        android:strokeWidth="6"
+        android:strokeColor="#CFE9F2"
+        android:fillColor="#00000000"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+</vector>
