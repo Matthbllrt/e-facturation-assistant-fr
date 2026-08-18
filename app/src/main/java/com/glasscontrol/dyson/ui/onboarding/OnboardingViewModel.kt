@@ -165,9 +165,29 @@ class OnboardingViewModel : ViewModel() {
                 DysonServices.repository.discoverDevices()
                     .firstMatching(device.serial)
             }
-            DysonServices.repository.saveDevice(device.copy(host = host))
+            val saved = runCatching {
+                DysonServices.repository.saveDevice(device.copy(host = host))
+            }
+            saved.onFailure { error ->
+                _state.update { it.copy(busy = false, error = error.message) }
+                return@launch
+            }
+
             DysonServices.repository.refreshState()
-            _state.update { it.copy(busy = false, step = OnboardingStep.DONE) }
+            _state.update {
+                it.copy(
+                    busy = false,
+                    step = OnboardingStep.DONE,
+                    // Not fatal: the machine may simply be asleep, and Device
+                    // lets the address be entered by hand.
+                    error = if (host == null) {
+                        "Appareil enregistré, mais introuvable sur le Wi-Fi pour l'instant. " +
+                            "Vous pourrez saisir son adresse IP dans l'onglet Appareil."
+                    } else {
+                        null
+                    },
+                )
+            }
             onDone()
         }
     }
@@ -232,7 +252,12 @@ class OnboardingViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.update { it.copy(busy = true, error = null) }
-            DysonServices.repository.saveDevice(device)
+            val saved = runCatching { DysonServices.repository.saveDevice(device) }
+            saved.onFailure { error ->
+                _state.update { it.copy(busy = false, error = error.message) }
+                return@launch
+            }
+
             DysonServices.repository.refreshState()
                 .onSuccess {
                     _state.update { it.copy(busy = false, step = OnboardingStep.DONE) }

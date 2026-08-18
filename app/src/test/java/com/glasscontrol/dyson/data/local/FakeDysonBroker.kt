@@ -28,6 +28,9 @@ class FakeDysonBroker(
     /** Topics the client subscribed to. */
     val subscriptions = CopyOnWriteArrayList<String>()
 
+    /** How many clients this broker has accepted, to catch extra connections. */
+    val connections = java.util.concurrent.atomic.AtomicInteger(0)
+
     /** Set to reject the next connection with "bad username or password". */
     var rejectCredentials = false
 
@@ -95,6 +98,8 @@ class FakeDysonBroker(
         val accepted = !rejectCredentials &&
             user == expectedUser &&
             password == expectedPassword
+
+        if (accepted) connections.incrementAndGet()
 
         // CONNACK: session-present flag, then the return code (0 = accepted,
         // 4 = bad username or password).

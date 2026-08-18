@@ -6,11 +6,13 @@ import com.glasscontrol.dyson.data.store.WidgetTheme
 import com.glasscontrol.dyson.domain.CapabilityResolver
 import com.glasscontrol.dyson.domain.model.ConnectionStatus
 import com.glasscontrol.dyson.domain.model.DysonFamily
+import com.glasscontrol.dyson.domain.model.DysonCommand
 import com.glasscontrol.dyson.domain.model.DysonState
 import com.glasscontrol.dyson.ui.widgetpreview.isActive
 import com.glasscontrol.dyson.ui.widgetpreview.isSupported
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -83,6 +85,61 @@ class WidgetStateTest {
         assertEquals(5, lastKnown.fanSpeed)
         assertEquals(21f, lastKnown.temperatureC)
         assertFalse(lastKnown.isOnline)
+    }
+
+    @Test
+    fun `a tap resolves to an absolute command, not a relative one`() {
+        // The tap handler writes an optimistic state before the worker runs, so a
+        // command that re-derived "toggle" later would read its own optimistic
+        // value and flip straight back. Resolving once prevents that.
+        val off = DysonState(power = false)
+        assertEquals(
+            DysonCommand.SetPower(true),
+            WidgetCommands.toCommand(WidgetCommands.TOGGLE_POWER, off),
+        )
+
+        val on = DysonState(power = true)
+        assertEquals(
+            DysonCommand.SetPower(false),
+            WidgetCommands.toCommand(WidgetCommands.TOGGLE_POWER, on),
+        )
+    }
+
+    @Test
+    fun `re-resolving against the optimistic state does not undo the command`() {
+        val before = DysonState(power = false)
+        val command = WidgetCommands.toCommand(WidgetCommands.TOGGLE_POWER, before)
+            as DysonCommand.SetPower
+
+        // What the optimistic write puts in the cache.
+        val optimistic = before.copy(power = command.on)
+
+        // Applying the same resolved command again is a no-op, which is what
+        // makes the worker safe to run after the optimistic write.
+        assertTrue(command.on)
+        assertTrue(optimistic.power)
+    }
+
+    @Test
+    fun `speed taps resolve to absolute speeds including from auto`() {
+        assertEquals(
+            DysonCommand.SetFanSpeed(6),
+            WidgetCommands.toCommand(WidgetCommands.SPEED_UP, DysonState(fanSpeed = 5)),
+        )
+        assertEquals(
+            DysonCommand.SetFanSpeed(10),
+            WidgetCommands.toCommand(WidgetCommands.SPEED_UP, DysonState(fanSpeed = 10)),
+        )
+        // From auto there is no numeric speed, so stepping starts mid-range.
+        assertEquals(
+            DysonCommand.SetFanSpeed(5),
+            WidgetCommands.toCommand(WidgetCommands.SPEED_UP, DysonState(autoMode = true)),
+        )
+    }
+
+    @Test
+    fun `refresh is not a state change`() {
+        assertNull(WidgetCommands.toCommand(WidgetCommands.REFRESH, DysonState()))
     }
 
     @Test

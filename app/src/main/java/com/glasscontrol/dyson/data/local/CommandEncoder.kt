@@ -90,17 +90,34 @@ class CommandEncoder(private val family: DysonFamily) {
 
     private fun encodeOscillation(enabled: Boolean, current: DysonState): Map<String, String>? {
         if (!supportsOscillation()) return null
-        return if (family.usesLegacyFanMode) {
-            mapOf(F.OSCILLATION to onOff(enabled))
+        if (family.usesLegacyFanMode) return mapOf(F.OSCILLATION to onOff(enabled))
+
+        // A machine that reports OION/OIOF silently ignores ON/OFF, so the token
+        // it last used decides which dialect to answer in.
+        val legacyDialect = current.oscillationRaw in LEGACY_OSCILLATION_TOKENS
+        val value = when {
+            legacyDialect && enabled -> "OION"
+            legacyDialect -> "OIOF"
+            enabled -> F.ON
+            else -> F.OFF
+        }
+
+        if (!enabled) return mapOf(F.OSCILLATION to value)
+
+        // Switching oscillation on also needs the machine powered, and the angle
+        // window replayed, otherwise some models accept the flag and do nothing.
+        val low = current.oscillationAngleLow
+        val high = current.oscillationAngleHigh
+        return if (low != null && high != null && high - low >= MIN_OSCILLATION_SPAN) {
+            mapOf(
+                F.OSCILLATION to value,
+                F.POWER to F.ON,
+                F.OSC_ANGLE_PRESET to "CUST",
+                F.OSC_LOW to padded(low),
+                F.OSC_HIGH to padded(high),
+            )
         } else {
-            // Machines that report OION/OIOF must be answered in the same dialect;
-            // we only know which after a state read, so default to the modern one.
-            val value = if (enabled) F.ON else F.OFF
-            if (enabled && current.power) {
-                mapOf(F.OSCILLATION to value, F.POWER to F.ON)
-            } else {
-                mapOf(F.OSCILLATION to value)
-            }
+            mapOf(F.OSCILLATION to value, F.POWER to F.ON)
         }
     }
 
@@ -125,22 +142,36 @@ class CommandEncoder(private val family: DysonFamily) {
 
     private fun supportsOscillation(): Boolean = family != DysonFamily.BIG_QUIET
 
-    private fun steppedSpeed(delta: Int, current: DysonState): Int {
-        // From auto, stepping starts at a sensible mid speed rather than jumping to 1.
-        val base = current.fanSpeed ?: if (delta > 0) DEFAULT_SPEED else DEFAULT_SPEED + 1
-        return clampSpeed(base + delta)
-    }
+    private fun steppedSpeed(delta: Int, current: DysonState): Int =
+        steppedSpeed(current.fanSpeed, delta)
 
     companion object {
         const val MIN_SPEED = 1
         const val MAX_SPEED = 10
         private const val DEFAULT_SPEED = 4
 
+        /** `oson` tokens used by the older Pure Cool generation. */
+        private val LEGACY_OSCILLATION_TOKENS = setOf("OION", "OIOF")
+
+        /** The machine rejects an angle window narrower than this. */
+        private const val MIN_OSCILLATION_SPAN = 30
+
         /** Dyson's heating range, 274-310 K, expressed in Celsius. */
         const val MIN_TEMPERATURE_C = 1f
         const val MAX_TEMPERATURE_C = 37f
 
         fun clampSpeed(speed: Int): Int = speed.coerceIn(MIN_SPEED, MAX_SPEED)
+
+        /**
+         * The speed one step away from [current].
+         *
+         * From auto there is no numeric speed to step from, so stepping starts at
+         * a usable mid speed rather than jumping to 1.
+         */
+        fun steppedSpeed(current: Int?, delta: Int): Int {
+            val base = current ?: if (delta > 0) DEFAULT_SPEED else DEFAULT_SPEED + 1
+            return clampSpeed(base + delta)
+        }
 
         fun clampTemperature(celsius: Float): Float =
             celsius.coerceIn(MIN_TEMPERATURE_C, MAX_TEMPERATURE_C)

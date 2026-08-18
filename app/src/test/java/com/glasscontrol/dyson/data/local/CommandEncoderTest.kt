@@ -116,6 +116,61 @@ class CommandEncoderTest {
     }
 
     @Test
+    fun `oscillation answers in the dialect the machine speaks`() {
+        // A TP04-era machine reports OION/OIOF and silently ignores ON/OFF.
+        val legacy = DysonState(power = true, oscillationRaw = "OIOF")
+        val onLegacy = pureCool.encode(DysonCommand.SetOscillation(true), legacy)!!
+        assertEquals("OION", onLegacy["oson"])
+
+        val offLegacy = pureCool.encode(
+            DysonCommand.SetOscillation(false),
+            legacy.copy(oscillationRaw = "OION", oscillation = true),
+        )!!
+        assertEquals("OIOF", offLegacy["oson"])
+
+        // A newer machine reports ON/OFF and must be answered the same way.
+        val modern = DysonState(power = true, oscillationRaw = "OFF")
+        assertEquals("ON", pureCool.encode(DysonCommand.SetOscillation(true), modern)!!["oson"])
+        assertEquals(
+            "OFF",
+            pureCool.encode(DysonCommand.SetOscillation(false), modern)!!["oson"],
+        )
+    }
+
+    @Test
+    fun `enabling oscillation powers on and replays the machine's angle window`() {
+        val state = DysonState(
+            power = true,
+            oscillationRaw = "OIOF",
+            oscillationAngleLow = 90,
+            oscillationAngleHigh = 270,
+        )
+
+        val data = pureCool.encode(DysonCommand.SetOscillation(true), state)!!
+
+        assertEquals("ON", data["fpwr"])
+        assertEquals("CUST", data["ancp"])
+        assertEquals("0090", data["osal"])
+        assertEquals("0270", data["osau"])
+    }
+
+    @Test
+    fun `an unusable angle window is left out rather than sent as nonsense`() {
+        // Angles closer than 30 degrees are rejected by the machine.
+        val narrow = DysonState(
+            power = true,
+            oscillationAngleLow = 100,
+            oscillationAngleHigh = 110,
+        )
+
+        val data = pureCool.encode(DysonCommand.SetOscillation(true), narrow)!!
+
+        assertEquals("ON", data["oson"])
+        assertNull(data["osal"])
+        assertNull(data["ancp"])
+    }
+
+    @Test
     fun `unsupported commands encode to nothing instead of failing`() {
         assertNull(
             "A Pure Cool has no heater",

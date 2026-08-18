@@ -4,6 +4,7 @@ import android.content.Context
 import com.glasscontrol.dyson.data.DysonRepositoryImpl
 import com.glasscontrol.dyson.data.cloud.DysonCloudApi
 import com.glasscontrol.dyson.data.discovery.DysonDiscovery
+import com.glasscontrol.dyson.data.discovery.LanScanner
 import com.glasscontrol.dyson.data.local.DysonMqttClient
 import com.glasscontrol.dyson.data.store.DeviceConfigStore
 import com.glasscontrol.dyson.data.store.SecureCredentialStore
@@ -40,6 +41,7 @@ object DysonServices {
             credentialStore = credentialStore,
             stateCache = stateCache,
             discovery = DysonDiscovery(appContext),
+            lanScanner = LanScanner(appContext),
             mqttClient = DysonMqttClient(),
             scope = scope,
             onStateChanged = {

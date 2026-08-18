@@ -24,7 +24,13 @@ class SecureCredentialStore(context: Context) {
     private val prefs = context.applicationContext
         .getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
 
-    suspend fun putCredential(serial: String, credential: String) = withContext(Dispatchers.IO) {
+    /**
+     * @return true when the credential was stored and can be read back.
+     *
+     * Failure here is silent-but-fatal — every later command would report "no
+     * device configured" — so the caller is told rather than left guessing.
+     */
+    suspend fun putCredential(serial: String, credential: String): Boolean = withContext(Dispatchers.IO) {
         runCatching {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, loadOrCreateKey())
@@ -34,9 +40,8 @@ class SecureCredentialStore(context: Context) {
             val blob = cipher.iv + encrypted
             prefs.edit()
                 .putString(key(serial), Base64.encodeToString(blob, Base64.NO_WRAP))
-                .apply()
-        }.onFailure { logW("Unable to store credential", it) }
-        Unit
+                .commit()
+        }.onFailure { logW("Unable to store credential", it) }.getOrDefault(false)
     }
 
     suspend fun getCredential(serial: String): String? = withContext(Dispatchers.IO) {

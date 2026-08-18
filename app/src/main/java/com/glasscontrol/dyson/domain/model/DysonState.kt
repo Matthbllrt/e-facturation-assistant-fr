@@ -24,6 +24,16 @@ data class DysonState(
     val fanSpeed: Int? = null,
     val autoMode: Boolean = false,
     val oscillation: Boolean = false,
+    /**
+     * The raw `oson` token the machine reported.
+     *
+     * Older Pure Cool machines say OION/OIOF where newer ones say ON/OFF, and a
+     * machine only accepts the dialect it speaks, so the token is kept verbatim
+     * to be echoed back on the next command.
+     */
+    val oscillationRaw: String? = null,
+    val oscillationAngleLow: Int? = null,
+    val oscillationAngleHigh: Int? = null,
     val nightMode: Boolean = false,
     val heating: Boolean = false,
     val heatingActive: Boolean = false,

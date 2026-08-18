@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.glasscontrol.dyson.DysonServices
 import com.glasscontrol.dyson.data.local.CommandEncoder
+import com.glasscontrol.dyson.domain.ConnectionDiagnostics
 import com.glasscontrol.dyson.domain.model.DysonCapabilities
 import com.glasscontrol.dyson.domain.model.DysonCommand
 import com.glasscontrol.dyson.domain.model.DysonDevice
@@ -45,6 +46,12 @@ class DysonViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _diagnostics = MutableStateFlow<ConnectionDiagnostics?>(null)
+    val diagnostics: StateFlow<ConnectionDiagnostics?> = _diagnostics.asStateFlow()
+
+    private val _busy = MutableStateFlow(false)
+    val busy: StateFlow<Boolean> = _busy.asStateFlow()
+
     /** Opens a live session so the screen tracks the machine in real time. */
     fun startLiveUpdates() {
         viewModelScope.launch {
@@ -79,6 +86,26 @@ class DysonViewModel : ViewModel() {
 
     fun dismissError() {
         _error.value = null
+    }
+
+    /** Pins the machine's address when discovery cannot find it. */
+    fun setHost(host: String?) {
+        viewModelScope.launch {
+            runCatching { repository.setHost(host) }
+                .onFailure { _error.value = it.message }
+            runDiagnostics()
+        }
+    }
+
+    /** Walks the connection path and reports where it stops. */
+    fun runDiagnostics() {
+        viewModelScope.launch {
+            _busy.value = true
+            _diagnostics.value = runCatching { repository.diagnose() }
+                .onFailure { _error.value = it.message }
+                .getOrNull()
+            _busy.value = false
+        }
     }
 
     /** Runs a repository call, surfacing only the failure to the UI. */

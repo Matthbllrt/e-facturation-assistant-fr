@@ -73,8 +73,8 @@ class DysonStateParser(private val family: DysonFamily) {
         }
 
         // Older machines report OION/OIOF, newer ones plain ON/OFF.
-        val oscillation = state.field(F.OSCILLATION)?.let { it == F.ON || it == "OION" }
-            ?: previous.oscillation
+        val oscillationRaw = state.field(F.OSCILLATION) ?: previous.oscillationRaw
+        val oscillation = oscillationRaw?.let { it == F.ON || it == "OION" } ?: previous.oscillation
 
         val heatTargetC = state.field(F.HEAT_TARGET)?.toFloatOrNull()
             ?.let { kelvinTenthsToCelsius(it) } ?: previous.targetTemperatureC
@@ -85,6 +85,11 @@ class DysonStateParser(private val family: DysonFamily) {
             autoMode = auto,
             fanSpeed = speed,
             oscillation = oscillation,
+            oscillationRaw = oscillationRaw,
+            oscillationAngleLow = state.field(F.OSC_LOW)?.toIntOrNull()
+                ?: previous.oscillationAngleLow,
+            oscillationAngleHigh = state.field(F.OSC_HIGH)?.toIntOrNull()
+                ?: previous.oscillationAngleHigh,
             nightMode = state.field(F.NIGHT_MODE)?.let { it == F.ON } ?: previous.nightMode,
             fanRunning = state.field(F.FAN_STATE)?.let { it == "FAN" } ?: previous.fanRunning,
             frontAirflow = state.field(F.AIRFLOW_DIRECTION)?.let { it == F.ON } ?: previous.frontAirflow,

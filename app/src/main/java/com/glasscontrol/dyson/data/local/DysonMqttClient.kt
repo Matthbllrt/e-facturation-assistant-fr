@@ -84,6 +84,17 @@ class DysonMqttClient(
             }
         }
 
+        /**
+         * Publishes a command without waiting for the reply.
+         *
+         * Used when a live session is already streaming updates: the observer
+         * picks up the machine's STATE-CHANGE, so waiting here would mean two
+         * consumers racing for the same message.
+         */
+        suspend fun sendCommand(data: Map<String, String>) {
+            publish(MqttMessages.stateSet(data), qos = 1)
+        }
+
         /** Re-asks for state and sensors without waiting for the reply. */
         suspend fun requestRefresh() {
             publish(MqttMessages.requestState())

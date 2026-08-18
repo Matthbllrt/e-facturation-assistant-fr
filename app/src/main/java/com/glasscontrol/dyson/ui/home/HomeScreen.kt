@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -23,6 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.glasscontrol.dyson.R
 import com.glasscontrol.dyson.domain.model.AirQuality
@@ -39,12 +43,26 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(viewModel: DysonViewModel) {
     val ui by viewModel.uiState.collectAsStateWithLifecycle()
+    val error by viewModel.error.collectAsStateWithLifecycle()
     val glass = LocalGlassColors.current
 
-    // A live MQTT session runs only while this screen is on screen.
-    DisposableEffect(Unit) {
-        viewModel.startLiveUpdates()
-        onDispose { viewModel.stopLiveUpdates() }
+    // The live session follows the foreground, not just the composition: a
+    // backgrounded app holding the machine's only connection slot would drain
+    // battery and lock out the widget.
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> viewModel.startLiveUpdates()
+                Lifecycle.Event.ON_STOP -> viewModel.stopLiveUpdates()
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.stopLiveUpdates()
+        }
     }
 
     Column(
@@ -83,6 +101,36 @@ fun HomeScreen(viewModel: DysonViewModel) {
                 size = 48.dp,
                 onClick = viewModel::refresh,
             )
+        }
+
+        // A command that fails has to say so: silence here is what makes the app
+        // feel broken rather than merely offline.
+        error?.let { message ->
+            GlassCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                contentPadding = 16.dp,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = glass.danger,
+                        )
+                        Text(
+                            text = "Onglet Appareil → Tester la connexion pour diagnostiquer.",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = glass.onSurfaceMuted,
+                            modifier = Modifier.padding(top = 4.dp),
+                        )
+                    }
+                    TextButton(onClick = viewModel::dismissError) {
+                        Text("OK", color = glass.onSurfaceMuted)
+                    }
+                }
+            }
         }
 
         Box(contentAlignment = Alignment.Center) {

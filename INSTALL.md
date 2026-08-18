@@ -79,3 +79,25 @@ Ouvrez l'application, appuyez sur **CONNECTER MON DYSON**, puis au choix :
 
 Depuis l'onglet **Widget** de l'application, le bouton « Ajouter le widget »
 place directement le widget sur l'écran d'accueil.
+
+## 6. Si le Dyson ne répond pas
+
+Ouvrez l'onglet **Appareil** et appuyez sur **Tester la connexion**. Le message
+indique précisément où ça bloque.
+
+| Message | Cause | Solution |
+|---|---|---|
+| Aucun Dyson configuré | Onboarding non terminé | Refaites la configuration |
+| Identifiant local introuvable | Le Keystore n'a pas pu conserver la clé | Réglages → réinitialiser, puis reconfigurez |
+| Appareil introuvable sur ce réseau | Le Wi-Fi bloque la découverte automatique | Saisissez l'adresse IP du Dyson dans le champ **Adresse IP** |
+| L'appareil a refusé l'identifiant | Mauvais identifiant ou mauvais type d'appareil | Reconfigurez, ou utilisez le mot de passe Wi-Fi de l'étiquette |
+| Connexion établie | Tout va bien | — |
+
+**Trouver l'adresse IP du Dyson** : dans l'interface de votre box/routeur, liste
+des appareils connectés — le Dyson y apparaît sous un nom contenant son numéro
+de série. Saisissez cette adresse dans l'onglet Appareil : elle est mémorisée et
+la découverte automatique n'est plus nécessaire.
+
+Vérifiez aussi que le téléphone n'est pas sur un réseau **invité** et que le
+Wi-Fi est en 2,4 GHz si le Dyson ne gère pas le 5 GHz — les deux réseaux doivent
+être le même sous-réseau.

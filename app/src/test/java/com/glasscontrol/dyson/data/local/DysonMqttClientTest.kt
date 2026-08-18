@@ -4,13 +4,18 @@ import com.glasscontrol.dyson.core.DysonError
 import com.glasscontrol.dyson.domain.model.ConnectionStatus
 import com.glasscontrol.dyson.domain.model.DysonDevice
 import com.glasscontrol.dyson.domain.model.DysonState
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.util.concurrent.TimeUnit
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 

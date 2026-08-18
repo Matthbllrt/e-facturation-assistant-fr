@@ -12,14 +12,15 @@ import com.glasscontrol.dyson.DysonServices
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.domain.model.DysonCommand
 import com.glasscontrol.dyson.widget.WidgetCommands
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 /**
- * Sends one command to the machine on behalf of a widget tap.
+ * Sends one already-resolved command to the machine on behalf of a widget tap.
  *
- * The tap handler returns immediately and this runs expedited in the background,
- * so the launcher stays responsive whatever the network does. The repository
- * already wrote an optimistic state before this starts, and overwrites it with
- * the machine's real answer when the round trip completes.
+ * The tap handler decided what to send and has already painted the result, so
+ * this only has to deliver it. Running here rather than in the tap keeps the
+ * launcher responsive whatever the network does.
  */
 class CommandWorker(
     context: Context,
@@ -28,41 +29,48 @@ class CommandWorker(
 
     override suspend fun doWork(): Result {
         DysonServices.ensureInitialised(applicationContext)
-        val commandName = inputData.getString(KEY_COMMAND) ?: return Result.success()
         val repository = DysonServices.repository
-        val state = repository.getState()
 
-        val outcome = when (commandName) {
-            WidgetCommands.TOGGLE_POWER -> repository.setPower(!state.power)
-            WidgetCommands.TOGGLE_AUTO -> repository.setAutoMode(!state.autoMode)
-            WidgetCommands.TOGGLE_OSCILLATION -> repository.setOscillation(!state.oscillation)
-            WidgetCommands.TOGGLE_NIGHT -> repository.setNightMode(!state.nightMode)
-            WidgetCommands.TOGGLE_HEAT -> repository.setHeating(!state.heating)
-            WidgetCommands.SPEED_UP -> repository.execute(DysonCommand.StepFanSpeed(1))
-            WidgetCommands.SPEED_DOWN -> repository.execute(DysonCommand.StepFanSpeed(-1))
-            WidgetCommands.REFRESH -> repository.refreshState()
-            else -> return Result.success()
+        val name = inputData.getString(KEY_NAME)
+        if (name == WidgetCommands.REFRESH) {
+            repository.refreshState()
+            return Result.success()
         }
 
-        return outcome.fold(
-            onSuccess = { Result.success() },
-            onFailure = { error ->
-                // The widget already shows "Offline"; one retry covers a transient
-                // Wi-Fi handover, beyond that a further attempt would be stale.
-                logW("Widget command '$commandName' failed", error)
-                if (runAttemptCount < MAX_ATTEMPTS) Result.retry() else Result.success()
-            },
-        )
+        val encoded = inputData.getString(KEY_COMMAND) ?: return Result.success()
+        val command = runCatching { json.decodeFromString<DysonCommand>(encoded) }
+            .getOrElse { error ->
+                logW("Unreadable widget command", error)
+                return Result.success()
+            }
+
+        repository.execute(command).onFailure { error ->
+            // The widget already shows Offline through the repository's own state
+            // write. Retrying here would stall every queued tap behind WorkManager's
+            // ten-second-minimum backoff, which reads as "the widget is dead", so
+            // one tap means one attempt.
+            logW("Widget command failed", error)
+        }
+        return Result.success()
     }
 
     companion object {
+        private const val KEY_NAME = "name"
         private const val KEY_COMMAND = "command"
-        private const val MAX_ATTEMPTS = 2
         private const val WORK_NAME = "dyson_command"
 
-        fun enqueue(context: Context, command: String) {
+        private val json = Json { ignoreUnknownKeys = true }
+
+        fun enqueue(context: Context, name: String, command: DysonCommand?) {
+            val data = Data.Builder()
+                .putString(KEY_NAME, name)
+                .apply {
+                    command?.let { putString(KEY_COMMAND, json.encodeToString(it)) }
+                }
+                .build()
+
             val request = OneTimeWorkRequestBuilder<CommandWorker>()
-                .setInputData(Data.Builder().putString(KEY_COMMAND, command).build())
+                .setInputData(data)
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 

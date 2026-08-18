@@ -5,12 +5,14 @@ import com.glasscontrol.dyson.core.Redact
 import com.glasscontrol.dyson.core.logD
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.data.discovery.DysonDiscovery
+import com.glasscontrol.dyson.data.discovery.LanScanner
 import com.glasscontrol.dyson.data.local.CommandEncoder
 import com.glasscontrol.dyson.data.local.DysonMqttClient
 import com.glasscontrol.dyson.data.store.DeviceConfigStore
 import com.glasscontrol.dyson.data.store.SecureCredentialStore
 import com.glasscontrol.dyson.data.store.StateCache
 import com.glasscontrol.dyson.domain.CapabilityResolver
+import com.glasscontrol.dyson.domain.ConnectionDiagnostics
 import com.glasscontrol.dyson.domain.DiscoveredDevice
 import com.glasscontrol.dyson.domain.DysonRepository
 import com.glasscontrol.dyson.domain.model.ConnectionStatus
@@ -44,6 +46,7 @@ class DysonRepositoryImpl(
     private val credentialStore: SecureCredentialStore,
     private val stateCache: StateCache,
     private val discovery: DysonDiscovery,
+    private val lanScanner: LanScanner,
     private val mqttClient: DysonMqttClient = DysonMqttClient(),
     private val scope: CoroutineScope,
     private val onStateChanged: suspend (DysonState) -> Unit = {},
@@ -51,6 +54,17 @@ class DysonRepositoryImpl(
 
     private val operationLock = Mutex()
     private var liveSessionJob: Job? = null
+
+    /**
+     * The streaming session, when the app has one open.
+     *
+     * A Dyson machine runs a small embedded broker that accepts very few
+     * simultaneous clients, so opening a second connection for a command while
+     * this one is live is what made commands fail whenever the app was in the
+     * foreground. Commands are routed through this session instead.
+     */
+    @Volatile
+    private var liveSession: DysonMqttClient.Session? = null
 
     override val device: Flow<DysonDevice?> = deviceConfigStore.device
 
@@ -82,12 +96,20 @@ class DysonRepositoryImpl(
                     mqttClient.withSession(device, host) { session ->
                         val initial = session.readState(stateCache.read())
                         publish(initial)
+                        // Set before unblocking connect(): a command issued in
+                        // between would otherwise still dial a second connection.
+                        liveSession = session
                         started.complete(Result.success(Unit))
-                        session.observe(initial) { updated -> publish(updated) }
+                        try {
+                            session.observe(initial) { updated -> publish(updated) }
+                        } finally {
+                            liveSession = null
+                        }
                     }
                 }
             }.onFailure { error ->
                 logW("Live session ended", error)
+                liveSession = null
                 if (!started.isCompleted) started.complete(Result.failure(error))
                 publish(stateCache.read().copy(connection = ConnectionStatus.OFFLINE))
             }
@@ -100,6 +122,7 @@ class DysonRepositoryImpl(
     }
 
     override suspend fun disconnect() {
+        liveSession = null
         liveSessionJob?.cancel()
         liveSessionJob = null
     }
@@ -107,8 +130,16 @@ class DysonRepositoryImpl(
     override fun discoverDevices(timeoutMs: Long): Flow<DiscoveredDevice> =
         discovery.discover(timeoutMs)
 
-    override suspend fun refreshState(): Result<DysonState> = runOperation { session, current ->
-        session.readState(current)
+    override suspend fun refreshState(): Result<DysonState> {
+        // With a live session open, asking is enough: the observer delivers the
+        // answer into the cache as soon as the machine replies.
+        liveSession?.let { session ->
+            return runCatching {
+                session.requestRefresh()
+                stateCache.read()
+            }.onFailure { logW("Refresh over the live session failed", it) }
+        }
+        return runOperation { session, current -> session.readState(current) }
     }
 
     override suspend fun setPower(on: Boolean) = execute(DysonCommand.SetPower(on))
@@ -146,7 +177,20 @@ class DysonRepositoryImpl(
             // A command the family does not support is a no-op, never a crash.
             ?: return Result.success(current)
 
-        publish(encoder.predict(command, current).copy(connection = ConnectionStatus.CONNECTING))
+        val optimistic = encoder.predict(command, current)
+        publish(optimistic.copy(connection = ConnectionStatus.CONNECTING))
+
+        // Reuse the streaming session rather than opening a competing connection.
+        liveSession?.let { session ->
+            return runCatching {
+                session.sendCommand(data)
+                publish(optimistic.copy(connection = ConnectionStatus.ONLINE))
+                optimistic
+            }.onFailure { error ->
+                logW("Command over the live session failed", error)
+                publish(current.copy(connection = ConnectionStatus.OFFLINE))
+            }
+        }
 
         return runOperation { session, latest ->
             session.applyCommand(data, latest)
@@ -157,10 +201,115 @@ class DysonRepositoryImpl(
     }
 
     override suspend fun saveDevice(device: DysonDevice) {
-        deviceConfigStore.save(device)
         if (device.credential.isNotEmpty()) {
-            credentialStore.putCredential(device.serial, device.credential)
+            val stored = credentialStore.putCredential(device.serial, device.credential)
+            if (!stored) {
+                throw DysonError.Cloud(
+                    "Impossible d'enregistrer l'identifiant local en sécurité sur cet appareil."
+                )
+            }
         }
+        deviceConfigStore.save(device)
+    }
+
+    override suspend fun previewCommand(command: DysonCommand) {
+        val device = deviceConfigStore.device.first() ?: return
+        val current = stateCache.read()
+        val encoder = CommandEncoder(device.family)
+        if (encoder.encode(command, current) == null) return
+        publish(encoder.predict(command, current).copy(connection = ConnectionStatus.CONNECTING))
+    }
+
+    override suspend fun setHost(host: String?) {
+        val stored = deviceConfigStore.device.first() ?: return
+        deviceConfigStore.save(stored.copy(host = host?.takeIf { it.isNotBlank() }))
+        disconnect()
+    }
+
+    override suspend fun diagnose(): ConnectionDiagnostics {
+        val stored = deviceConfigStore.device.first()
+            ?: return ConnectionDiagnostics(
+                configured = false,
+                credentialStored = false,
+                storedHost = null,
+                resolvedHost = null,
+                reachable = false,
+                summary = "Aucun Dyson configuré.",
+            )
+
+        val credential = credentialStore.getCredential(stored.serial)
+        if (credential == null) {
+            return ConnectionDiagnostics(
+                configured = true,
+                credentialStored = false,
+                storedHost = stored.host,
+                resolvedHost = null,
+                reachable = false,
+                summary = "L'identifiant local est introuvable dans le Keystore. " +
+                    "Reconfigurez l'appareil dans Réglages.",
+            )
+        }
+
+        val device = stored.copy(credential = credential)
+
+        // If the app is already streaming, the connection is proven and probing
+        // again would open exactly the second connection this all guards against.
+        liveSession?.let {
+            return ConnectionDiagnostics(
+                configured = true,
+                credentialStored = true,
+                storedHost = stored.host,
+                resolvedHost = stored.host,
+                reachable = true,
+                summary = "Connexion locale active.",
+            )
+        }
+
+        // Prefer the stored address, but only if it still answers.
+        val resolved = device.host?.takeIf { accepts(device, it) } ?: resolveHost(device)
+
+        if (resolved == null) {
+            return ConnectionDiagnostics(
+                configured = true,
+                credentialStored = true,
+                storedHost = stored.host,
+                resolvedHost = null,
+                reachable = false,
+                summary = "Appareil introuvable sur ce réseau. Vérifiez que le téléphone " +
+                    "est sur le même Wi-Fi que le Dyson, ou saisissez son adresse IP.",
+            )
+        }
+
+        if (resolved != stored.host) deviceConfigStore.updateHost(resolved)
+
+        val reachable = runCatching {
+            mqttClient.withSession(device, resolved) { session ->
+                publish(session.readState(stateCache.read()))
+                true
+            }
+        }.getOrElse { error ->
+            return ConnectionDiagnostics(
+                configured = true,
+                credentialStored = true,
+                storedHost = stored.host,
+                resolvedHost = resolved,
+                reachable = false,
+                summary = when (error) {
+                    is DysonError.InvalidCredential ->
+                        "L'appareil a refusé l'identifiant local. Reconfigurez-le."
+                    else -> "Connexion à $resolved impossible : ${error.message}"
+                },
+            )
+        }
+
+        return ConnectionDiagnostics(
+            configured = true,
+            credentialStored = true,
+            storedHost = stored.host,
+            resolvedHost = resolved,
+            reachable = reachable,
+            summary = "Connexion établie avec $resolved.",
+        )
     }
 
     override suspend fun forgetDevice() {
@@ -205,11 +354,34 @@ class DysonRepositoryImpl(
                 }
         }
 
-        val discovered = discoverHost(device.serial) ?: throw DysonError.Unreachable()
+        val discovered = resolveHost(device) ?: throw DysonError.Unreachable()
         deviceConfigStore.updateHost(discovered)
-        logD("Rediscovered ${Redact.serial(device.serial)} at ${Redact.host(discovered)}")
+        logD("Relocated ${Redact.serial(device.serial)} at ${Redact.host(discovered)}")
         return block(discovered)
     }
+
+    /**
+     * Locates the machine on the network.
+     *
+     * mDNS is tried first because it identifies the machine by serial. Plenty of
+     * home networks never deliver multicast though, and without a second route
+     * the app would simply never work there, so a subnet sweep follows: any host
+     * with the MQTT port open is probed, and the one that accepts this machine's
+     * credentials is by definition the right one.
+     */
+    suspend fun resolveHost(device: DysonDevice): String? {
+        discoverHost(device.serial)?.let { return it }
+
+        logD("mDNS found nothing, sweeping the subnet")
+        val candidates = runCatching { lanScanner.scan() }.getOrDefault(emptyList())
+        return candidates.firstOrNull { candidate -> accepts(device, candidate) }
+    }
+
+    /** True when [host] is a broker that accepts this machine's credentials. */
+    private suspend fun accepts(device: DysonDevice, host: String): Boolean =
+        runCatching {
+            probeClient.withSession(device, host) { true }
+        }.getOrDefault(false)
 
     private suspend fun discoverHost(serial: String): String? =
         withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
@@ -231,6 +403,9 @@ class DysonRepositoryImpl(
         stateCache.write(state)
         onStateChanged(state)
     }
+
+    /** Short timeouts: a probe only has to prove the broker answers. */
+    private val probeClient = DysonMqttClient(connectTimeoutMs = 2_500L, readTimeoutMs = 2_000L)
 
     private companion object {
         const val DISCOVERY_TIMEOUT_MS = 6_000L
