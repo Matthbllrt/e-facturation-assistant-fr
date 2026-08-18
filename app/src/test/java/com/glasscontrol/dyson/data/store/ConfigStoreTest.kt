@@ -87,16 +87,11 @@ class ConfigStoreTest {
     }
 
     @Test
-    fun `widget configs are independent per instance`() = runTest {
+    fun `each widget instance keeps its own configuration`() = runTest {
         val store = WidgetConfigStore(context)
 
-        val first = WidgetConfig(
-            theme = WidgetTheme.DARK,
-            glassOpacity = 0.2f,
-            showSensors = false,
-            quickControls = listOf(QuickControl.POWER),
-        )
-        val second = WidgetConfig(theme = WidgetTheme.LIGHT, glassOpacity = 0.9f)
+        val first = WidgetConfig(theme = WidgetTheme.DARK, customName = "Salon")
+        val second = WidgetConfig(theme = WidgetTheme.LIGHT, customName = "Chambre")
 
         store.save(11, first)
         store.save(22, second)
@@ -117,8 +112,6 @@ class ConfigStoreTest {
         val config = WidgetConfigStore(context).read(9999)
 
         assertEquals(WidgetTheme.AUTO, config.theme)
-        assertTrue(config.showSensors)
-        assertTrue(config.quickControls.contains(QuickControl.POWER))
-        assertFalse(config.quickControls.isEmpty())
+        assertNull(config.customName)
     }
 }

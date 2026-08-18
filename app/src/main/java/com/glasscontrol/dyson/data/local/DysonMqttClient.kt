@@ -38,7 +38,7 @@ class DysonMqttClient(
     private val connectTimeoutMs: Long = 6_000L,
     private val readTimeoutMs: Long = 5_000L,
     /** Overridable so tests can drive the client against a local broker. */
-    private val port: Int = MQTT_PORT,
+    val port: Int = MQTT_PORT,
 ) {
 
     /** An open session. Only valid inside [withSession]. */

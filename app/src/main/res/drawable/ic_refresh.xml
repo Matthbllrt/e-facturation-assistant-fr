@@ -1,19 +1,19 @@
+<!-- Refresh: open circular arrow -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp"
     android:height="24dp"
     android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="?android:attr/colorControlNormal">
+    android:viewportHeight="24">
     <path
-        android:pathData="M19.5,12 A7.5,7.5 0 1,1 16.6,6.1"
-        android:strokeWidth="2.0"
+        android:pathData="M20,12 A8,8 0 1,1 17,5.8"
+        android:strokeWidth="2"
         android:strokeColor="#FFFFFFFF"
         android:fillColor="#00000000"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
     <path
-        android:pathData="M16.2,3.2 L16.9,6.6 L13.5,7.3"
-        android:strokeWidth="2.0"
+        android:pathData="M17.1,2.6 L17.6,6.4 L13.8,6.9"
+        android:strokeWidth="2"
         android:strokeColor="#FFFFFFFF"
         android:fillColor="#00000000"
         android:strokeLineCap="round"

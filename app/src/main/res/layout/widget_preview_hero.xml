@@ -1,33 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Shown in the launcher's widget picker before the widget is placed. -->
+<!-- Static preview for the launcher's widget picker. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/glass_panel_dark_2"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:paddingHorizontal="16dp"
-    android:paddingVertical="14dp">
+    android:background="@drawable/glass_surface_dark"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="14dp"
+    android:paddingVertical="12dp">
 
     <ImageView
-        android:layout_width="70dp"
-        android:layout_height="106dp"
+        android:layout_width="76dp"
+        android:layout_height="124dp"
         android:contentDescription="@string/widget_hero_description"
         android:src="@drawable/ic_launcher_foreground" />
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:letterSpacing="0.18"
-        android:text="@string/wordmark"
-        android:textColor="#F2F7FB"
-        android:textSize="12sp" />
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/widget_preview_subtitle"
-        android:textColor="#B3C7D6E2"
-        android:textSize="11sp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:letterSpacing="0.16"
+            android:text="@string/wordmark"
+            android:textColor="#F6FAFD"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/widget_preview_subtitle"
+            android:textColor="#5AD7F0"
+            android:textSize="12sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="06"
+            android:textColor="#F6FAFD"
+            android:textSize="30sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="6dp"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/glass_btn_power_on" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="6dp"
+                android:layout_weight="1"
+                android:background="@drawable/glass_btn" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/glass_btn" />
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

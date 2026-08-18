@@ -29,6 +29,7 @@ import com.glasscontrol.dyson.data.store.WidgetConfig
 import com.glasscontrol.dyson.data.store.WidgetConfigStore
 import com.glasscontrol.dyson.ui.home.DysonViewModel
 import com.glasscontrol.dyson.ui.theme.LocalGlassColors
+import com.glasscontrol.dyson.widget.WidgetUiState
 import com.glasscontrol.dyson.widget.DysonCompactWidgetReceiver
 import com.glasscontrol.dyson.widget.DysonHeroWidgetReceiver
 import kotlinx.coroutines.launch
@@ -73,37 +74,33 @@ fun WidgetScreen(viewModel: DysonViewModel) {
             modifier = Modifier.padding(bottom = 18.dp),
         )
 
+        val previewState = WidgetUiState.from(ui.device, ui.state, ui.capabilities, config)
+
         WidgetPreview(
-            config = config,
+            ui = previewState,
             state = ui.state,
-            capabilities = ui.capabilities,
-            deviceName = ui.device?.name ?: "Dyson",
-            modelName = ui.device?.displayModel ?: "Non configuré",
-            hero = true,
+            large = true,
             systemDark = systemDark,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(330.dp),
+                .height(196.dp),
         )
 
         WidgetPreview(
-            config = config,
+            ui = previewState,
             state = ui.state,
-            capabilities = ui.capabilities,
-            deviceName = ui.device?.name ?: "Dyson",
-            modelName = ui.device?.displayModel ?: "Non configuré",
-            hero = false,
+            large = false,
             systemDark = systemDark,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
-                .height(140.dp),
+                .height(126.dp),
         )
 
         Column(modifier = Modifier.padding(top = 20.dp)) {
             WidgetOptionsEditor(
                 config = config,
-                capabilities = ui.capabilities,
+                deviceName = ui.device?.name ?: "Aucun appareil configuré",
                 onConfigChange = { updated ->
                     config = updated
                     scope.launch {

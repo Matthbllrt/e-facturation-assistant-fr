@@ -10,15 +10,13 @@ object DysonWidgetUpdater {
 
     suspend fun updateAll(context: Context) {
         runCatching {
-            DysonHeroWidget().updateAll(context)
-            DysonCompactWidget().updateAll(context)
+            DysonWidgetClasses.all.forEach { it.updateAll(context) }
         }.onFailure { logW("Widget update failed", it) }
     }
 
     /** True when the user has at least one widget on a home screen. */
     suspend fun hasWidgets(context: Context): Boolean = runCatching {
         val manager = GlanceAppWidgetManager(context)
-        manager.getGlanceIds(DysonHeroWidget::class.java).isNotEmpty() ||
-            manager.getGlanceIds(DysonCompactWidget::class.java).isNotEmpty()
+        DysonWidgetClasses.classes.any { manager.getGlanceIds(it).isNotEmpty() }
     }.getOrDefault(false)
 }

@@ -27,6 +27,8 @@ data class DysonVisual(
     val dark: Boolean = true,
     val oscillationPhase: Float = 0f,
     val airflowPhase: Float = 0f,
+    /** Drawn dimmed, so an unreachable machine reads as inactive at a glance. */
+    val offline: Boolean = false,
 )
 
 /**
@@ -53,6 +55,9 @@ object DysonArtwork {
 
     private val GRADIENT_STOPS = floatArrayOf(0f, 0.22f, 0.46f, 0.62f, 0.82f, 1f)
 
+    /** How far an offline machine is faded back. */
+    private const val OFFLINE_ALPHA = 130
+
     /** Renders to a fresh bitmap, for the widget. */
     fun renderBitmap(widthPx: Int, heightPx: Int, visual: DysonVisual): Bitmap {
         val bitmap = Bitmap.createBitmap(
@@ -67,6 +72,18 @@ object DysonArtwork {
     fun draw(canvas: Canvas, width: Float, height: Float, visual: DysonVisual) {
         if (width <= 0f || height <= 0f) return
 
+        // An unreachable machine is drawn faded rather than restyled: same shape,
+        // visibly not live.
+        val layer = if (visual.offline) {
+            canvas.saveLayerAlpha(0f, 0f, width, height, OFFLINE_ALPHA)
+        } else {
+            -1
+        }
+        drawDevice(canvas, width, height, visual)
+        if (layer >= 0) canvas.restoreToCount(layer)
+    }
+
+    private fun drawDevice(canvas: Canvas, width: Float, height: Float, visual: DysonVisual) {
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
         // Proportions follow a TP07: a 220 x 475 mm loop above a cylinder of
@@ -103,6 +120,9 @@ object DysonArtwork {
             canvas, paint, centerX, baseTop, baseBottom, baseTopW, baseBottomW, visual.dark,
         )
         drawContactShadow(canvas, paint, centerX, baseBottom, deviceW, height)
+        if (visual.on) {
+            drawFloorGlow(canvas, paint, centerX, baseBottom, deviceW, height, accent, intensity)
+        }
     }
 
     /** Soft light spilling out of the amplifier opening. */
@@ -314,6 +334,32 @@ object DysonArtwork {
         canvas.drawLine(centerX - topWidth * 0.45f, seamY, centerX + topWidth * 0.45f, seamY, paint)
         paint.style = Paint.Style.FILL
 
+        canvas.restore()
+    }
+
+    /** Diffuse light spilling onto the surface the machine stands on. */
+    private fun drawFloorGlow(
+        canvas: Canvas, paint: Paint, centerX: Float, baseBottom: Float,
+        deviceW: Float, height: Float, accent: IntArray, intensity: Float,
+    ) {
+        val rx = deviceW * 0.95f
+        val ry = height * 0.035f
+        paint.reset()
+        paint.isAntiAlias = true
+        canvas.save()
+        canvas.translate(centerX, baseBottom + height * 0.004f)
+        canvas.scale(1f, ry / rx)
+        paint.shader = RadialGradient(
+            0f, 0f, rx,
+            intArrayOf(
+                argb((70 * intensity).toInt(), accent),
+                argb((22 * intensity).toInt(), accent),
+                argb(0, accent),
+            ),
+            floatArrayOf(0f, 0.5f, 1f), Shader.TileMode.CLAMP,
+        )
+        canvas.drawCircle(0f, 0f, rx, paint)
+        paint.shader = null
         canvas.restore()
     }
 

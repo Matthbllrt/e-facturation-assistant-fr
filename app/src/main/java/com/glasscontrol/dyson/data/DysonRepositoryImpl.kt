@@ -9,7 +9,7 @@ import com.glasscontrol.dyson.data.discovery.LanScanner
 import com.glasscontrol.dyson.data.local.CommandEncoder
 import com.glasscontrol.dyson.data.local.DysonMqttClient
 import com.glasscontrol.dyson.data.store.DeviceConfigStore
-import com.glasscontrol.dyson.data.store.SecureCredentialStore
+import com.glasscontrol.dyson.security.CredentialStore
 import com.glasscontrol.dyson.data.store.StateCache
 import com.glasscontrol.dyson.domain.CapabilityResolver
 import com.glasscontrol.dyson.domain.ConnectionDiagnostics
@@ -25,6 +25,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -43,7 +44,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  */
 class DysonRepositoryImpl(
     private val deviceConfigStore: DeviceConfigStore,
-    private val credentialStore: SecureCredentialStore,
+    private val credentialStore: CredentialStore,
     private val stateCache: StateCache,
     private val discovery: DysonDiscovery,
     private val lanScanner: LanScanner,
@@ -385,9 +386,12 @@ class DysonRepositoryImpl(
 
     private suspend fun discoverHost(serial: String): String? =
         withTimeoutOrNull(DISCOVERY_TIMEOUT_MS) {
+            // firstOrNull, not first: mDNS closes without emitting on networks that
+            // drop multicast, and first would throw there rather than letting the
+            // subnet sweep take over.
             discovery.discover(DISCOVERY_TIMEOUT_MS)
-                .first { it.serial.equals(serial, ignoreCase = true) }
-                .host
+                .firstOrNull { it.serial.equals(serial, ignoreCase = true) }
+                ?.host
         }
 
     /** Loads the configured machine together with its Keystore-held credential. */
@@ -404,8 +408,17 @@ class DysonRepositoryImpl(
         onStateChanged(state)
     }
 
-    /** Short timeouts: a probe only has to prove the broker answers. */
-    private val probeClient = DysonMqttClient(connectTimeoutMs = 2_500L, readTimeoutMs = 2_000L)
+    /**
+     * Short timeouts: a probe only has to prove the broker answers.
+     *
+     * It must dial the same port as the real client, or it would reject the very
+     * host the next connection is about to use.
+     */
+    private val probeClient = DysonMqttClient(
+        connectTimeoutMs = 2_500L,
+        readTimeoutMs = 2_000L,
+        port = mqttClient.port,
+    )
 
     private companion object {
         const val DISCOVERY_TIMEOUT_MS = 6_000L

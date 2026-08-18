@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Drops at roughly 4x3. minResizeHeight lets it be dragged down into the compact
+  composition, which Glance swaps in through SizeMode.Responsive.
+-->
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
     android:configure="com.glasscontrol.dyson.widget.WidgetConfigurationActivity"
     android:description="@string/widget_hero_description"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:minHeight="220dp"
-    android:minResizeHeight="180dp"
+    android:minHeight="180dp"
+    android:minResizeHeight="110dp"
     android:minResizeWidth="250dp"
     android:minWidth="250dp"
     android:previewLayout="@layout/widget_preview_hero"
     android:resizeMode="horizontal|vertical"
-    android:targetCellHeight="4"
+    android:targetCellHeight="3"
     android:targetCellWidth="4"
     android:updatePeriodMillis="0"
     android:widgetCategory="home_screen" />

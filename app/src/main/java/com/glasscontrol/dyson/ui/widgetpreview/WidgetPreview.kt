@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,104 +23,181 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.glasscontrol.dyson.R
-import com.glasscontrol.dyson.data.store.QuickControl
 import com.glasscontrol.dyson.data.store.WidgetConfig
 import com.glasscontrol.dyson.data.store.WidgetTheme
-import com.glasscontrol.dyson.domain.model.ConnectionStatus
-import com.glasscontrol.dyson.domain.model.DysonCapabilities
 import com.glasscontrol.dyson.domain.model.DysonState
 import com.glasscontrol.dyson.ui.components.AnimatedDyson
-import kotlin.math.roundToInt
+import com.glasscontrol.dyson.widget.WidgetStatus
+import com.glasscontrol.dyson.widget.WidgetUiState
+import com.glasscontrol.dyson.widget.design.GlassTokens
 
 /**
  * An in-app replica of the home-screen widget.
  *
- * It mirrors the Glance layout so the configuration screen can show the effect
- * of a change immediately — Glance itself cannot be composed inside the app.
+ * Glance compositions cannot be hosted inside the app, so the configuration
+ * screen redraws the same design in Compose. It reads the same [WidgetUiState],
+ * so what is shown here is what the widget will show.
  */
 @Composable
 fun WidgetPreview(
-    config: WidgetConfig,
+    ui: WidgetUiState,
     state: DysonState,
-    capabilities: DysonCapabilities,
-    deviceName: String,
-    modelName: String,
-    hero: Boolean,
+    large: Boolean,
     systemDark: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val dark = when (config.theme) {
+    val dark = when (ui.config.theme) {
         WidgetTheme.DARK -> true
         WidgetTheme.LIGHT -> false
         WidgetTheme.AUTO -> systemDark
     }
-    val opacity = config.glassOpacity.coerceIn(0f, 1f)
-    val panelBrush = if (dark) {
+
+    val surface = if (dark) {
         Brush.verticalGradient(
-            0f to Color(0xFF3D4756).copy(alpha = opacity * 0.62f),
-            0.5f to Color(0xFF18202B).copy(alpha = opacity * 0.80f),
-            1f to Color(0xFF0A0F16).copy(alpha = opacity),
+            0f to Color(0x6B44505F),
+            0.5f to Color(0x8C1B2430),
+            1f to Color(0xA60C1118),
         )
     } else {
         Brush.verticalGradient(
-            0f to Color.White.copy(alpha = opacity),
-            0.5f to Color(0xFFF2F6FA).copy(alpha = opacity * 0.88f),
-            1f to Color(0xFFDCE5EE).copy(alpha = opacity * 0.72f),
+            0f to Color(0xD9FFFFFF),
+            0.5f to Color(0xCCEEF3F8),
+            1f to Color(0xBFD8E2EC),
         )
     }
-    val primary = if (dark) Color(0xFFF2F7FB) else Color(0xFF10161D)
-    val secondary = if (dark) Color(0xFFC7D6E2) else Color(0xFF2C3742)
-    val accent = if (dark) Color(0xFF7FE3F5) else Color(0xFF0E7C93)
-    val shape = RoundedCornerShape(30.dp)
+    val primary = if (dark) GlassTokens.TextPrimary else GlassTokens.TextPrimaryLight
+    val secondary = if (dark) GlassTokens.TextSecondary else GlassTokens.TextSecondaryLight
+    val accent = if (dark) GlassTokens.AccentCyan else GlassTokens.AccentCyanLight
+    val offline = if (dark) GlassTokens.StatusOffline else GlassTokens.StatusOfflineLight
+
+    val dysonWidth = if (large) 90.dp else 56.dp
+    val dysonHeight = if (large) 148.dp else 92.dp
+    val controlHeight = if (large) 46.dp else 34.dp
+    val gap = if (large) 10.dp else 6.dp
+    val shape = RoundedCornerShape(GlassTokens.RadiusLarge)
 
     Box(
         modifier = modifier
-            .background(panelBrush, shape)
-            .border(
-                BorderStroke(1.dp, Color(0xFFA8C4D8).copy(alpha = opacity * 0.55f)),
-                shape,
-            )
-            .padding(horizontal = 16.dp, vertical = 14.dp),
+            .background(surface, shape)
+            .border(BorderStroke(1.dp, Color.White.copy(alpha = if (dark) 0.20f else 0.35f)), shape)
+            .padding(
+                horizontal = GlassTokens.SurfacePaddingH,
+                vertical = GlassTokens.SurfacePaddingV,
+            ),
     ) {
-        val controls = config.quickControls.filter { it.isSupported(capabilities) }
+        Row(
+            modifier = Modifier.fillMaxHeight(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            AnimatedDyson(state = state, modifier = Modifier.size(dysonWidth, dysonHeight))
+            Spacer(Modifier.width(if (large) 14.dp else 10.dp))
 
-        if (hero) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                PreviewHeader(deviceName, modelName, state, capabilities, primary, secondary, accent)
-                Spacer(Modifier.height(10.dp))
+            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
                 Row(
-                    modifier = Modifier.fillMaxWidth().weight(1f, fill = false),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        if (config.showSensors) {
-                            PreviewReadouts(state, capabilities, secondary, primary, accent)
+                        Text(
+                            text = "D Y S O N",
+                            color = primary,
+                            fontSize = if (large) 14.sp else 11.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (ui.model.isNotEmpty()) {
+                                Text(
+                                    text = ui.model,
+                                    color = secondary,
+                                    fontSize = if (large) 12.sp else 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                )
+                                Text(
+                                    text = "  •  ",
+                                    color = GlassTokens.StatusUnknown,
+                                    fontSize = if (large) 12.sp else 10.sp,
+                                )
+                            }
+                            Text(
+                                text = ui.statusLabel,
+                                color = when {
+                                    ui.isOnline -> accent
+                                    ui.status == WidgetStatus.OFFLINE ||
+                                        ui.status == WidgetStatus.ERROR -> offline
+                                    else -> GlassTokens.StatusUnknown
+                                },
+                                fontSize = if (large) 12.sp else 10.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
                         }
                     }
-                    AnimatedDyson(state = state, modifier = Modifier.size(92.dp, 138.dp))
+                    Icon(
+                        painter = painterResource(R.drawable.ic_refresh),
+                        contentDescription = null,
+                        tint = secondary,
+                        modifier = Modifier.size(if (large) 18.dp else 15.dp),
+                    )
                 }
-                Spacer(Modifier.height(10.dp))
-                if (capabilities.fanSpeed) {
-                    PreviewSpeedRow(state, primary, dark)
-                    Spacer(Modifier.height(8.dp))
-                }
-                PreviewControls(controls, state, dark, accent, primary)
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                AnimatedDyson(state = state, modifier = Modifier.size(52.dp, 86.dp))
-                Spacer(Modifier.width(10.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    PreviewHeader(deviceName, modelName, state, capabilities, primary, secondary, accent)
-                    Spacer(Modifier.height(8.dp))
-                    if (capabilities.fanSpeed) {
-                        PreviewSpeedRow(state, primary, dark)
-                        Spacer(Modifier.height(6.dp))
+
+                Spacer(Modifier.weight(1f))
+
+                if (ui.capabilities.fanSpeed) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        PreviewStep(R.drawable.ic_minus, dark, primary, large)
+                        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            Text(
+                                text = ui.speedLabel,
+                                color = primary,
+                                fontSize = if (large) 34.sp else 24.sp,
+                                fontWeight = FontWeight.Medium,
+                            )
+                        }
+                        PreviewStep(R.drawable.ic_plus, dark, primary, large)
                     }
-                    PreviewControls(controls, state, dark, accent, primary)
+                    Spacer(Modifier.height(gap))
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(gap),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (ui.capabilities.power) {
+                        PreviewControl(
+                            modifier = Modifier.weight(1f),
+                            iconRes = R.drawable.ic_power,
+                            active = ui.power,
+                            dark = dark, accent = accent, primary = primary,
+                            height = controlHeight, large = large,
+                        )
+                    }
+                    if (ui.capabilities.autoMode) {
+                        PreviewControl(
+                            modifier = Modifier.weight(1f),
+                            label = "Auto",
+                            active = ui.autoMode,
+                            dark = dark, accent = accent, primary = primary,
+                            height = controlHeight, large = large,
+                        )
+                    }
+                    if (ui.capabilities.oscillation) {
+                        PreviewControl(
+                            modifier = Modifier.weight(1f),
+                            iconRes = R.drawable.ic_oscillation,
+                            active = ui.oscillation,
+                            dark = dark, accent = accent, primary = primary,
+                            height = controlHeight, large = large,
+                        )
+                    }
                 }
             }
         }
@@ -128,170 +205,67 @@ fun WidgetPreview(
 }
 
 @Composable
-private fun PreviewHeader(
-    deviceName: String,
-    modelName: String,
-    state: DysonState,
-    capabilities: DysonCapabilities,
-    primary: Color,
-    secondary: Color,
-    accent: Color,
-) {
-    Column {
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text("D Y S O N", color = primary, fontSize = 11.sp, modifier = Modifier.weight(1f))
-            state.temperatureC?.takeIf { capabilities.temperature }?.let {
-                Text("${it.roundToInt()}°", color = primary, fontSize = 20.sp)
-            }
-        }
-        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(modelName, color = secondary, fontSize = 11.sp, modifier = Modifier.weight(1f))
-            val (label, color) = when (state.connection) {
-                ConnectionStatus.ONLINE -> "Online" to accent
-                ConnectionStatus.OFFLINE -> "Offline" to Color(0xFFFF9B9B)
-                else -> "—" to secondary
-            }
-            Text("● $label", color = color, fontSize = 11.sp)
-        }
-    }
-}
-
-@Composable
-private fun PreviewReadouts(
-    state: DysonState,
-    capabilities: DysonCapabilities,
-    secondary: Color,
-    primary: Color,
-    accent: Color,
-) {
-    @Composable
-    fun row(label: String, value: String, highlight: Boolean = false) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(bottom = 5.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            Text(label, color = secondary, fontSize = 11.sp)
-            Text(value, color = if (highlight) accent else primary, fontSize = 12.sp)
-        }
-    }
-
-    if (capabilities.hasAnySensor) {
-        row("Air", com.glasscontrol.dyson.ui.home.airQualityLabel(state.airQuality), highlight = true)
-    }
-    if (capabilities.pm25) state.pm25?.let { row("PM2.5", "$it µg") }
-    if (capabilities.humidity) state.humidity?.let { row("Humidité", "$it %") }
-    state.filterPercent?.let { row("Filtre", "$it %") }
-}
-
-@Composable
-private fun PreviewSpeedRow(state: DysonState, primary: Color, dark: Boolean) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        PreviewChip(R.drawable.ic_minus, active = false, dark = dark, tint = primary)
-        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-            Text(
-                text = when {
-                    state.autoMode -> "AUTO"
-                    state.fanSpeed != null -> state.fanSpeed.toString().padStart(2, '0')
-                    else -> "--"
-                },
-                color = primary,
-                fontSize = 15.sp,
-            )
-        }
-        PreviewChip(R.drawable.ic_plus, active = false, dark = dark, tint = primary)
-    }
-}
-
-@Composable
-private fun PreviewControls(
-    controls: List<QuickControl>,
-    state: DysonState,
-    dark: Boolean,
-    accent: Color,
-    primary: Color,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        controls.forEach { control ->
-            val active = control.isActive(state)
-            Box(modifier = Modifier.weight(1f)) {
-                PreviewChip(
-                    iconRes = control.iconRes(),
-                    active = active,
-                    dark = dark,
-                    tint = if (active) accent else primary,
-                    fillWidth = true,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun PreviewChip(
-    iconRes: Int,
-    active: Boolean,
-    dark: Boolean,
-    tint: Color,
-    fillWidth: Boolean = false,
-) {
-    val shape = RoundedCornerShape(22.dp)
-    val background = when {
-        active -> tint.copy(alpha = 0.24f)
-        dark -> Color.White.copy(alpha = 0.12f)
-        else -> Color.White.copy(alpha = 0.22f)
-    }
+private fun PreviewStep(iconRes: Int, dark: Boolean, tint: Color, large: Boolean) {
+    val shape = RoundedCornerShape(GlassTokens.RadiusSmall)
     Box(
         modifier = Modifier
-            .then(if (fillWidth) Modifier.fillMaxWidth() else Modifier.width(44.dp))
-            .height(38.dp)
-            .background(background, shape)
-            .border(BorderStroke(1.dp, tint.copy(alpha = if (active) 0.55f else 0.20f)), shape),
+            .width(if (large) 36.dp else 30.dp)
+            .height(if (large) 48.dp else 34.dp)
+            .background(Color.White.copy(alpha = if (dark) 0.12f else 0.24f), shape)
+            .border(BorderStroke(1.dp, Color.White.copy(alpha = if (dark) 0.15f else 0.30f)), shape),
         contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(iconRes),
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(19.dp),
+            modifier = Modifier.size(if (large) 19.dp else 16.dp),
         )
     }
 }
 
-internal fun QuickControl.isSupported(capabilities: DysonCapabilities): Boolean = when (this) {
-    QuickControl.POWER -> capabilities.power
-    QuickControl.AUTO -> capabilities.autoMode
-    QuickControl.OSCILLATION -> capabilities.oscillation
-    QuickControl.NIGHT -> capabilities.nightMode
-    QuickControl.SPEED -> capabilities.fanSpeed
-    QuickControl.HEAT -> capabilities.heating
-}
+@Composable
+private fun PreviewControl(
+    modifier: Modifier,
+    active: Boolean,
+    dark: Boolean,
+    accent: Color,
+    primary: Color,
+    height: Dp,
+    large: Boolean,
+    iconRes: Int? = null,
+    label: String? = null,
+) {
+    val shape = RoundedCornerShape(GlassTokens.RadiusPill)
+    val fill = when {
+        active -> accent.copy(alpha = 0.22f)
+        dark -> Color.White.copy(alpha = 0.12f)
+        else -> Color(0xFF1B2733).copy(alpha = 0.24f)
+    }
+    val stroke = if (active) accent.copy(alpha = 0.6f) else Color.White.copy(alpha = 0.15f)
 
-internal fun QuickControl.isActive(state: DysonState): Boolean = when (this) {
-    QuickControl.POWER -> state.power
-    QuickControl.AUTO -> state.autoMode
-    QuickControl.OSCILLATION -> state.oscillation
-    QuickControl.NIGHT -> state.nightMode
-    QuickControl.SPEED -> false
-    QuickControl.HEAT -> state.heating
-}
-
-internal fun QuickControl.iconRes(): Int = when (this) {
-    QuickControl.POWER -> R.drawable.ic_power
-    QuickControl.AUTO -> R.drawable.ic_auto
-    QuickControl.OSCILLATION -> R.drawable.ic_oscillation
-    QuickControl.NIGHT -> R.drawable.ic_night
-    QuickControl.SPEED -> R.drawable.ic_wind
-    QuickControl.HEAT -> R.drawable.ic_heat
-}
-
-internal fun QuickControl.label(): String = when (this) {
-    QuickControl.POWER -> "Power"
-    QuickControl.AUTO -> "Auto"
-    QuickControl.OSCILLATION -> "Oscillation"
-    QuickControl.NIGHT -> "Nuit"
-    QuickControl.SPEED -> "Vitesse"
-    QuickControl.HEAT -> "Chauffage"
+    Box(
+        modifier = modifier
+            .height(height)
+            .background(fill, shape)
+            .border(BorderStroke(1.dp, stroke), shape),
+        contentAlignment = Alignment.Center,
+    ) {
+        val tint = if (active) accent else primary
+        if (label != null) {
+            Text(
+                text = label,
+                color = tint,
+                fontSize = if (large) 14.sp else 12.sp,
+                fontWeight = FontWeight.Medium,
+            )
+        } else if (iconRes != null) {
+            Icon(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(if (large) 21.dp else 17.dp),
+            )
+        }
+    }
 }

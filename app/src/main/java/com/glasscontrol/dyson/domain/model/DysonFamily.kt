@@ -45,6 +45,25 @@ enum class DysonFamily {
             }
         }
 
+        /**
+         * Short model code for a device type, e.g. "TP04".
+         *
+         * The widget has room for a badge, not a marketing range name, so this
+         * returns the representative code of the range. The real code from the
+         * account is preferred whenever it is known.
+         */
+        fun shortCode(deviceType: String): String = when (deviceType.trimEnd('K', 'E', 'M')) {
+            "475" -> "TP02"
+            "469" -> "DP01"
+            "438" -> "TP04"
+            "520" -> "AM06"
+            "455" -> "HP02"
+            "527" -> "HP04"
+            "358" -> "PH01"
+            "664" -> "BP02"
+            else -> "Dyson"
+        }
+
         /** Human label for a device type, used when the cloud gives us no name. */
         fun displayName(deviceType: String): String = when (fromDeviceType(deviceType)) {
             PURE_COOL_LINK -> "Pure Cool Link"

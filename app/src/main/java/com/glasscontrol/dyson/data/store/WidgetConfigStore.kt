@@ -13,28 +13,15 @@ import kotlinx.serialization.json.Json
 /** How a widget instance should look and which controls it exposes. */
 @Serializable
 data class WidgetConfig(
+    /** Which machine this instance controls, when the account has several. */
     val serial: String? = null,
     val theme: WidgetTheme = WidgetTheme.AUTO,
-    /** 0f = fully transparent glass, 1f = solid panel. */
-    val glassOpacity: Float = 0.55f,
-    val showSensors: Boolean = true,
-    val quickControls: List<QuickControl> = DEFAULT_CONTROLS,
-) {
-    companion object {
-        val DEFAULT_CONTROLS = listOf(
-            QuickControl.POWER,
-            QuickControl.AUTO,
-            QuickControl.OSCILLATION,
-        )
-    }
-}
+    /** Overrides the device name on this widget only. */
+    val customName: String? = null,
+)
 
 @Serializable
 enum class WidgetTheme { LIGHT, DARK, AUTO }
-
-/** The controls a user can put on a widget. */
-@Serializable
-enum class QuickControl { POWER, AUTO, OSCILLATION, NIGHT, SPEED, HEAT }
 
 /**
  * Per-instance widget preferences.

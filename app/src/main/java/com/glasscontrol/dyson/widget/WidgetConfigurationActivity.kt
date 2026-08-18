@@ -158,22 +158,19 @@ private fun ConfigurationContent(appWidgetId: Int, onConfirm: () -> Unit) {
             )
 
             WidgetPreview(
-                config = config,
+                ui = WidgetUiState.from(ui.device, ui.state, ui.capabilities, config),
                 state = ui.state,
-                capabilities = ui.capabilities,
-                deviceName = ui.device?.name ?: "Dyson",
-                modelName = ui.device?.displayModel ?: "Non configuré",
-                hero = true,
+                large = true,
                 systemDark = systemDark,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(330.dp),
+                    .height(196.dp),
             )
 
             Column(modifier = Modifier.padding(top = 20.dp)) {
                 WidgetOptionsEditor(
                     config = config,
-                    capabilities = ui.capabilities,
+                    deviceName = ui.device?.name ?: "Aucun appareil configuré",
                     onConfigChange = { config = it },
                 )
             }

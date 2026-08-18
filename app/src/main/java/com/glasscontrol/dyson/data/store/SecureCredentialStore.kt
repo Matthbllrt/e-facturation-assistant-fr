@@ -5,6 +5,7 @@ import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
 import com.glasscontrol.dyson.core.logW
+import com.glasscontrol.dyson.security.CredentialStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.security.KeyStore
@@ -19,7 +20,7 @@ import javax.crypto.spec.GCMParameterSpec
  * The key lives in the Android Keystore and never leaves it: only the ciphertext
  * reaches disk, so a backup or a pulled data directory yields nothing usable.
  */
-class SecureCredentialStore(context: Context) {
+class SecureCredentialStore(context: Context) : CredentialStore {
 
     private val prefs = context.applicationContext
         .getSharedPreferences(FILE_NAME, Context.MODE_PRIVATE)
@@ -30,7 +31,7 @@ class SecureCredentialStore(context: Context) {
      * Failure here is silent-but-fatal — every later command would report "no
      * device configured" — so the caller is told rather than left guessing.
      */
-    suspend fun putCredential(serial: String, credential: String): Boolean = withContext(Dispatchers.IO) {
+    override suspend fun putCredential(serial: String, credential: String): Boolean = withContext(Dispatchers.IO) {
         runCatching {
             val cipher = Cipher.getInstance(TRANSFORMATION)
             cipher.init(Cipher.ENCRYPT_MODE, loadOrCreateKey())
@@ -44,7 +45,7 @@ class SecureCredentialStore(context: Context) {
         }.onFailure { logW("Unable to store credential", it) }.getOrDefault(false)
     }
 
-    suspend fun getCredential(serial: String): String? = withContext(Dispatchers.IO) {
+    override suspend fun getCredential(serial: String): String? = withContext(Dispatchers.IO) {
         val stored = prefs.getString(key(serial), null) ?: return@withContext null
         runCatching {
             val blob = Base64.decode(stored, Base64.NO_WRAP)
@@ -62,7 +63,7 @@ class SecureCredentialStore(context: Context) {
         }
     }
 
-    suspend fun clear() = withContext(Dispatchers.IO) {
+    override suspend fun clear() = withContext(Dispatchers.IO) {
         prefs.edit().clear().apply()
         runCatching {
             KeyStore.getInstance(ANDROID_KEYSTORE).apply { load(null) }.deleteEntry(KEY_ALIAS)

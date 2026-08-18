@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Liquid-glass panel: smoked translucent body, hairline white edge, and a
+     crown highlight where a real pane would catch the light. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+    <shape android:shape="rectangle">
+        <corners android:radius="32dp" />
+        <gradient
+            android:type="linear"
+            android:angle="270"
+            android:startColor="#6B44505F"
+            android:centerColor="#8C1B2430"
+            android:endColor="#A60C1118" />
+        <stroke android:width="1dp" android:color="#33FFFFFF" />
+    </shape>
+    </item>
+    <item android:height="1dp" android:gravity="top" android:left="26dp" android:right="26dp" android:top="1dp">
+        <shape android:shape="rectangle">
+            <corners android:radius="1dp" />
+            <gradient
+                android:type="linear"
+                android:angle="0"
+                android:startColor="#00FFFFFF"
+                android:centerColor="#8CFFFFFF"
+                android:endColor="#00FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

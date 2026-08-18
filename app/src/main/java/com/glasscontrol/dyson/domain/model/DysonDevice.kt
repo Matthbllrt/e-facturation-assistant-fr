@@ -28,6 +28,16 @@ data class DysonDevice(
 
     val displayModel: String get() = model ?: DysonFamily.displayName(deviceType)
 
+    /**
+     * Compact model badge for the widget, e.g. "TP07".
+     *
+     * The account reports the real code for most machines; otherwise the range's
+     * representative code stands in.
+     */
+    val shortModel: String
+        get() = model?.takeIf { it.isNotBlank() && it.length <= 6 }
+            ?: DysonFamily.shortCode(deviceType)
+
     /** Identity without the secret, safe to persist in plain DataStore. */
     fun withoutCredential(): DysonDevice = copy(credential = "")
 }
