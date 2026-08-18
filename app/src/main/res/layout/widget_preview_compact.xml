@@ -36,7 +36,7 @@
             android:layout_height="wrap_content"
             android:text="@string/widget_preview_subtitle"
             android:textColor="#5AD7F0"
-            android:textSize="10sp" />
+            android:textSize="11sp" />
 
         <TextView
             android:layout_width="wrap_content"
