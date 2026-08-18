@@ -88,7 +88,7 @@ object DysonArtwork {
 
         // Proportions follow a TP07: a 220 x 475 mm loop above a cylinder of
         // almost the same width, the whole machine 1054 mm tall.
-        val deviceW = min(width * 0.48f, height * 0.250f)
+        val deviceW = min(width * 0.56f, height * 0.285f)
         val centerX = width / 2f + visual.oscillationPhase * deviceW * 0.06f
         val ringTop = height * 0.035f
         val ringHeight = deviceW * 1.90f
@@ -233,7 +233,7 @@ object DysonArtwork {
         for (index in 0 until 3) {
             // Each arc drifts outwards then fades, so the motion reads as flow.
             val drift = ((phase + index * 0.33f) % 1f)
-            val radius = deviceW * (0.58f + index * 0.19f + drift * 0.06f)
+            val radius = deviceW * (0.50f + index * 0.14f + drift * 0.05f)
             val fade = if (phase == 0f) 1f else (1f - drift * 0.45f)
             val alpha = (120 * intensity * (1f - index * 0.30f) * fade).toInt()
             if (alpha <= 0) continue

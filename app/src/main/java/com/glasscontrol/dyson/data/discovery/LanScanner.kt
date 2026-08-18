@@ -3,6 +3,7 @@ package com.glasscontrol.dyson.data.discovery
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.LinkAddress
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logD
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -35,7 +36,7 @@ class LanScanner(private val context: Context) {
         connectTimeoutMs: Int = 400,
     ): List<String> = withContext(Dispatchers.IO) {
         val candidates = candidateAddresses() ?: return@withContext emptyList()
-        logD("LAN sweep over ${candidates.size} addresses")
+        logD(LogArea.CONNECTION, "LAN sweep over ${candidates.size} addresses")
 
         // Bounded parallelism: enough to finish in a couple of seconds without
         // opening hundreds of sockets at once on a phone.

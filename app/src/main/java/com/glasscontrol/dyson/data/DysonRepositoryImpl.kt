@@ -1,5 +1,6 @@
 package com.glasscontrol.dyson.data
 
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.DysonError
 import com.glasscontrol.dyson.core.Redact
 import com.glasscontrol.dyson.core.logD
@@ -109,7 +110,7 @@ class DysonRepositoryImpl(
                     }
                 }
             }.onFailure { error ->
-                logW("Live session ended", error)
+                logW(LogArea.CONNECTION, "Live session ended", error)
                 liveSession = null
                 if (!started.isCompleted) started.complete(Result.failure(error))
                 publish(stateCache.read().copy(connection = ConnectionStatus.OFFLINE))
@@ -138,7 +139,7 @@ class DysonRepositoryImpl(
             return runCatching {
                 session.requestRefresh()
                 stateCache.read()
-            }.onFailure { logW("Refresh over the live session failed", it) }
+            }.onFailure { logW(LogArea.CONNECTION, "Refresh over the live session failed", it) }
         }
         return runOperation { session, current -> session.readState(current) }
     }
@@ -188,7 +189,7 @@ class DysonRepositoryImpl(
                 publish(optimistic.copy(connection = ConnectionStatus.ONLINE))
                 optimistic
             }.onFailure { error ->
-                logW("Command over the live session failed", error)
+                logW(LogArea.CONNECTION, "Command over the live session failed", error)
                 publish(current.copy(connection = ConnectionStatus.OFFLINE))
             }
         }
@@ -335,7 +336,7 @@ class DysonRepositoryImpl(
                 }
             }
         }.onFailure { error ->
-            logW("Operation failed", error)
+            logW(LogArea.CONNECTION, "Operation failed", error)
             publish(stateCache.read().copy(connection = ConnectionStatus.OFFLINE))
         }
     }
@@ -351,13 +352,13 @@ class DysonRepositoryImpl(
             runCatching { return block(stored) }
                 .onFailure { error ->
                     if (error !is DysonError.Unreachable && error !is DysonError.Timeout) throw error
-                    logD("Stored host unreachable, rediscovering")
+                    logD(LogArea.CONNECTION, "Stored host unreachable, rediscovering")
                 }
         }
 
         val discovered = resolveHost(device) ?: throw DysonError.Unreachable()
         deviceConfigStore.updateHost(discovered)
-        logD("Relocated ${Redact.serial(device.serial)} at ${Redact.host(discovered)}")
+        logD(LogArea.CONNECTION, "Relocated ${Redact.serial(device.serial)} at ${Redact.host(discovered)}")
         return block(discovered)
     }
 
@@ -373,7 +374,7 @@ class DysonRepositoryImpl(
     suspend fun resolveHost(device: DysonDevice): String? {
         discoverHost(device.serial)?.let { return it }
 
-        logD("mDNS found nothing, sweeping the subnet")
+        logD(LogArea.CONNECTION, "mDNS found nothing, sweeping the subnet")
         val candidates = runCatching { lanScanner.scan() }.getOrDefault(emptyList())
         return candidates.firstOrNull { candidate -> accepts(device, candidate) }
     }

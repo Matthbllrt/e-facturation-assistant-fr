@@ -1,5 +1,6 @@
 package com.glasscontrol.dyson.data.cloud
 
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.DysonError
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.domain.model.DysonDevice
@@ -136,7 +137,7 @@ class DysonCloudApi(
 
         val credential = runCatching { DysonCrypto.decryptLocalCredential(encrypted) }
             .getOrElse {
-                logW("Unable to decrypt local credential for a device")
+                logW(LogArea.CLOUD, "Unable to decrypt local credential for a device")
                 return null
             }
 

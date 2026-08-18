@@ -1,5 +1,6 @@
 package com.glasscontrol.dyson.data.local
 
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.DysonError
 import com.glasscontrol.dyson.core.Redact
 import com.glasscontrol.dyson.core.logD
@@ -182,7 +183,7 @@ class DysonMqttClient(
         })
 
         try {
-            logD("MQTT connect ${Redact.host(host)} serial=${Redact.serial(device.serial)}")
+            logD(LogArea.MQTT, "MQTT connect ${Redact.host(host)} serial=${Redact.serial(device.serial)}")
             client.awaitConnect(device)
             client.awaitSubscribe(device.statusTopic)
             block(Session(client, device, messages, DysonStateParser(device.family), readTimeoutMs))

@@ -56,6 +56,8 @@ android {
     }
     buildFeatures {
         compose = true
+        // Lets logging switch itself off in release builds.
+        buildConfig = true
     }
     packaging {
         resources {

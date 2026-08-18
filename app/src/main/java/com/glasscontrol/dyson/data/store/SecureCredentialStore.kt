@@ -4,6 +4,7 @@ import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.security.CredentialStore
 import kotlinx.coroutines.Dispatchers
@@ -42,7 +43,7 @@ class SecureCredentialStore(context: Context) : CredentialStore {
             prefs.edit()
                 .putString(key(serial), Base64.encodeToString(blob, Base64.NO_WRAP))
                 .commit()
-        }.onFailure { logW("Unable to store credential", it) }.getOrDefault(false)
+        }.onFailure { logW(LogArea.STORAGE, "Unable to store credential", it) }.getOrDefault(false)
     }
 
     override suspend fun getCredential(serial: String): String? = withContext(Dispatchers.IO) {
@@ -57,7 +58,7 @@ class SecureCredentialStore(context: Context) : CredentialStore {
         }.getOrElse {
             // A failure here means the key was invalidated (app data cleared,
             // device restored). Drop the unusable blob so setup can start over.
-            logW("Stored credential is no longer readable, clearing it")
+            logW(LogArea.STORAGE, "Stored credential is no longer readable, clearing it")
             prefs.edit().remove(key(serial)).apply()
             null
         }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.nsd.NsdManager
 import android.net.nsd.NsdServiceInfo
 import android.os.Build
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logD
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.domain.DiscoveredDevice
@@ -43,7 +44,7 @@ class DysonDiscovery(private val context: Context) {
 
         val resolveListener = object : NsdManager.ResolveListener {
             override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {
-                logW("mDNS resolve failed ($errorCode)")
+                logW(LogArea.CONNECTION, "mDNS resolve failed ($errorCode)")
                 resolving = false
                 resolveNext()
             }
@@ -68,7 +69,7 @@ class DysonDiscovery(private val context: Context) {
 
         val discoveryListener = object : NsdManager.DiscoveryListener {
             override fun onDiscoveryStarted(serviceType: String) {
-                logD("mDNS discovery started")
+                logD(LogArea.CONNECTION, "mDNS discovery started")
             }
 
             override fun onServiceFound(serviceInfo: NsdServiceInfo) {
@@ -81,7 +82,7 @@ class DysonDiscovery(private val context: Context) {
             override fun onDiscoveryStopped(serviceType: String?) = Unit
 
             override fun onStartDiscoveryFailed(serviceType: String?, errorCode: Int) {
-                logW("mDNS discovery could not start ($errorCode)")
+                logW(LogArea.CONNECTION, "mDNS discovery could not start ($errorCode)")
                 close()
             }
 
@@ -91,7 +92,7 @@ class DysonDiscovery(private val context: Context) {
         runCatching {
             nsdManager.discoverServices(SERVICE_TYPE, NsdManager.PROTOCOL_DNS_SD, discoveryListener)
         }.onFailure {
-            logW("mDNS unavailable", it)
+            logW(LogArea.CONNECTION, "mDNS unavailable", it)
             close()
             return@callbackFlow
         }

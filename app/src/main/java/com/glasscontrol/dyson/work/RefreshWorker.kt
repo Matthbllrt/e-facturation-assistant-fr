@@ -9,6 +9,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.glasscontrol.dyson.DysonServices
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.widget.DysonWidgetUpdater
 import java.util.concurrent.TimeUnit
@@ -66,5 +67,5 @@ object RefreshScheduler {
             ExistingPeriodicWorkPolicy.KEEP,
             request,
         )
-    }.onFailure { logW("Periodic refresh could not be scheduled", it) }.let { }
+    }.onFailure { logW(LogArea.WIDGET_UPDATE, "Periodic refresh could not be scheduled", it) }.let { }
 }

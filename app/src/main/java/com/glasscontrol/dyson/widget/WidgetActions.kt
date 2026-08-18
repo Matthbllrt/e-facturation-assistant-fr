@@ -5,6 +5,7 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import com.glasscontrol.dyson.DysonServices
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.data.local.CommandEncoder
 import com.glasscontrol.dyson.domain.model.DysonCommand
@@ -66,14 +67,14 @@ class DysonCommandAction : ActionCallback {
             val state = DysonServices.repository.getState()
             WidgetCommands.toCommand(name, state)
         }.getOrElse { error ->
-            logW("Could not resolve widget command '$name'", error)
+            logW(LogArea.WIDGET_ACTION, "Could not resolve widget command '$name'", error)
             null
         }
 
         // Immediate feedback, before anything is queued.
         if (command != null) {
             runCatching { DysonServices.repository.previewCommand(command) }
-                .onFailure { logW("Optimistic update failed", it) }
+                .onFailure { logW(LogArea.WIDGET_ACTION, "Optimistic update failed", it) }
         }
 
         CommandWorker.enqueue(context, name, command)

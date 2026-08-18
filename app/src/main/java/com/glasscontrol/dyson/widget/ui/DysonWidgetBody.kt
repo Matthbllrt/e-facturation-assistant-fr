@@ -75,12 +75,12 @@ data class WidgetMetrics(
     companion object {
         /** Roughly a 4x2 Samsung cell. */
         val Compact = WidgetMetrics(
-            dysonWidth = 56.dp,
-            dysonHeight = 92.dp,
+            dysonWidth = 62.dp,
+            dysonHeight = 100.dp,
             columnGap = 10.dp,
             rowGap = 6.dp,
             wordmarkSize = 11.sp,
-            statusSize = 10.sp,
+            statusSize = 11.sp,
             refreshTouch = 32.dp,
             refreshIcon = 15.dp,
             speedSize = 24.sp,
@@ -94,8 +94,8 @@ data class WidgetMetrics(
 
         /** Roughly a 4x3 Samsung cell: spectacular without eating the screen. */
         val Large = WidgetMetrics(
-            dysonWidth = 90.dp,
-            dysonHeight = 148.dp,
+            dysonWidth = 100.dp,
+            dysonHeight = 164.dp,
             columnGap = 14.dp,
             rowGap = 10.dp,
             wordmarkSize = 14.sp,
@@ -130,11 +130,14 @@ fun DysonWidgetBody(ui: WidgetUiState, palette: GlassPalette, metrics: WidgetMet
 
             Column(modifier = GlanceModifier.defaultWeight().fillMaxHeight()) {
                 HeaderRow(ui, palette, metrics)
-                Spacer(GlanceModifier.defaultWeight())
                 if (ui.capabilities.fanSpeed) {
+                    // Two flexible gaps rather than one: the speed reading settles
+                    // between the header and the controls instead of leaving a
+                    // band of dead space under the model badge.
+                    Spacer(GlanceModifier.defaultWeight())
                     SpeedRow(ui, palette, metrics)
-                    VGap(metrics.rowGap)
                 }
+                Spacer(GlanceModifier.defaultWeight())
                 ControlRow(ui, palette, metrics)
             }
         }

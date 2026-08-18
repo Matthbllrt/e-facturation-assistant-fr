@@ -1,6 +1,7 @@
 package com.glasscontrol.dyson.core
 
 import android.util.Log
+import com.glasscontrol.dyson.BuildConfig
 
 /**
  * Logging helpers that make it hard to accidentally leak a credential.
@@ -27,10 +28,31 @@ object Redact {
 
 private const val TAG = "DysonGlass"
 
-internal fun logD(message: String) {
-    if (Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, message)
+/**
+ * Subsystem labels, so a logcat filter can follow one concern at a time.
+ *
+ * They are prefixes rather than separate tags because a single tag keeps
+ * `adb logcat -s DysonGlass` useful for everything at once.
+ */
+object LogArea {
+    const val CONNECTION = "[DysonConnection]"
+    const val MQTT = "[DysonMQTT]"
+    const val WIDGET_ACTION = "[WidgetAction]"
+    const val WIDGET_UPDATE = "[WidgetUpdate]"
+    const val STORAGE = "[DysonStorage]"
+    const val CLOUD = "[DysonCloud]"
 }
 
-internal fun logW(message: String, error: Throwable? = null) {
-    if (error != null) Log.w(TAG, message, error) else Log.w(TAG, message)
+/**
+ * Debug-only detail.
+ *
+ * Gated on [BuildConfig.DEBUG] as well as the loggable check, so a release build
+ * cannot emit connection detail even if someone enables the tag.
+ */
+internal fun logD(area: String, message: String) {
+    if (BuildConfig.DEBUG && Log.isLoggable(TAG, Log.DEBUG)) Log.d(TAG, "$area $message")
+}
+
+internal fun logW(area: String, message: String, error: Throwable? = null) {
+    if (error != null) Log.w(TAG, "$area $message", error) else Log.w(TAG, "$area $message")
 }

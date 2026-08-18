@@ -148,7 +148,7 @@ fun HomeScreen(viewModel: DysonViewModel) {
             )
         }
 
-        // Speed
+        // Speed, presented exactly as on the widget so the two read as one product.
         if (ui.capabilities.fanSpeed) {
             GlassCard(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                 Column {
@@ -157,19 +157,41 @@ fun HomeScreen(viewModel: DysonViewModel) {
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("Vitesse", style = MaterialTheme.typography.bodyMedium, color = glass.onSurfaceMuted)
-                        Text(
-                            text = when {
-                                ui.state.autoMode -> "AUTO"
-                                ui.state.fanSpeed != null -> "${ui.state.fanSpeed}"
-                                else -> "—"
-                            },
-                            style = MaterialTheme.typography.titleMedium,
-                            color = glass.onSurface,
+                        GlassControlButton(
+                            icon = painterResource(R.drawable.ic_minus),
+                            label = "Moins",
+                            active = false,
+                            size = 52.dp,
+                            onClick = { viewModel.stepSpeed(-1) },
+                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = when {
+                                    !ui.state.power -> "--"
+                                    ui.state.autoMode && ui.state.fanSpeed == null -> "AUTO"
+                                    ui.state.fanSpeed != null ->
+                                        ui.state.fanSpeed.toString().padStart(2, '0')
+                                    else -> "--"
+                                },
+                                style = MaterialTheme.typography.displaySmall,
+                                color = glass.onSurface,
+                            )
+                            Text(
+                                text = "Vitesse",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = glass.onSurfaceMuted,
+                            )
+                        }
+                        GlassControlButton(
+                            icon = painterResource(R.drawable.ic_plus),
+                            label = "Plus",
+                            active = false,
+                            size = 52.dp,
+                            onClick = { viewModel.stepSpeed(1) },
                         )
                     }
                     Slider(
-                        value = (ui.state.fanSpeed ?: 0).toFloat(),
+                        value = (ui.state.fanSpeed ?: 1).toFloat(),
                         onValueChange = { viewModel.setSpeed(it.roundToInt()) },
                         valueRange = 1f..ui.capabilities.maxFanSpeed.toFloat(),
                         steps = ui.capabilities.maxFanSpeed - 2,
@@ -178,6 +200,7 @@ fun HomeScreen(viewModel: DysonViewModel) {
                             activeTrackColor = glass.accent,
                             inactiveTrackColor = glass.border,
                         ),
+                        modifier = Modifier.padding(top = 4.dp),
                     )
                 }
             }

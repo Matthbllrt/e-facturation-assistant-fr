@@ -9,6 +9,7 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.glasscontrol.dyson.DysonServices
+import com.glasscontrol.dyson.core.LogArea
 import com.glasscontrol.dyson.core.logW
 import com.glasscontrol.dyson.domain.model.DysonCommand
 import com.glasscontrol.dyson.widget.WidgetCommands
@@ -40,7 +41,7 @@ class CommandWorker(
         val encoded = inputData.getString(KEY_COMMAND) ?: return Result.success()
         val command = runCatching { json.decodeFromString<DysonCommand>(encoded) }
             .getOrElse { error ->
-                logW("Unreadable widget command", error)
+                logW(LogArea.WIDGET_ACTION, "Unreadable widget command", error)
                 return Result.success()
             }
 
@@ -49,7 +50,7 @@ class CommandWorker(
             // write. Retrying here would stall every queued tap behind WorkManager's
             // ten-second-minimum backoff, which reads as "the widget is dead", so
             // one tap means one attempt.
-            logW("Widget command failed", error)
+            logW(LogArea.WIDGET_ACTION, "Widget command failed", error)
         }
         return Result.success()
     }
