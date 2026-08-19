@@ -67,6 +67,22 @@ Après `setup.bat`, lancez **`build_exe.bat`**. Vous obtenez
 dossiers d'enquête sont créés dans un sous-dossier `cases` placé à côté de
 l'exécutable.
 
+### Version mobile (un seul fichier)
+
+`mobile/InstagramEvidenceRecovery-Mobile.html` est une version autonome en **un
+seul fichier**, à ouvrir directement dans le navigateur d'un téléphone. Aucune
+installation, aucun serveur : l'archive est lue et analysée sur l'appareil.
+
+Elle couvre l'import ZIP/JSON/HTML, les conversations, les abonnés et
+abonnements, la chronologie, les éléments manquants, la comparaison de deux
+exports, la recherche globale, les empreintes SHA-256 et l'export du rapport
+(HTML, JSON, CSV). Le dossier est mémorisé par le navigateur pour être retrouvé
+à la réouverture.
+
+Deux fonctions restent réservées à la version ordinateur : la collecte de la
+page publique (un navigateur l'interdit depuis un fichier local) et le module
+Android par ADB.
+
 ### Linux / macOS
 
 ```bash
