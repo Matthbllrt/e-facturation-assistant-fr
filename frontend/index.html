@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Instagram Evidence Recovery</title>
+<link rel="stylesheet" href="/ui/css/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128269;</text></svg>">
+</head>
+<body>
+
+<!-- ============================ ACCUEIL ============================ -->
+<section id="screen-home" class="screen">
+  <div class="home-wrap">
+    <h1 class="home-title">Instagram Evidence Recovery</h1>
+    <p class="home-sub">
+      Outil local de reconstitution et de conservation de preuves pour <strong>ton propre compte</strong>.
+      Aucune donnée ne quitte cet ordinateur.
+    </p>
+
+    <div class="card home-card">
+      <label class="field-label" for="new-username">Nom d'utilisateur Instagram</label>
+      <div class="username-row">
+        <span class="at">@</span>
+        <input id="new-username" type="text" placeholder="nom_utilisateur" autocomplete="off" spellcheck="false">
+      </div>
+      <p class="hint">Lettres, chiffres, point et tiret bas. Sans le « @ », sans l'URL complète.</p>
+      <button id="btn-create-case" class="btn btn-primary btn-block">Créer le dossier</button>
+      <p id="create-error" class="error hidden"></p>
+    </div>
+
+    <div id="existing-cases" class="card hidden">
+      <h2 class="card-title">Dossiers d'enquête existants</h2>
+      <div id="cases-list" class="cases-list"></div>
+    </div>
+
+    <p class="legal">
+      Cet outil n'accède qu'à des informations publiques et aux fichiers que tu lui fournis.
+      Il ne contourne aucune protection, n'utilise aucun identifiant et ne reconstitue jamais
+      un contenu absent des sources.
+    </p>
+  </div>
+</section>
+
+<!-- ============================ APPLICATION ============================ -->
+<div id="screen-app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-title">Evidence Recovery</div>
+      <div class="brand-case" id="sidebar-case">@—</div>
+    </div>
+    <nav id="nav">
+      <button class="nav-item active" data-view="dashboard">Tableau de bord</button>
+      <button class="nav-item" data-view="profile">Profil</button>
+      <button class="nav-item" data-view="conversations">Conversations</button>
+      <button class="nav-item" data-view="people">Contacts</button>
+      <button class="nav-item" data-view="followers">Abonnés</button>
+      <button class="nav-item" data-view="following">Abonnements</button>
+      <button class="nav-item" data-view="timeline">Chronologie</button>
+      <button class="nav-item" data-view="imports">Imports</button>
+      <button class="nav-item" data-view="sources">Sources</button>
+      <button class="nav-item" data-view="gaps">Éléments manquants</button>
+      <button class="nav-item" data-view="compare">Comparaison d'exports</button>
+      <button class="nav-item" data-view="media">Médias</button>
+      <button class="nav-item" data-view="android">Android</button>
+      <button class="nav-item" data-view="evidence">Mode preuve</button>
+      <button class="nav-item" data-view="checklist">Récupérer davantage</button>
+      <button class="nav-item" data-view="report">Rapport final</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button id="btn-switch-case" class="btn btn-ghost btn-small">Changer de dossier</button>
+      <div class="local-badge">100 % local</div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="search-wrap">
+        <input id="global-search" type="search" placeholder="Rechercher dans toutes les preuves…" autocomplete="off">
+        <button id="btn-search" class="btn btn-small">Rechercher</button>
+      </div>
+      <div class="topbar-right">
+        <span id="evidence-flag" class="flag hidden">MODE PREUVE ACTIF</span>
+        <span id="job-indicator" class="job hidden"></span>
+      </div>
+    </header>
+
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span id="modal-title">Détail</span>
+      <button id="modal-close" class="btn btn-small btn-ghost">Fermer</button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+  </div>
+</div>
+
+<script src="/ui/js/api.js"></script>
+<script src="/ui/js/ui.js"></script>
+<script src="/ui/js/views.js"></script>
+<script src="/ui/js/app.js"></script>
+</body>
+</html>

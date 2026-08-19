@@ -1,0 +1,2389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11141a">
+<meta name="color-scheme" content="light dark">
+<title>Instagram Evidence Recovery — Mobile</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#128269;</text></svg>">
+<style>
+:root{
+  --bg:#f4f6fa; --panel:#fff; --ink:#14161a; --muted:#5f6877; --line:#dfe3ea; --line2:#c6cedb;
+  --accent:#2f5bd0; --accent2:#23459d; --ok:#147a4d; --okbg:#e4f5ec; --warn:#8a5a00; --warnbg:#fdf1da;
+  --bad:#a11d2b; --badbg:#fdeaec; --violet:#4b3fa0; --violetbg:#f0eefb; --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1115; --panel:#171a21; --ink:#e8ecf3; --muted:#98a3b5; --line:#252a34; --line2:#333a47;
+    --accent:#6f96ec; --accent2:#8fb0f3; --ok:#5ed09a; --okbg:#122a20; --warn:#e0b25f; --warnbg:#2c2311;
+    --bad:#f08a95; --badbg:#2e161a; --violet:#a99cf0; --violetbg:#1e1b33; }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+body{padding-bottom:env(safe-area-inset-bottom)}
+.hide{display:none!important}
+a{color:var(--accent)}
+
+/* ---------- accueil ---------- */
+#home{max-width:640px;margin:0 auto;padding:26px 16px 60px}
+h1{font-size:23px;margin:0 0 4px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:0 0 20px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.card h2{font-size:15px;margin:0 0 10px}
+label.f{display:block;font-weight:600;margin-bottom:6px;font-size:14px}
+.userrow{display:flex;align-items:center;border:1px solid var(--line2);border-radius:10px;background:var(--panel);overflow:hidden}
+.userrow span{padding:0 4px 0 12px;color:var(--muted);font-size:17px}
+.userrow input{flex:1;border:0;outline:none;background:transparent;color:var(--ink);
+  padding:13px 12px 13px 0;font-size:16px;min-width:0}
+.hint{color:var(--muted);font-size:12.5px;margin:8px 0 0}
+.btn{display:inline-block;font:inherit;font-size:15px;padding:12px 16px;border-radius:10px;
+  border:1px solid var(--line2);background:var(--panel);color:var(--ink);cursor:pointer;text-align:center}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.btn.danger{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn.block{display:block;width:100%}
+.btn.small{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.pick{display:block;border:2px dashed var(--line2);border-radius:var(--r);padding:18px 14px;text-align:center;
+  color:var(--muted);margin-bottom:10px;cursor:pointer}
+.pick b{display:block;color:var(--ink);font-size:15px;margin-bottom:3px}
+.pick input{display:none}
+
+/* ---------- application ---------- */
+#app{display:flex;flex-direction:column;min-height:100vh}
+header{position:sticky;top:0;z-index:9;background:var(--panel);border-bottom:1px solid var(--line);
+  padding:10px 12px calc(10px + env(safe-area-inset-top)) ;padding-top:max(10px,env(safe-area-inset-top))}
+.hrow{display:flex;align-items:center;gap:8px}
+.hcase{font-weight:700;font-size:15px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.flag{background:var(--badbg);color:var(--bad);font-weight:700;font-size:10.5px;padding:3px 8px;border-radius:20px}
+#q{width:100%;margin-top:8px;padding:10px 12px;border:1px solid var(--line2);border-radius:10px;
+  font:inherit;font-size:16px;background:var(--panel);color:var(--ink)}
+nav{display:flex;gap:6px;overflow-x:auto;padding:9px 12px 3px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+nav::-webkit-scrollbar{display:none}
+nav button{flex:0 0 auto;font:inherit;font-size:13.5px;padding:7px 13px;border-radius:20px;
+  border:1px solid var(--line2);background:var(--panel);color:var(--muted);white-space:nowrap;cursor:pointer}
+nav button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+main{flex:1;padding:12px 12px 40px;max-width:820px;width:100%;margin:0 auto}
+h2.vt{font-size:19px;margin:2px 0 3px}
+p.vs{color:var(--muted);font-size:13px;margin:0 0 14px}
+h3.st{font-size:14px;margin:16px 0 7px}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;margin-bottom:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:11px 13px}
+.kpi b{display:block;font-size:21px;line-height:1.2}
+.kpi span{color:var(--muted);font-size:12px}
+.kpi.w b{color:var(--bad)} .kpi.g b{color:var(--ok)}
+
+.note{background:var(--panel);border-left:4px solid var(--accent);padding:10px 13px;border-radius:0 10px 10px 0;
+  margin:11px 0;font-size:13.5px}
+.note.warn{border-left-color:var(--warn);background:var(--warnbg)}
+.note.bad{border-left-color:var(--bad);background:var(--badbg)}
+.note.ok{border-left-color:var(--ok);background:var(--okbg)}
+.empty{color:var(--muted);padding:24px 14px;text-align:center;border:1px dashed var(--line2);border-radius:var(--r);font-size:14px}
+.muted{color:var(--muted)}
+.src{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;color:var(--muted);word-break:break-all}
+.badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:10.5px;font-weight:700;white-space:nowrap}
+.badge.CONFIRME{background:var(--okbg);color:var(--ok)}
+.badge.PROBABLE{background:var(--warnbg);color:var(--warn)}
+.badge.POSSIBLE{background:var(--violetbg);color:var(--violet)}
+.badge.INCONNU{background:var(--line);color:var(--muted)}
+.badge.tag{background:var(--line);color:var(--muted)}
+
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:340px}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--bg);font-weight:600;font-size:12px;position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+
+.row{display:block;background:var(--panel);border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;margin-bottom:8px;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.row .t{font-weight:600;font-size:14.5px}
+.row .m{color:var(--muted);font-size:12px;margin-top:2px}
+
+.msg{max-width:88%;margin:9px 0;padding:9px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line)}
+.msg.sent{margin-left:auto;background:var(--violetbg);border-color:transparent}
+.msg.unsent{background:var(--badbg);border:1px dashed var(--bad)}
+.msg .who{font-size:11.5px;font-weight:700;color:var(--muted)}
+.msg .bd{white-space:pre-wrap;word-break:break-word;font-size:14.5px}
+.msg .mt{font-size:11px;color:var(--muted);margin-top:5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.msg .raw{font:inherit;font-size:10.5px;padding:2px 8px;border-radius:8px;border:1px solid var(--line2);
+  background:var(--panel);color:var(--muted);cursor:pointer}
+
+.gap{background:var(--badbg);border-left:4px solid var(--bad);padding:10px 13px;margin:9px 0;border-radius:0 10px 10px 0}
+.gap .lb{font-weight:800;color:var(--bad);font-size:10.5px;letter-spacing:.03em}
+
+.day{margin-top:14px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px 13px}
+.day .dt{font-weight:700;font-size:13.5px;padding-bottom:5px;border-bottom:2px solid var(--line)}
+.ev{padding:8px 0;border-bottom:1px dotted var(--line)}
+.ev:last-child{border-bottom:0}
+.ev .tm{color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px}
+
+select,input[type=text],input[type=date],input[type=search]{font:inherit;font-size:16px;padding:9px 10px;
+  border:1px solid var(--line2);border-radius:9px;background:var(--panel);color:var(--ink);max-width:100%}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:9px;margin-bottom:10px}
+.grid label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
+.grid select,.grid input{width:100%}
+.chk{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+
+.bar{height:9px;background:var(--line);border-radius:6px;overflow:hidden;margin:8px 0 4px}
+.bar>div{height:100%;background:var(--accent);transition:width .3s}
+.ci{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ci .mk{font-weight:800;font-size:11.5px;min-width:74px}
+.ci .mk.y{color:var(--ok)} .ci .mk.n{color:var(--bad)}
+
+#toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));background:#11141a;color:#fff;
+  padding:12px 15px;border-radius:11px;font-size:14px;z-index:50;box-shadow:0 8px 26px rgba(0,0,0,.3)}
+#toast.ok{background:#146c46} #toast.bad{background:#9a1b29}
+#modal{position:fixed;inset:0;background:rgba(8,10,14,.6);z-index:60;display:flex;align-items:flex-end;justify-content:center}
+#modal .box{background:var(--panel);border-radius:16px 16px 0 0;width:100%;max-width:820px;max-height:88vh;
+  display:flex;flex-direction:column}
+#modal .hd{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:13px 15px;
+  border-bottom:1px solid var(--line);font-weight:700;font-size:14.5px}
+#modal .bd{padding:14px 15px calc(20px + env(safe-area-inset-bottom));overflow:auto}
+pre{background:var(--bg);border:1px solid var(--line);padding:11px;border-radius:9px;overflow-x:auto;
+  font-size:11.5px;white-space:pre-wrap;word-break:break-word;margin:0}
+.prog{position:fixed;left:0;right:0;top:0;height:3px;background:var(--accent);z-index:70;transition:width .2s}
+details.fold{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);
+  padding:10px 13px;margin-bottom:12px}
+details.fold>summary{cursor:pointer;font-weight:600;font-size:14px;list-style:none}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:"▸ ";color:var(--muted)}
+details.fold[open]>summary::before{content:"▾ "}
+ul.tight{margin:6px 0 0 18px;padding:0} ul.tight li{margin:4px 0;font-size:13.5px}
+ol.tight{margin:6px 0 0 18px;padding:0} ol.tight li{margin:5px 0;font-size:13.5px}
+</style>
+</head>
+<body>
+
+<!-- =================== ACCUEIL =================== -->
+<section id="home">
+  <h1>Instagram Evidence Recovery</h1>
+  <p class="sub">Version mobile, en un seul fichier. Analyse ton archive Instagram
+    <strong>directement dans ce navigateur</strong>. Rien n'est envoyé nulle part.</p>
+
+  <div class="card">
+    <label class="f" for="uname">Nom d'utilisateur Instagram</label>
+    <div class="userrow"><span>@</span>
+      <input id="uname" type="text" placeholder="nom_utilisateur" autocomplete="off"
+             autocapitalize="none" spellcheck="false" inputmode="text"></div>
+    <p class="hint">Lettres, chiffres, point et tiret bas. Sans le « @ », sans l'URL complète.</p>
+    <button id="mkcase" class="btn primary block" style="margin-top:12px">Créer le dossier</button>
+    <p id="mkerr" class="note bad hide"></p>
+  </div>
+
+  <div id="resume" class="card hide">
+    <h2>Reprendre un dossier</h2>
+    <div id="resumebox"></div>
+  </div>
+
+  <div class="card">
+    <h2>Comment ça marche</h2>
+    <ol class="tight">
+      <li>Tu saisis le nom d'utilisateur de <strong>ton</strong> compte.</li>
+      <li>Tu choisis ton archive Instagram (le fichier ZIP) depuis ton téléphone.</li>
+      <li>L'analyse se fait sur l'appareil : conversations, abonnés, chronologie,
+          éléments manquants, empreintes.</li>
+      <li>Tu peux enregistrer un rapport (HTML, JSON, CSV) dans tes fichiers.</li>
+    </ol>
+    <p class="hint">Aucune connexion Internet n'est nécessaire après l'ouverture de cette page.
+      Tu peux la mettre en mode avion : tout continue de fonctionner.</p>
+  </div>
+
+  <div class="card">
+    <h2>Ce que cette version ne fait pas</h2>
+    <ul class="tight">
+      <li>Aucun piratage, aucun contournement d'Instagram, aucun identifiant.</li>
+      <li>Aucune reconstitution de contenu absent : une absence reste une absence.</li>
+      <li>Pas de collecte de la page publique (le navigateur l'interdit depuis un fichier local) :
+          utilise la version ordinateur pour cela.</li>
+      <li>Pas d'accès aux messages privés autrement que par ton propre export officiel.</li>
+    </ul>
+  </div>
+  <p class="hint" style="text-align:center">Version 1.0 — traitement 100 % local</p>
+</section>
+
+<!-- =================== APPLICATION =================== -->
+<div id="app" class="hide">
+  <header>
+    <div class="hrow">
+      <div class="hcase" id="hcase">@—</div>
+      <span id="pmode" class="flag hide">MODE PREUVE</span>
+      <button class="btn small" id="switch">Dossiers</button>
+    </div>
+    <input id="q" type="search" placeholder="Rechercher dans toutes les preuves…"
+           autocomplete="off" autocapitalize="none">
+    <nav id="nav"></nav>
+  </header>
+  <main id="view"></main>
+</div>
+
+<div id="toast" class="hide"></div>
+<div id="modal" class="hide">
+  <div class="box">
+    <div class="hd"><span id="mtitle">Détail</span>
+      <button class="btn small" id="mclose">Fermer</button></div>
+    <div class="bd" id="mbody"></div>
+  </div>
+</div>
+<div id="prog" class="prog hide" style="width:0"></div>
+
+<script>
+"use strict";
+/* ==========================================================================
+   Instagram Evidence Recovery — version mobile autonome.
+
+   Contrainte identique à la version ordinateur : AUCUNE information n'est
+   inventée. Une date absente de la source reste « Date inconnue ». Un contenu
+   absent est signalé comme absent, avec un niveau de confiance explicite,
+   jamais présenté comme retrouvé.
+   ========================================================================== */
+
+/* ------------------------------------------------------------------ outils */
+const $ = (id) => document.getElementById(id);
+const UNKNOWN = "Date inconnue";
+const CONF_LABEL = {CONFIRME:"CONFIRMÉ", PROBABLE:"PROBABLE", POSSIBLE:"POSSIBLE", INCONNU:"INCONNU"};
+const CONF_ORDER = {CONFIRME:0, PROBABLE:1, POSSIBLE:2, INCONNU:3};
+
+function esc(v){
+  if(v===null||v===undefined) return "";
+  return String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+                  .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function cut(t,n){ if(!t) return ""; const s=String(t).replace(/\s+/g," ").trim();
+  return s.length<=n ? s : s.slice(0,n-1)+"…"; }
+function badge(c){ return '<span class="badge '+esc(c)+'">'+esc(CONF_LABEL[c]||c)+"</span>"; }
+function fmtSize(b){ if(!b) return "0 o"; const u=["o","Ko","Mo","Go","To"]; let v=+b,i=0;
+  while(v>=1024&&i<u.length-1){v/=1024;i++;} return (i?v.toFixed(1):v.toFixed(0))+" "+u[i]; }
+function fmtDate(iso){ if(!iso) return UNKNOWN; const d=new Date(iso);
+  if(isNaN(d)) return String(iso);
+  return d.toLocaleString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"}); }
+function fmtDay(day){ if(!day) return UNKNOWN; const d=new Date(day+"T00:00:00Z");
+  if(isNaN(d)) return String(day);
+  return d.toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long",year:"numeric",timeZone:"UTC"}); }
+
+let toastTimer=null;
+function toast(msg,tone){ const n=$("toast"); n.textContent=msg; n.className=tone||"";
+  if(toastTimer) clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{n.className="hide";},5000); }
+function modal(title,html){ $("mtitle").textContent=title; $("mbody").innerHTML=html; $("modal").classList.remove("hide"); }
+$("mclose").onclick=()=>$("modal").classList.add("hide");
+$("modal").addEventListener("click",e=>{ if(e.target.id==="modal") $("modal").classList.add("hide"); });
+function progress(p){ const n=$("prog");
+  if(p===null){ n.classList.add("hide"); n.style.width="0"; return; }
+  n.classList.remove("hide"); n.style.width=Math.max(2,Math.min(100,p))+"%"; }
+const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+
+/* -------------------------------------------------- empreintes SHA-256 */
+const K256=new Uint32Array([
+0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
+0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
+0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
+0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,
+0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,
+0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,
+0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,
+0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+const rotr=(x,n)=>((x>>>n)|(x<<(32-n)))>>>0;
+
+/* Implémentation de repli, utilisée si le navigateur n'expose pas WebCrypto
+   (cas possible en ouverture depuis un fichier local sur certains mobiles). */
+function sha256js(data){
+  const H=new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,
+                           0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const len=data.length;
+  const total=Math.ceil((len+9)/64)*64;
+  const buf=new Uint8Array(total); buf.set(data); buf[len]=0x80;
+  const dv=new DataView(buf.buffer);
+  dv.setUint32(total-8, Math.floor(len/536870912));
+  dv.setUint32(total-4, (len<<3)>>>0);
+  const w=new Uint32Array(64);
+  for(let off=0; off<total; off+=64){
+    for(let i=0;i<16;i++) w[i]=dv.getUint32(off+i*4);
+    for(let i=16;i<64;i++){
+      const a1=w[i-15], a2=w[i-2];
+      const s0=(rotr(a1,7)^rotr(a1,18)^(a1>>>3))>>>0;
+      const s1=(rotr(a2,17)^rotr(a2,19)^(a2>>>10))>>>0;
+      w[i]=(w[i-16]+s0+w[i-7]+s1)>>>0;
+    }
+    let a=H[0],b=H[1],c=H[2],d=H[3],e=H[4],f=H[5],g=H[6],h=H[7];
+    for(let i=0;i<64;i++){
+      const S1=(rotr(e,6)^rotr(e,11)^rotr(e,25))>>>0;
+      const ch=((e&f)^((~e)&g))>>>0;
+      const t1=(h+S1+ch+K256[i]+w[i])>>>0;
+      const S0=(rotr(a,2)^rotr(a,13)^rotr(a,22))>>>0;
+      const mj=((a&b)^(a&c)^(b&c))>>>0;
+      const t2=(S0+mj)>>>0;
+      h=g; g=f; f=e; e=(d+t1)>>>0; d=c; c=b; b=a; a=(t1+t2)>>>0;
+    }
+    H[0]=(H[0]+a)>>>0; H[1]=(H[1]+b)>>>0; H[2]=(H[2]+c)>>>0; H[3]=(H[3]+d)>>>0;
+    H[4]=(H[4]+e)>>>0; H[5]=(H[5]+f)>>>0; H[6]=(H[6]+g)>>>0; H[7]=(H[7]+h)>>>0;
+  }
+  let out=""; for(let i=0;i<8;i++) out+=H[i].toString(16).padStart(8,"0");
+  return out;
+}
+let CRYPTO_OK=null;
+async function sha256(bytes){
+  if(CRYPTO_OK!==false && self.crypto && self.crypto.subtle){
+    try{
+      const buf=await self.crypto.subtle.digest("SHA-256", bytes);
+      CRYPTO_OK=true;
+      return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+    }catch(e){ CRYPTO_OK=false; }
+  }
+  return sha256js(bytes);
+}
+async function sha256Text(text){ return sha256(new TextEncoder().encode(text)); }
+
+/* -------------------------------------------------- lecture d'archives ZIP */
+const DEFLATE_OK = (typeof DecompressionStream !== "undefined");
+
+async function inflateRaw(bytes){
+  const s=new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return new Uint8Array(await new Response(s).arrayBuffer());
+}
+
+/* Lit le catalogue d'un ZIP sans décompresser quoi que ce soit : on obtient la
+   liste complète des fichiers, leur taille et leur CRC-32, sans charger les
+   médias en mémoire (indispensable sur téléphone). */
+async function readZipIndex(file){
+  const size=file.size;
+  const tailLen=Math.min(size, 66000);
+  const tail=new Uint8Array(await file.slice(size-tailLen).arrayBuffer());
+  let eocd=-1;
+  for(let i=tail.length-22;i>=0;i--){
+    if(tail[i]===0x50&&tail[i+1]===0x4b&&tail[i+2]===0x05&&tail[i+3]===0x06){ eocd=i; break; }
+  }
+  if(eocd<0) throw new Error("Ce fichier n'est pas une archive ZIP lisible.");
+  const dv=new DataView(tail.buffer, tail.byteOffset);
+  let count=dv.getUint16(eocd+10,true);
+  let cdSize=dv.getUint32(eocd+12,true);
+  let cdOff=dv.getUint32(eocd+16,true);
+
+  /* ZIP64 : les archives volumineuses stockent les vraies valeurs à part. */
+  if(cdOff===0xFFFFFFFF||cdSize===0xFFFFFFFF||count===0xFFFF){
+    let loc=-1;
+    for(let i=eocd-20;i>=0;i--){
+      if(tail[i]===0x50&&tail[i+1]===0x4b&&tail[i+2]===0x06&&tail[i+3]===0x07){ loc=i; break; }
+    }
+    if(loc<0) throw new Error("Archive ZIP64 non lisible par ce navigateur.");
+    const z64Off=Number(dv.getBigUint64(loc+8,true));
+    const z=new DataView(await file.slice(z64Off, z64Off+56).arrayBuffer());
+    count=Number(z.getBigUint64(32,true));
+    cdSize=Number(z.getBigUint64(40,true));
+    cdOff=Number(z.getBigUint64(48,true));
+  }
+
+  const cd=new Uint8Array(await file.slice(cdOff, cdOff+cdSize).arrayBuffer());
+  const cv=new DataView(cd.buffer, cd.byteOffset);
+  const dec=new TextDecoder("utf-8");
+  const entries=[]; let p=0;
+  while(p+46<=cd.length && entries.length<count+8){
+    if(cv.getUint32(p,true)!==0x02014b50) break;
+    const method=cv.getUint16(p+10,true);
+    const dosTime=cv.getUint16(p+12,true), dosDate=cv.getUint16(p+14,true);
+    const crc=cv.getUint32(p+16,true)>>>0;
+    let comp=cv.getUint32(p+20,true), unc=cv.getUint32(p+24,true);
+    const nLen=cv.getUint16(p+28,true), eLen=cv.getUint16(p+30,true), cLen=cv.getUint16(p+32,true);
+    let lho=cv.getUint32(p+42,true);
+    const name=dec.decode(cd.subarray(p+46, p+46+nLen));
+    /* champ additionnel ZIP64 */
+    if(unc===0xFFFFFFFF||comp===0xFFFFFFFF||lho===0xFFFFFFFF){
+      let ep=p+46+nLen; const end=ep+eLen;
+      while(ep+4<=end){
+        const hid=cv.getUint16(ep,true), hsz=cv.getUint16(ep+2,true); let q=ep+4;
+        if(hid===0x0001){
+          if(unc===0xFFFFFFFF){ unc=Number(cv.getBigUint64(q,true)); q+=8; }
+          if(comp===0xFFFFFFFF){ comp=Number(cv.getBigUint64(q,true)); q+=8; }
+          if(lho===0xFFFFFFFF){ lho=Number(cv.getBigUint64(q,true)); q+=8; }
+        }
+        ep+=4+hsz;
+      }
+    }
+    p+=46+nLen+eLen+cLen;
+    if(name.endsWith("/")) continue;
+    if(name.split("/").some(s=>s==="__MACOSX"||s===".DS_Store")) continue;
+    entries.push({name, method, crc, comp, unc, lho, dosTime, dosDate});
+  }
+  return entries;
+}
+
+function dosToIso(dosDate,dosTime){
+  if(!dosDate) return null;
+  const y=1980+((dosDate>>9)&0x7f), m=(dosDate>>5)&0x0f, d=dosDate&0x1f;
+  const h=(dosTime>>11)&0x1f, mi=(dosTime>>5)&0x3f, s=(dosTime&0x1f)*2;
+  if(m<1||m>12||d<1||d>31) return null;
+  const dt=new Date(Date.UTC(y,m-1,d,h,mi,s));
+  return isNaN(dt)?null:dt.toISOString().replace(/\.\d{3}Z$/,"+00:00");
+}
+
+async function readZipEntry(file, entry){
+  const head=new DataView(await file.slice(entry.lho, entry.lho+30).arrayBuffer());
+  if(head.getUint32(0,true)!==0x04034b50) throw new Error("En-tête ZIP invalide pour "+entry.name);
+  const nLen=head.getUint16(26,true), eLen=head.getUint16(28,true);
+  const start=entry.lho+30+nLen+eLen;
+  const raw=new Uint8Array(await file.slice(start, start+entry.comp).arrayBuffer());
+  if(entry.method===0) return raw;
+  if(entry.method===8){
+    if(!DEFLATE_OK) throw new Error("Ce navigateur ne sait pas décompresser (DecompressionStream absent).");
+    return inflateRaw(raw);
+  }
+  throw new Error("Compression ZIP non prise en charge (méthode "+entry.method+").");
+}
+
+/* ------------------------------------------------ encodage et dates */
+/* Les exports Instagram encodent l'UTF-8 puis le relisent en latin-1 :
+   « CafÃ© » au lieu de « Café ». On répare, sans jamais réécrire la source. */
+function fixMojibake(t){
+  if(typeof t!=="string"||!t) return t;
+  if(!/[ÃÂâðåì]/.test(t)) return t;
+  try{
+    const bytes=new Uint8Array([...t].map(c=>c.charCodeAt(0)&0xff));
+    const out=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
+    return out;
+  }catch(e){ return t; }
+}
+function deepFix(v){
+  if(typeof v==="string") return fixMojibake(v);
+  if(Array.isArray(v)) return v.map(deepFix);
+  if(v&&typeof v==="object"){ const o={}; for(const k in v) o[k]=deepFix(v[k]); return o; }
+  return v;
+}
+function normEpochMs(v){
+  if(v===null||v===undefined||typeof v==="boolean") return null;
+  const n=Number(v);
+  if(!isFinite(n)||n<=0) return null;
+  let ms=n;
+  if(n>1e14) ms=n/1000;        // microsecondes
+  else if(n>1e11) ms=n;        // millisecondes
+  else ms=n*1000;              // secondes
+  if(ms>4e13) return null;
+  return Math.round(ms);
+}
+function msToIso(ms){ if(!ms) return null; const d=new Date(ms);
+  return isNaN(d)?null:d.toISOString().replace(/\.\d{3}Z$/,"+00:00"); }
+
+const FR_MONTHS={janvier:0,"janv":0,"février":1,fevrier:1,"févr":1,fevr:1,mars:2,avril:3,avr:3,mai:4,
+  juin:5,juillet:6,juil:6,"août":7,aout:7,septembre:8,sept:8,octobre:9,oct:9,novembre:10,nov:10,
+  "décembre":11,decembre:11,"déc":11,dec:11};
+const EN_MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,jun:5,jul:6,aug:7,sep:8,oct:9,nov:10,dec:11};
+
+/* Analyse d'une date écrite en toutes lettres (exports HTML, EN et FR).
+   Retourne null si la chaîne n'est pas reconnue : jamais de date devinée. */
+function parseWrittenDate(text){
+  if(!text) return null;
+  const t=String(text).trim();
+  let m=t.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(m) return Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5],+(m[6]||0));
+  /* « May 12, 2025 2:37:00 PM » */
+  m=t.match(/^([A-Za-zéûôa-z]{3,10})\.?\s+(\d{1,2}),?\s+(\d{4})[,\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM|am|pm)?/);
+  if(m){
+    const mo=EN_MONTHS[m[1].slice(0,3).toLowerCase()];
+    if(mo!==undefined){
+      let h=+m[4]; const ap=(m[7]||"").toLowerCase();
+      if(ap==="pm"&&h<12) h+=12; if(ap==="am"&&h===12) h=0;
+      return Date.UTC(+m[3],mo,+m[2],h,+m[5],+(m[6]||0));
+    }
+  }
+  /* « 12 mai 2025, 14:37 » */
+  m=t.match(/^(\d{1,2})\s+([A-Za-zÀ-ÿ]{3,10})\.?\s+(\d{4})[,\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(m){
+    const key=m[2].toLowerCase();
+    const mo=(key in FR_MONTHS)?FR_MONTHS[key]:EN_MONTHS[key.slice(0,3)];
+    if(mo!==undefined) return Date.UTC(+m[3],mo,+m[1],+m[4],+m[5],+(m[6]||0));
+  }
+  /* « 12/05/2025 14:37 » (jour/mois/année) */
+  m=t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})[,\s]+(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(m) return Date.UTC(+m[3],+m[2]-1,+m[1],+m[4],+m[5],+(m[6]||0));
+  return null;
+}
+function findDate(text){
+  if(!text) return null;
+  const direct=parseWrittenDate(text);
+  if(direct!==null) return direct;
+  const m=String(text).match(/[A-Za-zÀ-ÿ0-9][^|]{6,40}?\d{4}[^|]{0,14}\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM|am|pm)?/);
+  return m ? parseWrittenDate(m[0].trim()) : null;
+}
+
+/* ------------------------------------------------ détection de catégorie */
+const JSON_KEYS={
+  relationships_followers:"followers", relationships_following:"following",
+  relationships_follow_requests_sent:"pending_sent",
+  relationships_follow_requests_received:"pending_received",
+  relationships_permanent_follow_requests:"pending_sent",
+  relationships_blocked_users:"blocked", relationships_unfollowed_users:"recently_unfollowed",
+  relationships_close_friends:"close_friends", relationships_dismissed_suggested_users:"removed_suggestions",
+  relationships_hide_stories_from:"removed_suggestions", relationships_syncing_contacts:"contacts",
+  contacts_contact_info:"contacts", profile_user:"profile", profile_profile_change:"profile",
+  account_history_login_history:"login_activity", account_history_logout_history:"login_activity",
+  account_history_registration_info:"account_history", devices_devices:"devices",
+  likes_media_likes:"likes", likes_comment_likes:"likes",
+  comments_media_comments:"comments", comments_reels_comments:"comments",
+  searches_keyword:"searches", searches_user:"searches", ig_search_history:"searches",
+  ig_archived_post_media:"archived", ig_stories:"stories", ig_reels_media:"posts",
+  ig_profile_picture:"profile", ig_other_media:"media_file"
+};
+const PATH_HINTS=[
+  ["messages/inbox","messages"],["message_requests","messages"],["archived_threads","messages"],
+  ["filtered_threads","messages"],["secret_conversations","messages"],["/inbox/","messages"],
+  ["pending_follow_requests","pending_sent"],["follow_requests_you","pending_received"],
+  ["recently_unfollowed","recently_unfollowed"],["recently_followed","recently_followed"],
+  ["close_friends","close_friends"],["blocked_accounts","blocked"],["blocked_profiles","blocked"],
+  ["login_activity","login_activity"],["login_and_profile_creation","login_activity"],
+  ["devices","devices"],["recent_searches","searches"],["personal_information","profile"],
+  ["account_information","profile"],["archived_posts","archived"],["stories","stories"],
+  ["liked_posts","likes"],["liked_comments","likes"],["comments","comments"],["contacts","contacts"],
+  ["posts","posts"]
+];
+const NAME_HINTS=[
+  [/^message_\d+\.(json|html)$/,"messages"],[/^follower(s)?(_\d+)?\.(json|html)$/,"followers"],
+  [/^following(_\d+)?\.(json|html)$/,"following"],[/^blocked_/,"blocked"],[/^close_friends/,"close_friends"],
+  [/^pending_/,"pending_sent"],[/^posts_\d+\./,"posts"],[/^stories\./,"stories"],
+  [/^archived_posts\./,"archived"],[/^personal_information\./,"profile"],[/^profile_photos\./,"profile"],
+  [/^login_activity\./,"login_activity"],[/^logins?\./,"login_activity"],[/^devices\./,"devices"],
+  [/^liked_/,"likes"],[/comments/,"comments"],[/searches/,"searches"],[/^contacts/,"contacts"]
+];
+const MEDIA_EXT=/\.(jpg|jpeg|png|gif|webp|heic|bmp|tiff|mp4|mov|avi|mkv|webm|m4v|3gp|mp3|m4a|aac|wav|ogg|opus)$/i;
+const REL_CATS=new Set(["followers","following","pending_sent","pending_received","blocked",
+  "recently_unfollowed","recently_followed","close_friends","removed_suggestions"]);
+const REL_LABEL={followers:"Abonnés",following:"Abonnements",pending_sent:"Demandes envoyées en attente",
+  pending_received:"Demandes reçues en attente",blocked:"Comptes bloqués",
+  recently_unfollowed:"Désabonnements récents",recently_followed:"Abonnements récents",
+  close_friends:"Amis proches",removed_suggestions:"Suggestions masquées",contacts:"Contacts synchronisés"};
+const CAT_LABEL=Object.assign({},REL_LABEL,{messages:"Conversations",profile:"Profil",
+  login_activity:"Connexions",devices:"Appareils",likes:"J'aime",comments:"Commentaires",
+  searches:"Recherches",posts:"Publications",stories:"Stories",archived:"Contenu archivé",
+  media_file:"Média",account_history:"Historique du compte",unknown:"Non classé"});
+
+/* La détection part des clés JSON réellement présentes : c'est ce qui la rend
+   insensible aux renommages de dossiers pratiqués par Meta. */
+function detectByJson(data){
+  if(!data) return null;
+  if(data && typeof data==="object" && !Array.isArray(data)
+     && Array.isArray(data.messages) && data.participants) return {cat:"messages",why:"clés JSON participants/messages"};
+  if(data && typeof data==="object" && !Array.isArray(data)){
+    for(const k in data) if(JSON_KEYS[k]) return {cat:JSON_KEYS[k], why:"clé JSON « "+k+" »"};
+    for(const k in data){
+      const v=data[k];
+      if(v&&typeof v==="object"&&!Array.isArray(v))
+        for(const k2 in v) if(JSON_KEYS[k2]) return {cat:JSON_KEYS[k2], why:"clé JSON « "+k+"."+k2+" »"};
+    }
+  }
+  if(Array.isArray(data)&&data.length&&data[0]&&typeof data[0]==="object"&&"string_list_data" in data[0])
+    return {cat:null, why:"liste string_list_data"};
+  return null;
+}
+function detectByPath(path){
+  const p=path.toLowerCase();
+  for(const [frag,cat] of PATH_HINTS) if(p.includes(frag)) return {cat,why:"chemin ("+frag+")"};
+  const base=p.split("/").pop();
+  for(const [re,cat] of NAME_HINTS) if(re.test(base)) return {cat,why:"nom de fichier"};
+  return null;
+}
+
+/* ------------------------------------------------ analyse des contenus */
+function parseThreadJson(data, path){
+  if(!data||!Array.isArray(data.messages)) return null;
+  data=deepFix(data);
+  const participants=(data.participants||[]).map(p=>typeof p==="string"?p:(p&&(p.name||p.username))).filter(Boolean);
+  const msgs=[];
+  for(const m of data.messages){
+    if(!m||typeof m!=="object") continue;
+    const media=[];
+    for(const key of ["photos","videos","audio_files","gifs","files","stickers","clips"]){
+      const arr=m[key];
+      if(Array.isArray(arr)) for(const it of arr){
+        if(it&&typeof it==="object"&&(it.uri||it.path)) media.push(String(it.uri||it.path));
+        else if(typeof it==="string") media.push(it);
+      }
+    }
+    let content=(m.content!==undefined?m.content:m.text);
+    if(content!==null&&content!==undefined&&typeof content!=="string") content=JSON.stringify(content);
+    const reactions=Array.isArray(m.reactions)?m.reactions:[];
+    const share=(m.share&&typeof m.share==="object")?m.share:null;
+    let type="system";
+    if(m.is_unsent) type="unsent";
+    else if(m.call_duration!==undefined) type="call";
+    else if(share) type="share";
+    else if(media.length) type="media";
+    else if(content) type="text";
+    else if(reactions.length) type="reaction_only";
+    msgs.push({sender:m.sender_name||m.sender||null,
+      ts:normEpochMs(m.timestamp_ms!==undefined?m.timestamp_ms:m.timestamp),
+      content:content||null, type, media, reactions, share, raw:m});
+  }
+  const parent=path.split("/").filter(Boolean).slice(-2)[0]||"";
+  const meta={}; for(const k in data) if(k!=="messages"&&k!=="participants") meta[k]=data[k];
+  return {external:String(data.thread_path||("inbox/"+parent)),
+    title:data.title||null, participants, messages:msgs, meta, sourceFile:path,
+    isGroup:participants.length>2};
+}
+
+function parseRelationJson(data, path){
+  if(!data) return [];
+  data=deepFix(data);
+  let list=null;
+  if(Array.isArray(data)) list=data;
+  else for(const k in data){
+    if(Array.isArray(data[k])&&data[k].length&&typeof data[k][0]==="object"){ list=data[k]; break; }
+  }
+  if(!list) return [];
+  const out=[];
+  for(const e of list){
+    if(!e||typeof e!=="object") continue;
+    const title=(typeof e.title==="string")?e.title:null;
+    const items=e.string_list_data;
+    if(Array.isArray(items)&&items.length){
+      for(const it of items){
+        if(!it||typeof it!=="object") continue;
+        out.push({username:userFrom(it.href,it.value,title),
+          display:title||((it.value&&it.value!==title)?it.value:null),
+          url:it.href||null, ts:normEpochMs(it.timestamp), raw:e, sourceFile:path});
+      }
+      continue;
+    }
+    const smap=e.string_map_data;
+    if(smap&&typeof smap==="object"){
+      let u=null,d=null,ts=null;
+      for(const k in smap){ const v=smap[k]; if(!v||typeof v!=="object") continue;
+        const kl=k.toLowerCase();
+        if(kl.includes("username")||kl.includes("user name")) u=userFrom(null,v.value,null);
+        else if(kl.includes("name")&&!d) d=v.value;
+        if(v.timestamp!==undefined&&ts===null) ts=normEpochMs(v.timestamp);
+      }
+      out.push({username:u||userFrom(null,title,null), display:d||title,
+        url:(u?"https://www.instagram.com/"+u+"/":null), ts, raw:e, sourceFile:path});
+      continue;
+    }
+    if(title) out.push({username:userFrom(null,title,null), display:title,
+      url:null, ts:normEpochMs(e.timestamp), raw:e, sourceFile:path});
+  }
+  return out;
+}
+const NOT_PROFILE=new Set(["p","reel","reels","stories","explore","tv","accounts","direct","s","web"]);
+function userFrom(href,value,title){
+  if(href){
+    const m=String(href).match(/instagram\.com\/(?:_u\/)?([A-Za-z0-9._]{1,30})/i);
+    if(m&&!NOT_PROFILE.has(m[1].toLowerCase())) return m[1].toLowerCase();
+  }
+  for(const c of [value,title]){
+    if(typeof c==="string"){
+      const t=c.trim().replace(/^@/,"");
+      if(t&&!t.includes(" ")&&t.length<=30&&/^[A-Za-z0-9._]+$/.test(t)) return t.toLowerCase();
+    }
+  }
+  return null;
+}
+
+/* Extraction générique des blocs d'export Meta (likes, commentaires,
+   recherches, connexions, publications, profil…). */
+function parseMetaEntries(data){
+  data=deepFix(data);
+  const items=[];
+  const push=(x)=>{ if(x&&typeof x==="object") items.push(x); };
+  if(Array.isArray(data)) data.forEach(push);
+  else if(data&&typeof data==="object"){
+    for(const k in data){
+      const v=data[k];
+      if(Array.isArray(v)) v.forEach(push);
+      else if(v&&typeof v==="object") for(const k2 in v){ if(Array.isArray(v[k2])) v[k2].forEach(push); }
+    }
+  }
+  const out=[];
+  for(const e of items){
+    const title=(typeof e.title==="string")?e.title:null;
+    const fields={}; const links=[]; const media=[];
+    let ts=normEpochMs(e.creation_timestamp!==undefined?e.creation_timestamp:e.timestamp);
+    const smap=e.string_map_data;
+    if(smap&&typeof smap==="object") for(const k in smap){
+      const v=smap[k]; if(!v||typeof v!=="object") continue;
+      if(v.value!==undefined) fields[k]=v.value;
+      if(v.href) links.push(String(v.href));
+      const t=normEpochMs(v.timestamp); if(t&&!ts) ts=t;
+    }
+    const slist=e.string_list_data;
+    if(Array.isArray(slist)) for(const it of slist){
+      if(!it||typeof it!=="object") continue;
+      if(it.href) links.push(String(it.href));
+      if(it.value!==undefined){ (fields.valeurs=fields.valeurs||[]).push(it.value); }
+      const t=normEpochMs(it.timestamp); if(t&&!ts) ts=t;
+    }
+    const mmap=e.media_map_data;
+    if(mmap&&typeof mmap==="object") for(const k in mmap){
+      const v=mmap[k]; if(v&&v.uri) media.push({label:k,uri:v.uri,ts:normEpochMs(v.creation_timestamp)});
+    }
+    if(Array.isArray(e.media)) for(const it of e.media){
+      if(it&&it.uri) media.push({label:it.title||null,uri:it.uri,ts:normEpochMs(it.creation_timestamp)});
+    }
+    if(e.uri) media.push({label:title,uri:e.uri,ts:normEpochMs(e.creation_timestamp)});
+    if(title||Object.keys(fields).length||links.length||media.length)
+      out.push({title,fields,links,media,ts,raw:e});
+  }
+  return out;
+}
+
+/* Lecture des exports au format HTML : on repère les blocs par leur forme
+   (un bloc se termine par une date analysable), jamais par une classe CSS,
+   que Meta renomme constamment. */
+function parseHtmlBlocks(html){
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const nodes=[...doc.querySelectorAll("div,li,tr,article,section")];
+  const cands=[];
+  for(const n of nodes){
+    const lines=[...n.childNodes].length?textLines(n):[];
+    if(lines.length<2) continue;
+    if(findDate(lines[lines.length-1])!==null) cands.push({node:n,lines});
+  }
+  const set=new Set(cands.map(c=>c.node));
+  return cands.filter(c=>![...c.node.querySelectorAll("div,li,tr")].some(k=>set.has(k)));
+}
+function textLines(node){
+  const out=[];
+  const walk=(n)=>{
+    for(const c of n.childNodes){
+      if(c.nodeType===3){ const t=c.nodeValue.trim(); if(t) out.push(t); }
+      else if(c.nodeType===1) walk(c);
+    }
+  };
+  walk(node);
+  return out;
+}
+function parseThreadHtml(html, path){
+  const blocks=parseHtmlBlocks(html);
+  if(!blocks.length) return null;
+  const msgs=[]; const seen=[];
+  for(const {node,lines} of blocks){
+    const sender=lines[0];
+    const ts=findDate(lines[lines.length-1]);
+    const body=lines.slice(1,-1).filter(Boolean);
+    const media=[...node.querySelectorAll("img,video,source,audio")].map(e=>e.getAttribute("src")).filter(Boolean);
+    const links=[...node.querySelectorAll("a")].map(a=>a.getAttribute("href")).filter(Boolean);
+    const content=body.length?body.join("\n"):null;
+    let type="system";
+    if(content) type="text"; else if(media.length) type="media"; else if(links.length) type="share";
+    if(sender&&!seen.includes(sender)) seen.push(sender);
+    msgs.push({sender:sender||null, ts, content, type, media, reactions:[],
+      share:links.length?{links}:null, raw:{html_lines:lines, media, links, source:"html"}});
+  }
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const parent=path.split("/").filter(Boolean).slice(-2)[0]||"";
+  return {external:"inbox/"+parent, title:(doc.title||seen[0]||null), participants:seen,
+    messages:msgs, meta:{format:"html"}, sourceFile:path, isGroup:seen.length>2};
+}
+function parseRelationHtml(html, path){
+  const doc=new DOMParser().parseFromString(html,"text/html");
+  const out=[]; const seen=new Set();
+  for(const a of doc.querySelectorAll("a")){
+    const href=a.getAttribute("href")||"";
+    const u=userFrom(href,null,null);
+    if(!u) continue;
+    let node=a.parentElement, ts=null, hops=0;
+    while(node&&hops<4&&ts===null){
+      const lines=textLines(node);
+      for(let i=lines.length-1;i>=0;i--){ const d=findDate(lines[i]); if(d!==null){ ts=d; break; } }
+      node=node.parentElement; hops++;
+    }
+    const key=u+"|"+ts;
+    if(seen.has(key)) continue;
+    seen.add(key);
+    const label=(a.textContent||"").trim();
+    out.push({username:u, display:(label&&label!==u)?label:null, url:href, ts,
+      raw:{href,text:label,source:"html"}, sourceFile:path});
+  }
+  return out;
+}
+
+/* ------------------------------------------------ état du dossier */
+const S={
+  username:null, createdAt:null, evidenceMode:false,
+  sources:[],        // {id,label,declaredDate,origin,note,fileCount,bytes,archiveSha,importedAt}
+  files:[],          // {sourceId,path,size,crc,cat,sha,mtime,why}
+  conversations:[],  // {id,sourceId,key,title,participants,messages:[],files:[]}
+  relations:[],      // {sourceId,status,username,display,url,ts,sourceFile,raw}
+  events:[],         // {ts,kind,title,detail,confidence,source,periodStart,periodEnd}
+  gaps:[],           // {type,confidence,description,indicator,source,windowStart,windowEnd,convId}
+  media:[],          // {sourceId,path,kind,ts,context}
+  profile:null,
+  nextSource:1, nextConv:1
+};
+const KIND_LABEL={message:"Conversation",followers:"Nouvel abonné",following:"Abonnement",
+  pending_sent:"Demande envoyée",pending_received:"Demande reçue",blocked:"Compte bloqué",
+  close_friends:"Ami proche",recently_unfollowed:"Désabonnement",recently_followed:"Abonnement récent",
+  removed_suggestions:"Suggestion masquée",like:"J'aime",comment:"Commentaire",search:"Recherche",
+  login:"Connexion",device:"Appareil",post:"Publication",story:"Story",archived:"Contenu archivé",
+  profile:"Profil",account_history:"Historique du compte",contacts:"Contacts",
+  diff_ajout:"Ajout détecté entre deux exports",diff_disparition:"Disparition détectée entre deux exports",
+  activite:"Activité",gap:"ÉLÉMENT POTENTIELLEMENT MANQUANT"};
+
+function ownerAliases(){
+  const a=new Set([String(S.username||"").toLowerCase()]);
+  if(S.profile){ if(S.profile.username) a.add(String(S.profile.username).toLowerCase());
+    if(S.profile.full_name) a.add(String(S.profile.full_name).toLowerCase()); }
+  a.delete("");
+  return a;
+}
+function dedupKey(group,m){
+  return group+"|"+String(m.sender||"").toLowerCase()+"|"+(m.ts||"")+"|"
+    +String(m.content||"").trim()+"|"+(m.media||[]).slice().sort().join(",");
+}
+
+/* ------------------------------------------------ import */
+async function importSource(payload){
+  const {label, declaredDate, origin, note} = payload;
+  const src={id:S.nextSource++, label:label||"Source", declaredDate:declaredDate||null,
+    origin:origin||null, note:note||null, fileCount:0, bytes:0, archiveSha:null,
+    importedAt:new Date().toISOString().replace(/\.\d{3}Z$/,"+00:00"), kind:payload.kind||"instagram_export"};
+  S.sources.push(src);
+
+  const report={files:0, parsed:0, conversations:0, messages:0, relations:{}, media:0,
+                events:0, gaps:0, profile:false, unknown:0, warnings:[]};
+
+  const list=payload.entries;   // [{path, size, crc, mtime, read:async()=>Uint8Array, isMedia}]
+  src.fileCount=list.length;
+
+  for(let i=0;i<list.length;i++){
+    const it=list[i];
+    src.bytes+=it.size||0;
+    const rec={sourceId:src.id, path:it.path, size:it.size||0, crc:it.crc||null,
+               mtime:it.mtime||null, cat:"unknown", sha:null, why:""};
+    S.files.push(rec);
+
+    if(MEDIA_EXT.test(it.path)){
+      rec.cat="media_file"; rec.why="extension média";
+      S.media.push({sourceId:src.id, path:it.path, kind:mediaKind(it.path), ts:null, context:"fichier"});
+      report.media++;
+      if(i%25===0){ progress(100*i/list.length); await sleep(0); }
+      continue;
+    }
+    const lower=it.path.toLowerCase();
+    const isJson=lower.endsWith(".json"), isHtml=lower.endsWith(".html")||lower.endsWith(".htm");
+    if(!isJson&&!isHtml){
+      const g=detectByPath(it.path);
+      if(g&&g.cat){ rec.cat=g.cat; rec.why=g.why; } else report.unknown++;
+      if(i%25===0){ progress(100*i/list.length); await sleep(0); }
+      continue;
+    }
+
+    let bytes=null, text=null;
+    try{ bytes=await it.read(); text=new TextDecoder("utf-8").decode(bytes); }
+    catch(e){ report.warnings.push(it.path+" : "+e.message); continue; }
+    try{ rec.sha=await sha256(bytes); }catch(e){ /* empreinte optionnelle */ }
+
+    try{
+      if(isJson){
+        let data=null;
+        try{ data=JSON.parse(text); }
+        catch(e){ report.warnings.push(it.path+" : JSON illisible"); continue; }
+        const d=detectByJson(data);
+        let cat=d?d.cat:null, why=d?d.why:"";
+        if(!cat){ const g=detectByPath(it.path); if(g){ cat=g.cat; why=(why?why+" + ":"")+g.why; } }
+        rec.cat=cat||"unknown"; rec.why=why||"aucun indice";
+        await ingestParsed(src, rec, cat, data, null, it.path, report);
+      }else{
+        const g=detectByPath(it.path);
+        const cat=g?g.cat:null;
+        rec.cat=cat||"unknown"; rec.why=g?g.why:"HTML non reconnu";
+        await ingestParsed(src, rec, cat, null, text, it.path, report);
+      }
+    }catch(e){ report.warnings.push(it.path+" : "+e.message); }
+
+    if(i%10===0){ progress(100*i/list.length); await sleep(0); }
+  }
+
+  buildConversationEvents(src.id, report);
+  buildRelationEvents(src.id, report);
+  report.gaps += detectGaps(src.id);
+  progress(null);
+  return {src, report};
+}
+
+function mediaKind(p){
+  if(/\.(mp4|mov|avi|mkv|webm|m4v|3gp)$/i.test(p)) return "video";
+  if(/\.(mp3|m4a|aac|wav|ogg|opus)$/i.test(p)) return "audio";
+  return "image";
+}
+
+async function ingestParsed(src, rec, cat, data, text, path, report){
+  if(cat==="messages"){
+    const th = data ? parseThreadJson(data,path) : parseThreadHtml(text,path);
+    if(th){ storeThread(src.id, th, report); rec.parsed=true; report.parsed++; }
+    return;
+  }
+  if(cat && REL_CATS.has(cat)){
+    const entries = data ? parseRelationJson(data,path) : parseRelationHtml(text,path);
+    for(const e of entries){
+      S.relations.push({sourceId:src.id, status:cat, username:e.username, display:e.display,
+        url:e.url, ts:e.ts, sourceFile:path, raw:e.raw});
+    }
+    if(entries.length){ report.relations[cat]=(report.relations[cat]||0)+entries.length;
+      rec.parsed=true; report.parsed++; }
+    return;
+  }
+  if(cat==="profile"){
+    const entries = data ? parseMetaEntries(data) : [];
+    const prof={raw:{}, photos:[]};
+    for(const e of entries){
+      for(const k in e.fields){
+        prof.raw[k]=e.fields[k];
+        const kl=k.toLowerCase();
+        if(kl==="username"&&!prof.username) prof.username=e.fields[k];
+        if((kl==="name"||kl==="nom")&&!prof.full_name) prof.full_name=e.fields[k];
+        if(kl==="bio"||kl==="biography") prof.biography=e.fields[k];
+        if(kl==="email"||kl==="e-mail") prof.email=e.fields[k];
+        if(kl==="website") prof.website=e.fields[k];
+      }
+      prof.photos.push(...e.media);
+    }
+    if(prof.username||prof.full_name){ S.profile=Object.assign(S.profile||{},prof); report.profile=true; }
+    for(const e of entries) for(const m of e.media){
+      S.media.push({sourceId:src.id, path:String(m.uri), kind:mediaKind(String(m.uri)),
+        ts:msToIso(m.ts||e.ts), context:"profile"});
+      report.media++;
+    }
+    report.events+=storeMetaEvents("profile", entries, path);
+    rec.parsed=true; report.parsed++;
+    return;
+  }
+  if(cat && cat!=="unknown"){
+    const entries = data ? parseMetaEntries(data) : [];
+    if(entries.length){
+      report.events+=storeMetaEvents(cat, entries, path);
+      for(const e of entries) for(const m of e.media){
+        S.media.push({sourceId:src.id, path:String(m.uri), kind:mediaKind(String(m.uri)),
+          ts:msToIso(m.ts||e.ts), context:cat});
+        report.media++;
+      }
+      rec.parsed=true; report.parsed++;
+    }
+    return;
+  }
+  report.unknown++;
+}
+
+const EVENT_KIND={likes:"like",comments:"comment",searches:"search",login_activity:"login",
+  devices:"device",posts:"post",stories:"story",archived:"archived",profile:"profile",
+  account_history:"account_history",contacts:"contacts"};
+
+function storeMetaEvents(cat, entries, path){
+  const kind=EVENT_KIND[cat]||"activite";
+  const label=KIND_LABEL[kind]||"Activité";
+  let n=0;
+  for(const e of entries){
+    const bits=[];
+    for(const k of Object.keys(e.fields).slice(0,6)){
+      let v=e.fields[k]; if(Array.isArray(v)) v=v.slice(0,5).join(", ");
+      bits.push(k+" : "+v);
+    }
+    for(const l of e.links.slice(0,3)) bits.push(l);
+    S.events.push({ts:e.ts||null, kind, title:cut(label+" — "+(e.title||label),160),
+      detail:cut(bits.join(" | "),400)||null, confidence:"CONFIRME", source:path, raw:e.raw});
+    n++;
+  }
+  return n;
+}
+
+function storeThread(sourceId, th, report){
+  const key=(th.external||("title:"+(th.title||"sans-titre"))).toLowerCase().replace(/\\/g,"/");
+  let conv=S.conversations.find(c=>c.sourceId===sourceId && c.key===key);
+  if(!conv){
+    conv={id:S.nextConv++, sourceId, key, title:th.title||th.external||"Conversation",
+      participants:th.participants.slice(), isGroup:th.isGroup, messages:[], files:[]};
+    S.conversations.push(conv);
+    report.conversations++;
+  }
+  if(!conv.files.includes(th.sourceFile)) conv.files.push(th.sourceFile);
+  if(!conv.participants.length && th.participants.length) conv.participants=th.participants.slice();
+
+  const owners=ownerAliases();
+  const known=new Set(conv.messages.map(m=>m.dk));
+  for(const m of th.messages){
+    const dk=dedupKey(key,m);
+    if(known.has(dk)) continue;
+    known.add(dk);
+    const s=String(m.sender||"").toLowerCase();
+    conv.messages.push({id:conv.id+"-"+conv.messages.length, dk, sender:m.sender,
+      direction: s&&owners.has(s) ? "sent" : (m.sender?"received":"unknown"),
+      ts:m.ts, content:m.content, type:m.type, media:m.media, reactions:m.reactions,
+      share:m.share, sourceFile:th.sourceFile, raw:m.raw});
+    report.messages++;
+  }
+  conv.messages.sort((a,b)=>(a.ts||0)-(b.ts||0));
+  if(!conv.participants.length){
+    conv.participants=[...new Set(conv.messages.map(m=>m.sender).filter(Boolean))];
+  }
+}
+
+function buildConversationEvents(sourceId, report){
+  for(const c of S.conversations.filter(x=>x.sourceId===sourceId)){
+    const dated=c.messages.filter(m=>m.ts);
+    if(!dated.length) continue;
+    const first=dated[0], last=dated[dated.length-1];
+    for(const [m,tag] of [[first,"Premier message"],[last,"Dernier message"]]){
+      S.events.push({ts:m.ts, kind:"message", title:tag+" — "+c.title,
+        detail:c.messages.length+" message(s) — participants : "+cut(c.participants.join(", "),120),
+        confidence:"CONFIRME", source:c.files.join(", "), ref:{conv:c.id}});
+      report.events++;
+    }
+  }
+}
+function buildRelationEvents(sourceId, report){
+  for(const r of S.relations.filter(x=>x.sourceId===sourceId && x.ts)){
+    S.events.push({ts:r.ts, kind:r.status,
+      title:(REL_LABEL[r.status]||r.status)+" : @"+(r.username||"inconnu"),
+      detail:"Date présente dans le fichier source.",
+      confidence:"CONFIRME", source:r.sourceFile});
+    report.events++;
+  }
+}
+
+/* ------------------------------------------------ éléments manquants */
+function addGap(g){
+  const dup=S.gaps.some(x=>x.type===g.type && x.description===g.description && x.convId===g.convId);
+  if(dup) return 0;
+  S.gaps.push(g); return 1;
+}
+function detectGaps(sourceId){
+  let n=0;
+  const paths=new Set(S.files.map(f=>f.path.split("/").pop().toLowerCase()));
+  const convs=S.conversations.filter(c=>c.sourceId===sourceId);
+
+  for(const c of convs){
+    for(const m of c.messages){
+      /* 1. la source atteste elle-même le retrait : CONFIRMÉ */
+      if(m.type==="unsent"){
+        n+=addGap({type:"message_retire", confidence:"CONFIRME", convId:c.id,
+          description:"Message retiré par son auteur — fil « "+c.title+" », expéditeur "+
+            (m.sender||"inconnu")+", "+(msToIso(m.ts)||UNKNOWN)+
+            ". Le contenu n'est pas présent dans l'export et n'est pas reconstituable.",
+          indicator:"champ « is_unsent » = true dans le fichier source",
+          windowStart:msToIso(m.ts), windowEnd:msToIso(m.ts), source:m.sourceFile, raw:m.raw});
+      }
+      /* 2. média cité par un message mais absent de l'archive : CONFIRMÉ */
+      for(const mp of (m.media||[])){
+        if(/^https?:/i.test(mp)) continue;
+        if(paths.has(mp.split("/").pop().toLowerCase())) continue;
+        n+=addGap({type:"media_reference_absent", confidence:"CONFIRME", convId:c.id,
+          description:"Média référencé par un message mais absent des fichiers importés : « "+mp+
+            " » (fil « "+c.title+" », "+(msToIso(m.ts)||UNKNOWN)+").",
+          indicator:"chemin présent dans le message, fichier introuvable dans la source",
+          windowStart:msToIso(m.ts), windowEnd:msToIso(m.ts), source:m.sourceFile, raw:{media:mp}});
+      }
+      /* 3. réaction sur un message vide : PROBABLE */
+      if((m.reactions||[]).length && !m.content && !(m.media||[]).length){
+        const actors=m.reactions.map(r=>r&&r.actor).filter(Boolean).join(", ");
+        n+=addGap({type:"reaction_sans_cible", confidence:"PROBABLE", convId:c.id,
+          description:"Réaction enregistrée sur un message dont le contenu est absent de l'export (fil « "+
+            c.title+" », "+(msToIso(m.ts)||UNKNOWN)+", réaction de : "+(actors||"auteur inconnu")+
+            "). Le contenu d'origine n'est pas reconstituable.",
+          indicator:"champ « reactions » non vide, contenu et média absents",
+          windowStart:msToIso(m.ts), windowEnd:msToIso(m.ts), source:m.sourceFile, raw:m.reactions});
+      }
+    }
+    /* 4. silence inhabituel : POSSIBLE — jamais présenté comme une suppression */
+    const stamps=c.messages.map(m=>m.ts).filter(Boolean).sort((a,b)=>a-b);
+    if(stamps.length>=30){
+      const deltas=[]; for(let i=1;i<stamps.length;i++) if(stamps[i]>stamps[i-1]) deltas.push(stamps[i]-stamps[i-1]);
+      if(deltas.length>=10){
+        const sorted=deltas.slice().sort((a,b)=>a-b);
+        const med=sorted[Math.floor(sorted.length/2)];
+        const DAY=86400000;
+        if(med>0) for(let i=1;i<stamps.length;i++){
+          const d=stamps[i]-stamps[i-1];
+          if(d>=7*DAY && d>=med*30){
+            n+=addGap({type:"silence_inhabituel", confidence:"POSSIBLE", convId:c.id,
+              description:"Interruption de "+Math.floor(d/DAY)+" jours dans le fil « "+c.title+
+                " » (rythme habituel : environ "+Math.max(1,Math.round(med/60000))+
+                " minute(s) entre deux messages). Cette interruption peut correspondre à une absence "+
+                "d'échange, à des messages non exportés ou à des messages supprimés : aucune de ces "+
+                "hypothèses n'est établie.",
+              indicator:"écart supérieur à 30 fois l'écart médian du fil et à 7 jours",
+              windowStart:msToIso(stamps[i-1]), windowEnd:msToIso(stamps[i]),
+              source:"conversation « "+c.title+" »"});
+          }
+        }
+      }
+    }
+  }
+
+  /* 5. médias orphelins dans un dossier de conversation : PROBABLE */
+  const referenced=new Set();
+  for(const c of S.conversations) for(const m of c.messages)
+    for(const mp of (m.media||[])) referenced.add(mp.split("/").pop().toLowerCase());
+  for(const f of S.files.filter(f=>f.sourceId===sourceId && f.cat==="media_file")){
+    const p=f.path.toLowerCase();
+    if(!(p.includes("/inbox/")||p.includes("message_requests")||p.includes("archived_threads"))) continue;
+    if(referenced.has(f.path.split("/").pop().toLowerCase())) continue;
+    n+=addGap({type:"media_orphelin", confidence:"PROBABLE", convId:null,
+      description:"Média présent dans un dossier de conversation sans message correspondant dans "+
+        "l'export : « "+f.path+" ». Indice d'un message supprimé ou non exporté.",
+      indicator:"fichier dans messages/inbox non référencé par un message", source:f.path});
+  }
+
+  /* 6. série de fichiers incomplète : PROBABLE (Meta numérote toujours depuis 1) */
+  const series={};
+  for(const f of S.files.filter(f=>f.sourceId===sourceId)){
+    const m=f.path.match(/^(.*\/)?(.*?)(\d+)(\.[a-z]+)$/i);
+    if(!m||!m[2]) continue;
+    const key=(m[1]||"")+"|"+m[2]+"|"+m[4];
+    (series[key]=series[key]||new Set()).add(+m[3]);
+  }
+  for(const key in series){
+    const nums=[...series[key]].sort((a,b)=>a-b);
+    if(nums.length<2) continue;
+    const max=nums[nums.length-1];
+    const missing=[]; for(let i=1;i<=max;i++) if(!series[key].has(i)) missing.push(i);
+    if(!missing.length) continue;
+    const [folder,prefix,ext]=key.split("|");
+    n+=addGap({type:"fichier_serie_manquant", confidence:"PROBABLE", convId:null,
+      description:"Série de fichiers incomplète dans « "+(folder||"racine")+" » : "+prefix+"["+
+        missing.join(", ")+"]"+ext+" absent(s) alors que "+prefix+nums[0]+ext+" à "+prefix+max+ext+
+        " sont présents. Le contenu de ce ou ces fichiers n'est pas reconstituable.",
+      indicator:"numérotation discontinue dans une série d'export", source:folder||"racine"});
+  }
+  return n;
+}
+
+/* ------------------------------------------------ comparaison d'exports */
+function compareSources(aId,bId){
+  const A=S.sources.find(s=>s.id===aId), B=S.sources.find(s=>s.id===bId);
+  const la=A.declaredDate||("import du "+A.importedAt.slice(0,10));
+  const lb=B.declaredDate||("import du "+B.importedAt.slice(0,10));
+  const added="Présent dans l'export « "+lb+" » et absent de l'export « "+la+
+              " » : ajout intervenu entre ces deux dates.";
+  const removed="Présent dans l'export « "+la+" » et absent de l'export « "+lb+
+                " » : disparition intervenue entre ces deux dates.";
+
+  const res={a:A,b:B,la,lb,relations:{},conversations:{added:[],removed:[],changed:[]},
+             messages:{added:[],removed:[]},media:{added:[],removed:[]},notes:[]};
+  if(!A.declaredDate||!B.declaredDate)
+    res.notes.push("Au moins un des deux exports n'a pas de date déclarée : la fenêtre temporelle "+
+      "utilise alors la date d'import dans l'outil, qui est postérieure à la date réelle de "+
+      "génération de l'export.");
+
+  for(const kind of ["followers","following","pending_sent","pending_received","blocked","close_friends"]){
+    const ma=new Map(), mb=new Map();
+    for(const r of S.relations) if(r.status===kind){
+      const k=(r.username||r.display||"").toLowerCase(); if(!k) continue;
+      if(r.sourceId===aId) ma.set(k,r); else if(r.sourceId===bId) mb.set(k,r);
+    }
+    if(!ma.size&&!mb.size) continue;
+    const add=[...mb.keys()].filter(k=>!ma.has(k)).sort();
+    const rem=[...ma.keys()].filter(k=>!mb.has(k)).sort();
+    res.relations[kind]={label:REL_LABEL[kind]||kind, countA:ma.size, countB:mb.size,
+      added:add.map(k=>({username:k, date:msToIso(mb.get(k).ts)||UNKNOWN, statement:added})),
+      removed:rem.map(k=>({username:k, date:msToIso(ma.get(k).ts)||UNKNOWN, statement:removed}))};
+  }
+
+  const ca=new Map(S.conversations.filter(c=>c.sourceId===aId).map(c=>[c.key,c]));
+  const cb=new Map(S.conversations.filter(c=>c.sourceId===bId).map(c=>[c.key,c]));
+  for(const [k,c] of cb) if(!ca.has(k)) res.conversations.added.push({title:c.title,count:c.messages.length,statement:added});
+  for(const [k,c] of ca) if(!cb.has(k)) res.conversations.removed.push({title:c.title,count:c.messages.length,statement:removed});
+  for(const [k,c] of ca) if(cb.has(k)&&cb.get(k).messages.length!==c.messages.length)
+    res.conversations.changed.push({title:c.title, a:c.messages.length, b:cb.get(k).messages.length});
+
+  const ma=new Map(), mb=new Map();
+  for(const c of S.conversations) for(const m of c.messages){
+    const row={conv:c.title, sender:m.sender, ts:msToIso(m.ts)||UNKNOWN, excerpt:cut(m.content,140), type:m.type};
+    if(c.sourceId===aId) ma.set(m.dk,row); else if(c.sourceId===bId) mb.set(m.dk,row);
+  }
+  for(const [k,v] of mb) if(!ma.has(k)) res.messages.added.push(Object.assign({statement:added},v));
+  for(const [k,v] of ma) if(!mb.has(k)) res.messages.removed.push(Object.assign({statement:removed},v));
+
+  const fa=new Set(S.media.filter(m=>m.sourceId===aId).map(m=>m.path.split("/").pop().toLowerCase()));
+  const fb=new Set(S.media.filter(m=>m.sourceId===bId).map(m=>m.path.split("/").pop().toLowerCase()));
+  for(const k of fb) if(!fa.has(k)) res.media.added.push({name:k,statement:added});
+  for(const k of fa) if(!fb.has(k)) res.media.removed.push({name:k,statement:removed});
+
+  /* Les changements sont bornés entre deux dates, jamais datés précisément. */
+  const ps=A.declaredDate||A.importedAt, pe=B.declaredDate||B.importedAt;
+  for(const kind in res.relations){
+    for(const e of res.relations[kind].added)
+      S.events.push({ts:null, periodStart:ps, periodEnd:pe, kind:"diff_ajout",
+        title:res.relations[kind].label+" : @"+e.username+" apparaît", detail:e.statement,
+        confidence:"CONFIRME", source:"comparaison "+A.label+" / "+B.label});
+    for(const e of res.relations[kind].removed)
+      S.events.push({ts:null, periodStart:ps, periodEnd:pe, kind:"diff_disparition",
+        title:res.relations[kind].label+" : @"+e.username+" disparaît", detail:e.statement,
+        confidence:"CONFIRME", source:"comparaison "+A.label+" / "+B.label});
+  }
+  for(const e of res.conversations.removed)
+    addGap({type:"conversation_absente_export_recent", confidence:"PROBABLE", convId:null,
+      description:"Conversation « "+e.title+" » ("+e.count+" message(s)) présente dans l'export « "+
+        A.label+" » et absente de l'export « "+B.label+" ». Suppression, archivage ou export partiel : "+
+        "la cause n'est pas établie par les données.",
+      indicator:"comparaison "+A.label+" / "+B.label, windowStart:ps, windowEnd:pe,
+      source:"comparaison "+A.label+" / "+B.label});
+  if(res.messages.removed.length){
+    const byConv={};
+    for(const r of res.messages.removed) byConv[r.conv]=(byConv[r.conv]||0)+1;
+    for(const t in byConv)
+      addGap({type:"messages_absents_export_recent", confidence:"PROBABLE", convId:null,
+        description:byConv[t]+" message(s) du fil « "+t+" » présents dans l'export « "+A.label+
+          " » et absents de l'export « "+B.label+" ». Le contenu reste consultable dans l'export « "+
+          A.label+" » ; l'outil ne reconstitue rien.",
+        indicator:"comparaison "+A.label+" / "+B.label, windowStart:ps, windowEnd:pe,
+        source:"comparaison "+A.label+" / "+B.label});
+  }
+  return res;
+}
+
+/* ------------------------------------------------ recherche globale */
+function search(q, filters){
+  q=(q||"").trim().toLowerCase();
+  const f=filters||{};
+  const out=[];
+  const push=(kind,title,body,ts,source,person,ref)=>{
+    if(f.kind&&f.kind!==kind) return;
+    if(f.person&&!(String(person||"").toLowerCase().includes(f.person.toLowerCase()))) return;
+    if(f.from&&(!ts||ts<f.from)) return;
+    if(f.to&&(!ts||ts>f.to)) return;
+    if(f.source&&!(String(source||"").toLowerCase().includes(f.source.toLowerCase()))) return;
+    const hay=((title||"")+" "+(body||"")).toLowerCase();
+    if(q&&!hay.includes(q)) return;
+    out.push({kind,title,excerpt:excerptOf(body,q),ts,source,person,ref});
+  };
+  for(const c of S.conversations){
+    push("conversation", c.title, c.participants.join(", "), null, c.files.join(", "), null, {conv:c.id});
+    for(const m of c.messages)
+      push("message", (m.sender||"inconnu")+" — "+c.title,
+        [m.content,(m.media||[]).join(" "),m.type].filter(Boolean).join(" "),
+        msToIso(m.ts), m.sourceFile, m.sender, {conv:c.id, msg:m.id});
+  }
+  for(const r of S.relations)
+    push("personne", (REL_LABEL[r.status]||r.status)+" : "+(r.username||r.display||"inconnu"),
+      [r.username,r.display,r.status].filter(Boolean).join(" "), msToIso(r.ts), r.sourceFile, r.username);
+  for(const e of S.events)
+    push("evenement", e.title, [e.title,e.detail,e.kind].filter(Boolean).join(" "),
+      msToIso(e.ts), e.source);
+  for(const g of S.gaps)
+    push("manquant", "ÉLÉMENT POTENTIELLEMENT MANQUANT",
+      [g.description,g.type,g.confidence].join(" "), g.windowStart, g.source);
+  for(const fl of S.files)
+    push("fichier", fl.path.split("/").pop(), [fl.path,fl.cat,fl.sha].filter(Boolean).join(" "),
+      fl.mtime, fl.path);
+  for(const m of S.media)
+    push("media", m.path.split("/").pop(), [m.path,m.context].join(" "), m.ts, m.path);
+  out.sort((a,b)=>String(b.ts||"").localeCompare(String(a.ts||"")));
+  return out.slice(0,400);
+}
+function excerptOf(body,q){
+  if(!body) return "";
+  const s=String(body);
+  if(q){ const i=s.toLowerCase().indexOf(q);
+    if(i>=0){ const st=Math.max(0,i-60); return (st?"…":"")+cut(s.slice(st,st+220),220); } }
+  return cut(s,200);
+}
+
+/* ------------------------------------------------ statistiques */
+function stats(){
+  const convKeys=new Set(S.conversations.map(c=>c.key));
+  const msgKeys=new Set(); for(const c of S.conversations) for(const m of c.messages) msgKeys.add(m.dk);
+  const followers=new Set(S.relations.filter(r=>r.status==="followers"&&r.username).map(r=>r.username));
+  const following=new Set(S.relations.filter(r=>r.status==="following"&&r.username).map(r=>r.username));
+  const exports_=S.sources.filter(s=>s.kind==="instagram_export");
+  return {sources:S.sources.length, exports:exports_.length, files:S.files.length,
+    hashed:S.files.filter(f=>f.sha).length, conversations:convKeys.size, messages:msgKeys.size,
+    media:S.media.length, followers:followers.size, following:following.size,
+    relations:followers.size+following.size, events:S.events.length, gaps:S.gaps.length,
+    canCompare:S.sources.length>=2, evidenceMode:S.evidenceMode};
+}
+function checklist(){
+  const st=stats();
+  const items=[
+    [true,"Nom d'utilisateur connu (@"+S.username+")","Le dossier est rattaché à ce nom d'utilisateur.",1],
+    [st.exports>0,"Export Instagram importé",
+      "Demande ton archive depuis le compte (Paramètres → Espace comptes → Télécharger vos informations, "+
+      "format JSON), ou retrouve une archive ZIP déjà téléchargée dans tes téléphones, sauvegardes, "+
+      "e-mails ou Google Drive. C'est la source la plus riche.",5],
+    [st.canCompare,"Deuxième export permettant une comparaison",
+      "Un second export à une autre date permet de dater les changements sans rien inventer.",3],
+    [st.conversations>0,"Conversations retrouvées",
+      "Les conversations viennent uniquement des exports importés.",3],
+    [st.relations>0,"Abonnés / abonnements retrouvés",
+      "Présents dans connections/followers_and_following de l'export.",2],
+    [st.media>0,"Médias retrouvés",
+      "Dans le dossier media/ de l'export, la pellicule du téléphone et les téléchargements.",1],
+    [st.hashed>0,"Empreintes SHA-256 calculées",
+      "Chaque fichier texte analysé reçoit une empreinte ; l'archive entière peut aussi être empreinte.",2],
+    [S.evidenceMode,"Mode preuve activé",
+      "Fige l'état du dossier : plus aucun import n'est accepté et les empreintes sont verrouillées.",2],
+    [!!(S.sources.find(s=>s.kind!=="instagram_export")),"Sources locales ajoutées",
+      "Ajoute captures d'écran, e-mails Instagram, PDF, sauvegardes : souvent les seules traces "+
+      "d'éléments supprimés côté Instagram.",2]
+  ].map(([done,label,advice,weight])=>({done,label,advice,weight}));
+  const tw=items.reduce((a,i)=>a+i.weight,0);
+  const dw=items.filter(i=>i.done).reduce((a,i)=>a+i.weight,0);
+  return {items, progress:tw?Math.round(100*dw/tw):0, done:items.filter(i=>i.done).length, total:items.length};
+}
+const NOT_RECOVERABLE=[
+  "Messages supprimés côté Instagram et absents de tout export : Meta ne les restitue pas, "+
+  "ils ne sont pas reconstituables.",
+  "Contenu privé d'autres comptes (publications privées, stories, messages auxquels tu n'es pas "+
+  "partie) : inaccessible et hors du périmètre de cet outil.",
+  "Historique complet des connexions, appareils et modifications du compte : disponible uniquement "+
+  "dans un export Instagram, donc après récupération de l'accès.",
+  "Nombre d'abonnés à une date passée : Instagram ne publie que la valeur actuelle ; seules "+
+  "d'anciennes captures ou d'anciens exports en donnent une valeur passée.",
+  "Adresse e-mail et numéro associés au compte : lisibles seulement dans un export ou dans "+
+  "l'interface du compte, donc après récupération de l'accès."
+];
+const LIMITS=[
+  "Les horodatages des exports JSON sont exprimés en temps universel (UTC). Ceux des exports HTML "+
+  "sont écrits par Meta sans indication de fuseau : ils sont repris tels quels et interprétés en UTC, "+
+  "ce qui peut introduire un décalage de quelques heures.",
+  "L'ordre des entrées d'un fichier d'export n'est jamais interprété comme une chronologie : sans "+
+  "date dans la source, la mention « Date inconnue » est affichée.",
+  "Les éléments « potentiellement manquants » sont des indices d'absence, avec leur niveau de "+
+  "confiance. Aucun contenu manquant n'a été reconstitué, deviné ou complété.",
+  "Aucune reconnaissance de texte n'est appliquée aux images : le contenu d'une capture d'écran "+
+  "n'est pas indexé automatiquement.",
+  "Cette version mobile calcule l'empreinte SHA-256 des fichiers texte analysés. Pour les autres "+
+  "fichiers d'une archive, elle enregistre le CRC-32 inscrit dans le ZIP ; l'empreinte SHA-256 de "+
+  "l'archive complète peut être calculée à la demande.",
+  "Cette version mobile ne consulte pas la page publique du profil : un navigateur interdit cette "+
+  "requête depuis un fichier local. Utilise la version ordinateur pour cette collecte."
+];
+
+/* ------------------------------------------------ persistance locale */
+const DB_NAME="ier_mobile", DB_STORE="cases";
+function idb(){
+  return new Promise((res,rej)=>{
+    if(!self.indexedDB) return rej(new Error("IndexedDB indisponible"));
+    const r=indexedDB.open(DB_NAME,1);
+    r.onupgradeneeded=()=>{ if(!r.result.objectStoreNames.contains(DB_STORE)) r.result.createObjectStore(DB_STORE); };
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+}
+function snapshot(){
+  return {username:S.username, createdAt:S.createdAt, evidenceMode:S.evidenceMode,
+    sources:S.sources, files:S.files, conversations:S.conversations, relations:S.relations,
+    events:S.events, gaps:S.gaps, media:S.media, profile:S.profile,
+    nextSource:S.nextSource, nextConv:S.nextConv, savedAt:new Date().toISOString()};
+}
+async function save(){
+  try{
+    const db=await idb();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(DB_STORE,"readwrite");
+      tx.objectStore(DB_STORE).put(snapshot(), S.username);
+      tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+    });
+    db.close();
+    return true;
+  }catch(e){ return false; }
+}
+async function listSaved(){
+  try{
+    const db=await idb();
+    const all=await new Promise((res,rej)=>{
+      const tx=db.transaction(DB_STORE,"readonly");
+      const rq=tx.objectStore(DB_STORE).getAll();
+      rq.onsuccess=()=>res(rq.result||[]); rq.onerror=()=>rej(rq.error);
+    });
+    db.close();
+    return all;
+  }catch(e){ return []; }
+}
+async function dropSaved(name){
+  try{
+    const db=await idb();
+    await new Promise((res,rej)=>{
+      const tx=db.transaction(DB_STORE,"readwrite");
+      tx.objectStore(DB_STORE).delete(name);
+      tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+    });
+    db.close(); return true;
+  }catch(e){ return false; }
+}
+function restore(rec){
+  Object.assign(S,{username:rec.username, createdAt:rec.createdAt, evidenceMode:!!rec.evidenceMode,
+    sources:rec.sources||[], files:rec.files||[], conversations:rec.conversations||[],
+    relations:rec.relations||[], events:rec.events||[], gaps:rec.gaps||[], media:rec.media||[],
+    profile:rec.profile||null, nextSource:rec.nextSource||1, nextConv:rec.nextConv||1});
+}
+
+/* ================================================== interface ============ */
+const VIEWS=[
+  ["dash","Tableau de bord"],["conv","Conversations"],["followers","Abonnés"],
+  ["following","Abonnements"],["time","Chronologie"],["gaps","Manquants"],
+  ["cmp","Comparaison"],["files","Fichiers"],["import","Imports"],
+  ["check","Récupérer +"],["report","Rapport"]
+];
+let current="dash";
+
+function renderNav(){
+  $("nav").innerHTML=VIEWS.map(([k,l])=>
+    '<button data-v="'+k+'" class="'+(k===current?"on":"")+'">'+esc(l)+"</button>").join("");
+  for(const b of $("nav").querySelectorAll("button"))
+    b.onclick=()=>show(b.getAttribute("data-v"));
+}
+function show(v){
+  current=v; renderNav();
+  const el=$("view");
+  try{ el.innerHTML=RENDER[v]?RENDER[v]():'<div class="empty">Vue inconnue.</div>'; }
+  catch(e){ el.innerHTML='<div class="note bad"><strong>Erreur d\'affichage.</strong><br>'+esc(e.message)+"</div>"; }
+  if(BIND[v]) try{ BIND[v](); }catch(e){ console.error(e); }
+  window.scrollTo(0,0);
+  const nb=$("nav").querySelector('button[data-v="'+v+'"]');
+  if(nb) nb.scrollIntoView({inline:"center",block:"nearest",behavior:"smooth"});
+}
+function head(t,s){ return '<h2 class="vt">'+esc(t)+"</h2>"+(s?'<p class="vs">'+esc(s)+"</p>":""); }
+function kpi(v,l,tone){ return '<div class="kpi '+(tone||"")+'"><b>'+esc(v)+"</b><span>"+esc(l)+"</span></div>"; }
+function table(hdr,rows,empty){
+  if(!rows||!rows.length) return '<div class="empty">'+esc(empty||"Aucune donnée.")+"</div>";
+  return '<div class="tw"><table><thead><tr>'+hdr.map(h=>"<th>"+esc(h)+"</th>").join("")+
+    "</tr></thead><tbody>"+rows.map(r=>"<tr>"+r.map(c=>{
+      const v=(c===null||c===undefined)?"":String(c);
+      return "<td>"+(v.startsWith("<")?v:esc(v))+"</td>"; }).join("")+"</tr>").join("")+
+    "</tbody></table></div>";
+}
+function srcLine(t){ return t?'<div class="src">SOURCE : '+esc(t)+"</div>":""; }
+function gapBlock(g){
+  const w=(g.windowStart||g.windowEnd)?" — fenêtre : "+(g.windowStart||"?")+" → "+(g.windowEnd||"?"):"";
+  return '<div class="gap"><span class="lb">ÉLÉMENT POTENTIELLEMENT MANQUANT</span> '+badge(g.confidence)+
+    ' <span class="badge tag">'+esc(g.type)+"</span><div>"+esc(g.description)+"</div>"+
+    '<div class="src">Indice : '+esc(g.indicator||"—")+"</div>"+srcLine((g.source||"")+w)+"</div>";
+}
+
+const RENDER={}, BIND={};
+
+/* ---------- tableau de bord ---------- */
+RENDER.dash=()=>{
+  const st=stats();
+  let h=head("Tableau de bord","Niveau de récupération du dossier @"+S.username);
+  h+='<div class="kpis">'+
+    kpi(st.exports||"aucun","Export Instagram",st.exports?"g":"w")+
+    kpi(st.conversations,"Conversations retrouvées")+
+    kpi(st.messages,"Messages retrouvés")+
+    kpi(st.media,"Médias retrouvés")+
+    kpi(st.relations,"Relations retrouvées")+
+    kpi(st.gaps,"Éléments manquants",st.gaps?"w":"")+
+    kpi(st.hashed,"Fichiers avec empreinte")+
+    kpi(st.sources,"Sources analysées")+
+    "</div>";
+  if(!st.exports)
+    h+='<div class="note warn"><strong>Aucun export Instagram importé.</strong> Sans archive officielle, '+
+       "aucune conversation, aucun abonné et aucun média du compte ne peuvent être récupérés. "+
+       "Va dans <em>Imports</em>.</div>";
+  else if(st.exports===1)
+    h+='<div class="note">Un seul export est présent : importe un second export d\'une autre date '+
+       "pour détecter et borner les changements (onglet <em>Comparaison</em>).</div>";
+  if(S.evidenceMode)
+    h+='<div class="note ok"><strong>Mode preuve actif.</strong> Aucun nouvel import n\'est accepté '+
+       "et les empreintes sont figées.</div>";
+  if(S.profile){
+    h+='<h3 class="st">Profil trouvé dans l\'export</h3>';
+    h+=table(["Champ","Valeur"],
+      [["Nom d'utilisateur",S.profile.username||"—"],["Nom affiché",S.profile.full_name||"—"],
+       ["Biographie",S.profile.biography||"—"],["Adresse e-mail",S.profile.email||"—"],
+       ["Site web",S.profile.website||"—"]]);
+  }
+  h+='<h3 class="st">Sources analysées</h3>';
+  h+=table(["#","Libellé","Date déclarée","Fichiers","Importée le"],
+    S.sources.map(s=>[s.id,s.label,s.declaredDate||UNKNOWN,s.fileCount,fmtDate(s.importedAt)]),
+    "Aucune source.");
+  const byKind={};
+  for(const r of S.relations) if(r.username) (byKind[r.status]=byKind[r.status]||new Set()).add(r.username);
+  h+='<h3 class="st">Relations par type</h3>';
+  h+=table(["Type","Comptes distincts"],
+    Object.keys(byKind).map(k=>[REL_LABEL[k]||k, byKind[k].size]),"Aucune relation importée.");
+  if(S.gaps.length){
+    h+='<h3 class="st">Derniers éléments potentiellement manquants</h3>';
+    h+=S.gaps.slice().sort((a,b)=>CONF_ORDER[a.confidence]-CONF_ORDER[b.confidence]).slice(0,4).map(gapBlock).join("");
+  }
+  return h;
+};
+
+/* ---------- conversations ---------- */
+let convSel=null;
+RENDER.conv=()=>{
+  const groups={};
+  for(const c of S.conversations){
+    const g=groups[c.key]=groups[c.key]||{key:c.key,title:c.title,participants:c.participants,
+      msgs:new Map(), files:new Set(), sources:new Set()};
+    for(const m of c.messages) g.msgs.set(m.dk,m);
+    c.files.forEach(f=>g.files.add(f));
+    g.sources.add(c.sourceId);
+    if(!g.title||g.title==="Conversation") g.title=c.title;
+  }
+  const list=Object.values(groups).map(g=>({key:g.key,title:g.title,participants:g.participants,
+    n:g.msgs.size, last:Math.max(0,...[...g.msgs.values()].map(m=>m.ts||0)), sources:g.sources.size}))
+    .sort((a,b)=>b.last-a.last);
+
+  let h=head("Conversations","Messages reconstitués à partir des fichiers importés uniquement.");
+  if(!list.length) return h+'<div class="empty">Aucune conversation. Importe une archive contenant '+
+    "le dossier <em>messages/inbox</em>.</div>";
+
+  if(!convSel||!groups[convSel]) convSel=list[0].key;
+  h+='<details class="fold" id="dfold"><summary>Filtres de recherche dans les messages</summary>'+
+    '<div class="grid">'+
+    '<div><label>Mot recherché</label><input type="text" id="dq" placeholder="mot ou expression"></div>'+
+    '<div><label>Expéditeur</label><input type="text" id="ds" placeholder="nom affiché"></div>'+
+    '<div><label>À partir du</label><input type="date" id="df"></div>'+
+    '<div><label>Jusqu\'au</label><input type="date" id="dt"></div>'+
+    '<div><label>Type</label><select id="dy"><option value="">Tous</option><option value="text">Texte</option>'+
+    '<option value="media">Média</option><option value="share">Partage / lien</option>'+
+    '<option value="unsent">Message retiré</option><option value="reaction_only">Réaction seule</option>'+
+    '<option value="call">Appel</option></select></div>'+
+    '<div><label>Sens</label><select id="dd"><option value="">Tous</option>'+
+    '<option value="sent">Envoyés</option><option value="received">Reçus</option></select></div>'+
+    "</div>";
+  h+='<div class="btnrow"><label class="chk"><input type="checkbox" id="dm"> Médias seuls</label>'+
+     '<label class="chk"><input type="checkbox" id="dl"> Liens seuls</label>'+
+     '<button class="btn small primary" id="dgo">Filtrer</button>'+
+     '<button class="btn small" id="drs">Réinitialiser</button></div></details>';
+  h+='<h3 class="st">Fils ('+list.length+")</h3>";
+  h+='<div id="convlist">'+list.map(c=>
+    '<button class="row" data-k="'+esc(c.key)+'" style="'+(c.key===convSel?"border-color:var(--accent)":"")+'">'+
+    '<div class="t">'+esc(c.title||"Sans titre")+"</div>"+
+    '<div class="m">'+c.n+" message(s) · dernier : "+esc(c.last?fmtDate(msToIso(c.last)):UNKNOWN)+"</div>"+
+    '<div class="m">'+esc(cut(c.participants.join(", "),70))+"</div></button>").join("")+"</div>";
+  h+='<div id="thread"></div>';
+  return h;
+};
+BIND.conv=()=>{
+  for(const b of $("view").querySelectorAll("#convlist .row"))
+    b.onclick=()=>{
+      convSel=b.getAttribute("data-k");
+      show("conv");
+      const t=$("thread");
+      if(t) t.scrollIntoView({behavior:"smooth", block:"start"});
+    };
+  const go=()=>drawThread();
+  const g=$("dgo"); if(g) g.onclick=go;
+  const rs=$("drs"); if(rs) rs.onclick=()=>{ ["dq","ds","df","dt"].forEach(i=>{const e=$(i); if(e)e.value="";});
+    ["dy","dd"].forEach(i=>{const e=$(i); if(e)e.value="";});
+    ["dm","dl"].forEach(i=>{const e=$(i); if(e)e.checked=false;}); drawThread(); };
+  drawThread();
+};
+function drawThread(){
+  const box=$("thread"); if(!box||!convSel) return;
+  const msgs=new Map(); const files=new Set();
+  let title="Conversation"; const convIds=[];
+  for(const c of S.conversations) if(c.key===convSel){
+    title=c.title; convIds.push(c.id);
+    for(const m of c.messages) msgs.set(m.dk,m);
+    c.files.forEach(f=>files.add(f));
+  }
+  const val=(id)=>{ const e=$(id); return e?e.value.trim():""; };
+  const chk=(id)=>{ const e=$(id); return e?e.checked:false; };
+  const q=val("dq").toLowerCase(), sender=val("ds").toLowerCase();
+  const from=val("df")?Date.parse(val("df")+"T00:00:00Z"):null;
+  const to=val("dt")?Date.parse(val("dt")+"T23:59:59Z"):null;
+  const type=val("dy"), dir=val("dd"), onlyMedia=chk("dm"), onlyLinks=chk("dl");
+
+  let list=[...msgs.values()].sort((a,b)=>(a.ts||0)-(b.ts||0));
+  list=list.filter(m=>{
+    if(q&&!((m.content||"")+" "+(m.media||[]).join(" ")).toLowerCase().includes(q)) return false;
+    if(sender&&!String(m.sender||"").toLowerCase().includes(sender)) return false;
+    if(from&&(!m.ts||m.ts<from)) return false;
+    if(to&&(!m.ts||m.ts>to)) return false;
+    if(type&&m.type!==type) return false;
+    if(dir&&m.direction!==dir) return false;
+    if(onlyMedia&&!(m.media||[]).length) return false;
+    if(onlyLinks&&!(m.share||/https?:\/\//.test(m.content||""))) return false;
+    return true;
+  });
+
+  let h='<h3 class="st">'+esc(title)+" — "+list.length+" message(s) affiché(s)</h3>";
+  h+='<div class="note">Les messages affichés proviennent uniquement des fichiers importés. '+
+     "Aucun message n'est reconstitué : les absences détectées sont listées séparément comme "+
+     "éléments potentiellement manquants.</div>";
+  const cg=S.gaps.filter(g=>convIds.includes(g.convId));
+  h+=cg.map(gapBlock).join("");
+  if(!list.length) h+='<div class="empty">Aucun message ne correspond à ces filtres.</div>';
+  for(const m of list){
+    const cls=["msg"]; if(m.direction==="sent") cls.push("sent"); if(m.type==="unsent") cls.push("unsent");
+    h+='<div class="'+cls.join(" ")+'"><div class="who">'+esc(m.sender||"Expéditeur inconnu")+"</div>";
+    if(m.type==="unsent")
+      h+='<div class="bd"><em>Message retiré par son auteur — contenu absent de l\'export, non reconstituable.</em></div>';
+    else if(m.content) h+='<div class="bd">'+esc(m.content)+"</div>";
+    else if((m.media||[]).length) h+='<div class="bd"><em>Média :</em> <span class="src">'+esc(m.media[0])+"</span></div>";
+    else if(m.share) h+='<div class="bd"><em>Partage :</em> <span class="src">'+esc(cut(JSON.stringify(m.share),160))+"</span></div>";
+    else h+='<div class="bd muted"><em>Aucun contenu textuel dans la source.</em></div>';
+    if((m.reactions||[]).length)
+      h+='<div class="src">'+esc(m.reactions.map(r=>((r&&r.reaction)||"")+" "+((r&&r.actor)||"")).join(" · "))+"</div>";
+    h+='<div class="mt"><span>'+esc(m.ts?fmtDate(msToIso(m.ts)):UNKNOWN)+"</span>"+
+       '<span class="src">'+esc(cut(m.sourceFile,44))+"</span>"+
+       '<button class="raw" data-dk="'+esc(m.dk)+'">Source originale</button></div></div>';
+  }
+  box.innerHTML=h;
+  for(const b of box.querySelectorAll(".raw")) b.onclick=()=>{
+    const dk=b.getAttribute("data-dk");
+    let found=null, file=null, sha=null;
+    for(const c of S.conversations) for(const m of c.messages) if(m.dk===dk){ found=m.raw; file=m.sourceFile; }
+    const f=S.files.find(x=>x.path===file);
+    if(f) sha=f.sha;
+    modal("Donnée originale du message",
+      '<p class="src">Fichier source : '+esc(file||"inconnu")+"</p>"+
+      '<p class="src">Empreinte SHA-256 du fichier : '+esc(sha||"non calculée")+"</p>"+
+      "<pre>"+esc(JSON.stringify(found,null,2))+"</pre>");
+  };
+}
+
+/* ---------- relations ---------- */
+function relView(kind,titre){
+  return ()=>{
+    const kinds={};
+    for(const r of S.relations) kinds[r.status]=(kinds[r.status]||0)+1;
+    const sel=window["__rel_"+kind]||kind;
+    const sort=window["__sort_"+kind]||"date_desc";
+    let rows=S.relations.filter(r=>r.status===sel);
+    const filter=(window["__q_"+kind]||"").toLowerCase();
+    if(filter) rows=rows.filter(r=>String(r.username||r.display||"").toLowerCase().includes(filter));
+    rows=rows.slice().sort((a,b)=>{
+      if(sort==="alpha") return String(a.username||a.display||"").localeCompare(String(b.username||b.display||""));
+      if(sort==="alpha_desc") return String(b.username||b.display||"").localeCompare(String(a.username||a.display||""));
+      const av=a.ts||0, bv=b.ts||0;
+      if(!av&&!bv) return 0; if(!av) return 1; if(!bv) return -1;
+      return sort==="date_asc" ? av-bv : bv-av;
+    });
+    const noDate=rows.filter(r=>!r.ts).length;
+    let h=head(titre,"Une date n'est affichée que si elle figure réellement dans le fichier source.");
+    h+='<div class="grid">'+
+      '<div><label>Type</label><select id="rk">'+Object.keys(kinds).map(k=>
+        '<option value="'+esc(k)+'"'+(k===sel?" selected":"")+">"+esc(REL_LABEL[k]||k)+" ("+kinds[k]+")</option>").join("")+
+      "</select></div>"+
+      '<div><label>Tri</label><select id="rs">'+
+      '<option value="date_desc"'+(sort==="date_desc"?" selected":"")+">Du plus récent au plus ancien</option>"+
+      '<option value="date_asc"'+(sort==="date_asc"?" selected":"")+">Du plus ancien au plus récent</option>"+
+      '<option value="alpha"'+(sort==="alpha"?" selected":"")+">Alphabétique (A→Z)</option>"+
+      '<option value="alpha_desc"'+(sort==="alpha_desc"?" selected":"")+">Alphabétique (Z→A)</option>"+
+      "</select></div>"+
+      '<div><label>Filtrer</label><input type="text" id="rq" value="'+esc(window["__q_"+kind]||"")+'" placeholder="nom"></div>'+
+      "</div>";
+    h+='<div class="note">L\'ordre des entrées d\'un export n\'est jamais interprété comme une '+
+       "chronologie : "+noDate+" entrée(s) affichée(s) « "+UNKNOWN+" ».</div>";
+    h+=table(["Compte","Date dans la source","Export","Fichier source"],
+      rows.map(r=>[
+        r.username?"@"+r.username:(r.display||"inconnu"),
+        r.ts?fmtDate(msToIso(r.ts)):'<span class="muted">'+UNKNOWN+"</span>",
+        (S.sources.find(s=>s.id===r.sourceId)||{}).label||"—",
+        '<span class="src">'+esc(cut(r.sourceFile,40))+"</span>"]),
+      "Aucune entrée pour ce type de relation.");
+    return h;
+  };
+}
+function relBind(kind){
+  return ()=>{
+    const k=$("rk"), s=$("rs"), q=$("rq");
+    if(k) k.onchange=()=>{ window["__rel_"+kind]=k.value; show(current); };
+    if(s) s.onchange=()=>{ window["__sort_"+kind]=s.value; show(current); };
+    if(q) q.onchange=()=>{ window["__q_"+kind]=q.value; show(current); };
+  };
+}
+RENDER.followers=relView("followers","Abonnés"); BIND.followers=relBind("followers");
+RENDER.following=relView("following","Abonnements"); BIND.following=relBind("following");
+
+/* ---------- chronologie ---------- */
+RENDER.time=()=>{
+  const conf=window.__tconf||"", kind=window.__tkind||"";
+  const kinds={}; for(const e of S.events) kinds[e.kind]=(kinds[e.kind]||0)+1;
+  let evs=S.events.slice();
+  if(conf) evs=evs.filter(e=>e.confidence===conf);
+  if(kind) evs=evs.filter(e=>e.kind===kind);
+
+  const days={}, undated=[];
+  for(const e of evs){
+    const iso=msToIso(e.ts);
+    if(iso) (days[iso.slice(0,10)]=days[iso.slice(0,10)]||[]).push({...e,iso});
+    else undated.push(e);
+  }
+  for(const g of S.gaps){
+    const ev={ts:null, kind:"gap", title:"ÉLÉMENT POTENTIELLEMENT MANQUANT", detail:g.description,
+      confidence:g.confidence, source:g.source, periodStart:g.windowStart, periodEnd:g.windowEnd};
+    if(conf&&g.confidence!==conf) continue;
+    if(kind&&kind!=="gap") continue;
+    if(g.windowStart) (days[g.windowStart.slice(0,10)]=days[g.windowStart.slice(0,10)]||[])
+      .push({...ev, iso:g.windowStart});
+    else undated.push(ev);
+  }
+
+  let h=head("Chronologie","Chaque événement affiche sa source et son niveau de confiance.");
+  h+='<div class="grid">'+
+    '<div><label>Niveau de confiance</label><select id="tc"><option value="">Tous</option>'+
+    ["CONFIRME","PROBABLE","POSSIBLE","INCONNU"].map(c=>
+      '<option value="'+c+'"'+(conf===c?" selected":"")+">"+CONF_LABEL[c]+"</option>").join("")+"</select></div>"+
+    '<div><label>Type d\'événement</label><select id="tk"><option value="">Tous</option>'+
+    Object.keys(kinds).sort().map(k=>'<option value="'+esc(k)+'"'+(kind===k?" selected":"")+">"+
+      esc(KIND_LABEL[k]||k)+" ("+kinds[k]+")</option>").join("")+"</select></div></div>";
+  h+='<div class="note"><strong>CONFIRMÉ</strong> : donnée présente telle quelle dans une source vérifiée · '+
+     "<strong>PROBABLE</strong> : plusieurs indices concordants · <strong>POSSIBLE</strong> : indice unique "+
+     "ou anomalie statistique · <strong>INCONNU</strong> : indice insuffisant.</div>";
+
+  const keys=Object.keys(days).sort();
+  if(!keys.length&&!undated.length) h+='<div class="empty">Aucun événement pour ces filtres.</div>';
+  for(const d of keys){
+    h+='<div class="day"><div class="dt">'+esc(fmtDay(d))+"</div>";
+    for(const e of days[d].sort((a,b)=>String(a.iso).localeCompare(String(b.iso)))){
+      h+='<div class="ev"><span class="tm">'+esc(e.iso.slice(11,16)||"--:--")+"</span> "+
+         "<strong>"+esc(e.title)+"</strong> "+badge(e.confidence)+
+         ' <span class="badge tag">'+esc(KIND_LABEL[e.kind]||e.kind)+"</span>"+
+         (e.detail?"<div>"+esc(cut(e.detail,300))+"</div>":"")+srcLine(e.source)+"</div>";
+    }
+    h+="</div>";
+  }
+  if(undated.length){
+    h+='<div class="day"><div class="dt">Événements sans date précise</div>'+
+       '<p class="vs">Ces événements ne sont pas datés dans les sources : ils sont bornés entre deux '+
+       "exports, jamais placés arbitrairement à une date.</p>";
+    for(const e of undated){
+      const w=(e.periodStart||e.periodEnd)
+        ? "entre "+String(e.periodStart||"?").slice(0,10)+" et "+String(e.periodEnd||"?").slice(0,10)
+        : UNKNOWN;
+      h+='<div class="ev"><strong>'+esc(e.title)+"</strong> "+badge(e.confidence)+
+         ' <span class="badge tag">'+esc(w)+"</span>"+
+         (e.detail?"<div>"+esc(cut(e.detail,300))+"</div>":"")+srcLine(e.source)+"</div>";
+    }
+    h+="</div>";
+  }
+  return h;
+};
+BIND.time=()=>{
+  const c=$("tc"), k=$("tk");
+  if(c) c.onchange=()=>{ window.__tconf=c.value; show("time"); };
+  if(k) k.onchange=()=>{ window.__tkind=k.value; show("time"); };
+};
+
+/* ---------- éléments manquants ---------- */
+RENDER.gaps=()=>{
+  let h=head("Éléments supprimés / manquants",
+    "Indices d'absence relevés dans les données. Aucun contenu n'est reconstitué.");
+  h+='<div class="note bad">Ces éléments ne sont pas des contenus retrouvés : ce sont des indices '+
+     "d'absence. Aucun message, aucune date et aucun contenu n'a été inventé.</div>";
+  const byType={};
+  for(const g of S.gaps){ const k=g.type+"|"+g.confidence; byType[k]=(byType[k]||0)+1; }
+  h+=table(["Type d'indice","Niveau de confiance","Nombre"],
+    Object.keys(byType).map(k=>{ const [t,c]=k.split("|"); return [t,badge(c),byType[k]]; }),
+    "Aucun indice détecté.");
+  const sorted=S.gaps.slice().sort((a,b)=>CONF_ORDER[a.confidence]-CONF_ORDER[b.confidence]);
+  if(!sorted.length) h+='<div class="empty">Aucun élément manquant détecté dans les sources importées.</div>';
+  h+=sorted.map(gapBlock).join("");
+  return h;
+};
+
+/* ---------- comparaison ---------- */
+let cmpResult=null;
+RENDER.cmp=()=>{
+  let h=head("Comparaison d'exports",
+    "Comparer deux exports permet de dater les changements sans jamais inventer de date.");
+  if(S.sources.length<2)
+    h+='<div class="note warn">Il faut au moins deux sources importées. Importe un second export '+
+       "daté d'une autre période.</div>";
+  const opts=S.sources.map(s=>'<option value="'+s.id+'">#'+s.id+" — "+esc(s.label)+
+    " ("+esc(s.declaredDate||"date inconnue")+")</option>").join("");
+  h+='<div class="grid"><div><label>Export le plus ancien</label><select id="ca">'+opts+"</select></div>"+
+     '<div><label>Export le plus récent</label><select id="cb">'+opts+"</select></div></div>"+
+     '<div class="btnrow"><button class="btn primary" id="cgo">Comparer</button></div>';
+  h+='<div id="cres">'+(cmpResult?renderCmp(cmpResult):"")+"</div>";
+  return h;
+};
+BIND.cmp=()=>{
+  const a=$("ca"), b=$("cb");
+  if(a&&b&&S.sources.length>=2){ a.selectedIndex=0; b.selectedIndex=S.sources.length-1; }
+  const g=$("cgo");
+  if(g) g.onclick=()=>{
+    if(S.sources.length<2){ toast("Deux sources sont nécessaires.","bad"); return; }
+    const ia=+a.value, ib=+b.value;
+    if(ia===ib){ toast("Choisis deux exports différents.","bad"); return; }
+    cmpResult=compareSources(ia,ib);
+    $("cres").innerHTML=renderCmp(cmpResult);
+    save();
+    toast("Comparaison effectuée.","ok");
+  };
+};
+function renderCmp(r){
+  let h='<h3 class="st">'+esc(r.a.label)+" → "+esc(r.b.label)+"</h3>";
+  h+='<div class="note">Fenêtre de comparaison : entre <strong>'+esc(r.la)+"</strong> et <strong>"+
+     esc(r.lb)+"</strong>. Tout changement listé ci-dessous est intervenu entre ces deux dates.</div>";
+  for(const n of r.notes) h+='<div class="note warn">'+esc(n)+"</div>";
+  const relAdd=Object.values(r.relations).reduce((a,b)=>a+b.added.length,0);
+  const relRem=Object.values(r.relations).reduce((a,b)=>a+b.removed.length,0);
+  h+='<div class="kpis">'+kpi(relAdd,"Relations apparues")+kpi(relRem,"Relations disparues")+
+     kpi(r.conversations.added.length,"Conversations apparues")+
+     kpi(r.conversations.removed.length,"Conversations disparues")+
+     kpi(r.messages.added.length,"Messages ajoutés")+
+     kpi(r.messages.removed.length,"Messages absents du récent")+
+     kpi(r.media.added.length,"Médias ajoutés")+kpi(r.media.removed.length,"Médias disparus")+"</div>";
+  for(const k in r.relations){
+    const b=r.relations[k];
+    if(!b.added.length&&!b.removed.length) continue;
+    h+='<h3 class="st">'+esc(b.label)+" ("+b.countA+" → "+b.countB+")</h3>";
+    h+=table(["Sens","Compte","Date dans la source","Constat"],
+      b.added.map(e=>["Apparu","@"+e.username,e.date,e.statement])
+        .concat(b.removed.map(e=>["Disparu","@"+e.username,e.date,e.statement])));
+  }
+  if(r.conversations.added.length||r.conversations.removed.length||r.conversations.changed.length){
+    h+='<h3 class="st">Conversations</h3>';
+    h+=table(["Sens","Conversation","Messages","Constat"],
+      r.conversations.added.map(e=>["Apparue",e.title,e.count,e.statement])
+        .concat(r.conversations.removed.map(e=>["Disparue",e.title,e.count,e.statement]))
+        .concat(r.conversations.changed.map(e=>["Volume modifié",e.title,e.a+" → "+e.b,
+          "Écart de "+((e.b-e.a>0?"+":"")+(e.b-e.a))+" message(s) entre les deux exports."])));
+  }
+  if(r.messages.added.length||r.messages.removed.length){
+    h+='<h3 class="st">Messages</h3>';
+    h+=table(["Sens","Conversation","Expéditeur","Date","Extrait"],
+      r.messages.added.slice(0,200).map(e=>["Ajouté",e.conv,e.sender,e.ts,e.excerpt])
+        .concat(r.messages.removed.slice(0,200).map(e=>["Absent du récent",e.conv,e.sender,e.ts,e.excerpt])));
+  }
+  if(r.media.added.length||r.media.removed.length){
+    h+='<h3 class="st">Médias</h3>';
+    h+=table(["Sens","Fichier"], r.media.added.slice(0,200).map(e=>["Ajouté",e.name])
+      .concat(r.media.removed.slice(0,200).map(e=>["Disparu",e.name])));
+  }
+  return h;
+}
+
+/* ---------- fichiers et empreintes ---------- */
+RENDER.files=()=>{
+  let h=head("Fichiers et empreintes","Chaque fichier importé est répertorié avec sa taille et son empreinte.");
+  h+='<div class="note">Les fichiers texte analysés (JSON, HTML) reçoivent une empreinte SHA-256 '+
+     "calculée sur l'appareil. Pour les autres fichiers d'une archive, l'outil enregistre le CRC-32 "+
+     "inscrit dans le ZIP. L'empreinte SHA-256 de l'archive complète peut être calculée à la demande "+
+     "depuis l'onglet Imports.</div>";
+  const byCat={};
+  for(const f of S.files) byCat[f.cat]=(byCat[f.cat]||0)+1;
+  h+=table(["Catégorie détectée","Fichiers"],
+    Object.keys(byCat).sort().map(k=>[CAT_LABEL[k]||k,byCat[k]]),"Aucun fichier.");
+  h+='<h3 class="st">Détail ('+S.files.length+" fichiers)</h3>";
+  h+=table(["Fichier","Catégorie","Taille","SHA-256","CRC-32","Détection"],
+    S.files.slice(0,600).map(f=>[
+      '<span class="src">'+esc(f.path)+"</span>",
+      CAT_LABEL[f.cat]||f.cat, fmtSize(f.size),
+      '<span class="src">'+esc(f.sha?f.sha.slice(0,24)+"…":"—")+"</span>",
+      '<span class="src">'+(f.crc!==null&&f.crc!==undefined?("0x"+(f.crc>>>0).toString(16).padStart(8,"0")):"—")+"</span>",
+      '<span class="src">'+esc(f.why||"—")+"</span>"]),
+    "Aucun fichier.");
+  if(S.files.length>600) h+='<p class="vs">'+(S.files.length-600)+" fichier(s) supplémentaire(s) "+
+    "présents dans le rapport JSON.</p>";
+  return h;
+};
+
+/* ---------- imports ---------- */
+RENDER.import=()=>{
+  let h=head("Imports","Archive ZIP, ou fichiers JSON/HTML d'un export Instagram.");
+  if(S.evidenceMode)
+    h+='<div class="note bad"><strong>Mode preuve actif.</strong> Les imports sont bloqués. '+
+       "Désactive-le ci-dessous pour ajouter une source.</div>";
+  if(!DEFLATE_OK)
+    h+='<div class="note warn">Ce navigateur ne sait pas décompresser les archives ZIP '+
+       "(fonction <em>DecompressionStream</em> absente). Décompresse l'archive sur le téléphone, "+
+       "puis choisis directement les fichiers JSON. Mets ton navigateur à jour pour lever cette limite.</div>";
+
+  h+='<div class="card"><div class="grid">'+
+    '<div><label>Libellé de la source</label><input type="text" id="ilab" placeholder="ex. Export Instagram 2025"></div>'+
+    "<div><label>Date de l'export (si connue)</label><input type=\"text\" id=\"idate\" placeholder=\"AAAA-MM-JJ\" inputmode=\"numeric\"></div>"+
+    '<div><label>Provenance déclarée</label><input type="text" id="iorig" placeholder="ex. téléchargé sur instagram.com"></div>'+
+    '<div><label>Type</label><select id="ikind"><option value="instagram_export">Export Instagram</option>'+
+    '<option value="local_files">Autres fichiers</option></select></div></div>'+
+    '<label class="pick" for="fzip"><b>Choisir l\'archive ZIP</b>'+
+    "Le fichier téléchargé depuis Instagram"+
+    '<input type="file" id="fzip" accept=".zip,application/zip"></label>'+
+    '<label class="pick" for="ffiles"><b>Ou choisir des fichiers</b>'+
+    "JSON, HTML ou dossier déjà décompressé (sélection multiple)"+
+    '<input type="file" id="ffiles" multiple></label>'+
+    '<div id="istate" class="vs"></div></div>';
+
+  h+='<div class="card"><h2>Sources importées</h2>'+
+    table(["#","Libellé","Type","Date déclarée","Fichiers","Taille","Importée le"],
+      S.sources.map(s=>[s.id,s.label,s.kind,s.declaredDate||UNKNOWN,s.fileCount,fmtSize(s.bytes),
+        fmtDate(s.importedAt)]),"Aucune source importée.")+"</div>";
+
+  h+='<div class="card"><h2>Mode preuve</h2>'+
+    "<p class=\"vs\">Fige l'état du dossier : plus aucun import n'est accepté, et le rapport indique "+
+    "que les empreintes ont été verrouillées. Active-le une fois tes imports terminés.</p>"+
+    '<div class="btnrow"><button class="btn '+(S.evidenceMode?"danger":"primary")+'" id="pm">'+
+    (S.evidenceMode?"Désactiver le mode preuve":"Activer le mode preuve")+"</button>"+
+    '<button class="btn" id="sha">Empreinte SHA-256 d\'une archive</button></div>'+
+    '<input type="file" id="fsha" accept=".zip" style="display:none"></div>';
+
+  h+='<div class="card"><h2>Dossier enregistré sur cet appareil</h2>'+
+    '<p class="vs">Le dossier est sauvegardé dans le navigateur : tu peux fermer la page et la rouvrir '+
+    "plus tard sans tout réimporter. Les fichiers d'origine, eux, restent où ils sont sur ton téléphone.</p>"+
+    '<div class="btnrow"><button class="btn" id="dosave">Enregistrer maintenant</button>'+
+    '<button class="btn danger" id="dodrop">Effacer ce dossier de l\'appareil</button></div></div>';
+  return h;
+};
+BIND.import=()=>{
+  const meta=()=>({label:($("ilab").value||"").trim(), declaredDate:($("idate").value||"").trim(),
+    origin:($("iorig").value||"").trim(), kind:$("ikind").value});
+
+  $("fzip").onchange=async(e)=>{
+    const file=e.target.files[0]; if(!file) return;
+    if(S.evidenceMode){ toast("Mode preuve actif : import bloqué.","bad"); return; }
+    const st=$("istate"); st.textContent="Lecture du catalogue de l'archive…";
+    try{
+      const entries=await readZipIndex(file);
+      st.textContent=entries.length+" fichier(s) dans l'archive. Analyse en cours…";
+      const m=meta();
+      const list=entries.map(en=>({path:en.name, size:en.unc, crc:en.crc,
+        mtime:dosToIso(en.dosDate,en.dosTime),
+        read:()=>readZipEntry(file,en)}));
+      const {report}=await importSource({entries:list, label:m.label||file.name,
+        declaredDate:m.declaredDate, origin:m.origin, kind:m.kind});
+      st.innerHTML="<strong>Analyse terminée.</strong> "+report.conversations+" conversation(s), "+
+        report.messages+" message(s), "+Object.values(report.relations).reduce((a,b)=>a+b,0)+
+        " relation(s), "+report.media+" média(s), "+report.gaps+" indice(s) d'absence."+
+        (report.warnings.length?"<br><span class='muted'>"+report.warnings.length+" avertissement(s).</span>":"");
+      await save();
+      toast("Import terminé.","ok");
+      show("dash");
+    }catch(err){ progress(null); st.innerHTML='<span style="color:var(--bad)">'+esc(err.message)+"</span>"; }
+  };
+
+  $("ffiles").onchange=async(e)=>{
+    const files=[...e.target.files]; if(!files.length) return;
+    if(S.evidenceMode){ toast("Mode preuve actif : import bloqué.","bad"); return; }
+    const st=$("istate"); st.textContent=files.length+" fichier(s) sélectionné(s). Analyse en cours…";
+    try{
+      const m=meta();
+      const list=files.map(f=>({path:(f.webkitRelativePath||f.name), size:f.size, crc:null,
+        mtime:f.lastModified?new Date(f.lastModified).toISOString().replace(/\.\d{3}Z$/,"+00:00"):null,
+        read:async()=>new Uint8Array(await f.arrayBuffer())}));
+      const {report}=await importSource({entries:list, label:m.label||("Fichiers ("+files.length+")"),
+        declaredDate:m.declaredDate, origin:m.origin, kind:m.kind});
+      st.innerHTML="<strong>Analyse terminée.</strong> "+report.conversations+" conversation(s), "+
+        report.messages+" message(s), "+report.gaps+" indice(s) d'absence.";
+      await save();
+      toast("Import terminé.","ok");
+      show("dash");
+    }catch(err){ progress(null); st.innerHTML='<span style="color:var(--bad)">'+esc(err.message)+"</span>"; }
+  };
+
+  $("pm").onclick=async()=>{
+    S.evidenceMode=!S.evidenceMode;
+    await save();
+    $("pmode").classList.toggle("hide",!S.evidenceMode);
+    toast(S.evidenceMode
+      ? "Mode preuve activé : plus aucun import n'est accepté."
+      : "Mode preuve désactivé : les imports sont de nouveau possibles.","ok");
+    show("import");
+  };
+
+  $("sha").onclick=()=>$("fsha").click();
+  $("fsha").onchange=async(e)=>{
+    const f=e.target.files[0]; if(!f) return;
+    const st=$("istate");
+    st.textContent="Calcul de l'empreinte SHA-256 de "+f.name+" ("+fmtSize(f.size)+")…";
+    try{
+      const bytes=new Uint8Array(await f.arrayBuffer());
+      const h=await sha256(bytes);
+      const src=S.sources.find(s=>s.label===f.name)||S.sources[S.sources.length-1];
+      if(src) src.archiveSha=h;
+      await save();
+      st.innerHTML="<strong>SHA-256 de "+esc(f.name)+" :</strong><br><span class='src'>"+esc(h)+"</span>";
+      modal("Empreinte de l'archive",
+        "<p>Fichier : "+esc(f.name)+" ("+fmtSize(f.size)+")</p><pre>"+esc(h)+"</pre>"+
+        "<p class='vs'>Conserve cette empreinte : elle permet de démontrer plus tard que l'archive "+
+        "analysée est bien celle-ci, octet pour octet.</p>");
+    }catch(err){ st.innerHTML='<span style="color:var(--bad)">'+esc(err.message)+"</span>"; }
+  };
+
+  $("dosave").onclick=async()=>toast(await save()
+    ? "Dossier enregistré sur cet appareil." : "Enregistrement impossible dans ce navigateur.",
+    "ok");
+  $("dodrop").onclick=async()=>{
+    if(!confirm("Effacer le dossier @"+S.username+" de la mémoire de ce navigateur ? "+
+      "Tes fichiers d'origine ne sont pas touchés.")) return;
+    await dropSaved(S.username);
+    toast("Dossier effacé de cet appareil.","ok");
+    location.reload();
+  };
+};
+
+/* ---------- checklist ---------- */
+RENDER.check=()=>{
+  const c=checklist();
+  let h=head("Récupérer davantage de données","Ce qui manque et comment l'obtenir.");
+  h+='<div class="card"><h2>Progression : '+c.progress+" %</h2>"+
+     '<div class="bar"><div style="width:'+c.progress+'%"></div></div>'+
+     '<p class="vs">'+c.done+" élément(s) sur "+c.total+".</p>";
+  for(const i of c.items)
+    h+='<div class="ci"><div class="mk '+(i.done?"y":"n")+'">'+(i.done?"✅ OK":"❌ MANQUANT")+"</div>"+
+       "<div><strong>"+esc(i.label)+"</strong><br><span class=\"muted\">"+esc(i.advice)+"</span></div></div>";
+  h+="</div>";
+  h+='<div class="card"><h2>Ce qui ne peut pas être récupéré sans reprendre le contrôle du compte</h2><ul class="tight">'+
+     NOT_RECOVERABLE.map(l=>"<li>"+esc(l)+"</li>").join("")+"</ul></div>";
+  h+='<div class="card"><h2>Reprendre le contrôle du compte (voie officielle)</h2>'+
+     "<p><strong>Mot de passe oublié</strong><br>Écran de connexion → « Vous avez oublié votre mot de "+
+     "passe ? » → « Besoin d'aide ? ». Instagram propose une vérification par selfie vidéo lorsque "+
+     "l'e-mail et le téléphone ne sont plus accessibles.</p>"+
+     "<p><strong>Compte piraté</strong><br>instagram.com/hacked si l'adresse e-mail a été changée "+
+     "sans ton accord.</p>"+
+     "<p><strong>Demande d'archive</strong><br>Une fois l'accès retrouvé : Paramètres → Espace comptes "+
+     "→ Vos informations et autorisations → Télécharger vos informations. Format JSON, toutes les données.</p>"+
+     "<p><strong>Droit d'accès (RGPD)</strong><br>En Europe, tu peux exercer ton droit d'accès à tes "+
+     "données auprès de Meta ; en cas de refus ou d'absence de réponse, une réclamation est possible "+
+     "auprès de la CNIL.</p></div>";
+  return h;
+};
+
+/* ---------- rapport ---------- */
+RENDER.report=()=>{
+  const st=stats();
+  let h=head("Rapport","Enregistre un rapport complet dans les fichiers de ton téléphone.");
+  h+=table(["Élément","Valeur"],[
+    ["Compte","@"+S.username],["Sources analysées",st.sources],["Fichiers répertoriés",st.files],
+    ["Fichiers avec empreinte SHA-256",st.hashed],["Conversations",st.conversations],
+    ["Messages",st.messages],["Abonnés distincts",st.followers],["Abonnements distincts",st.following],
+    ["Médias",st.media],["Événements de chronologie",st.events],
+    ["Éléments potentiellement manquants",st.gaps],["Mode preuve",S.evidenceMode?"actif":"inactif"]]);
+  h+='<div class="btnrow">'+
+     '<button class="btn primary" id="rhtml">Rapport HTML</button>'+
+     '<button class="btn" id="rjson">Données JSON</button>'+
+     '<button class="btn" id="rcsv">Tableaux CSV</button></div>';
+  h+='<p class="vs">Le rapport reprend : compte concerné, période étudiée, sources utilisées, '+
+     "intégrité des fichiers, conversations, chronologie, abonnés, abonnements, changements détectés, "+
+     "médias, éléments potentiellement manquants et limites de la récupération.</p>";
+  h+='<div class="card"><h2>Limites de la récupération</h2><ul class="tight">'+
+     LIMITS.map(l=>"<li>"+esc(l)+"</li>").join("")+"</ul></div>";
+  return h;
+};
+BIND.report=()=>{
+  $("rhtml").onclick=()=>download("rapport-"+S.username+".html", buildReportHtml(), "text/html");
+  $("rjson").onclick=()=>download("donnees-"+S.username+".json",
+    JSON.stringify(snapshot(),null,2), "application/json");
+  $("rcsv").onclick=()=>download("tableaux-"+S.username+".csv", buildCsv(), "text/csv");
+};
+function download(name, content, mime){
+  try{
+    const blob=new Blob([content],{type:mime+";charset=utf-8"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=name; a.rel="noopener";
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 4000);
+    toast("Fichier « "+name+" » enregistré.","ok");
+  }catch(e){
+    const w=window.open("","_blank");
+    if(w){ w.document.write("<pre>"+esc(content.slice(0,400000))+"</pre>"); toast("Ouvert dans un nouvel onglet."); }
+    else toast("Enregistrement impossible : "+e.message,"bad");
+  }
+}
+function csvRow(cells){
+  return cells.map(c=>{
+    const v=(c===null||c===undefined)?"":String(c);
+    return '"'+v.replace(/"/g,'""').replace(/\r?\n/g," ")+'"';
+  }).join(";");
+}
+function buildCsv(){
+  const L=[];
+  L.push("# Abonnés"); L.push(csvRow(["username","date_dans_la_source","export","fichier_source"]));
+  for(const r of S.relations.filter(r=>r.status==="followers"))
+    L.push(csvRow([r.username||"", msToIso(r.ts)||UNKNOWN,
+      (S.sources.find(s=>s.id===r.sourceId)||{}).label||"", r.sourceFile||""]));
+  L.push(""); L.push("# Abonnements"); L.push(csvRow(["username","date_dans_la_source","export","fichier_source"]));
+  for(const r of S.relations.filter(r=>r.status==="following"))
+    L.push(csvRow([r.username||"", msToIso(r.ts)||UNKNOWN,
+      (S.sources.find(s=>s.id===r.sourceId)||{}).label||"", r.sourceFile||""]));
+  L.push(""); L.push("# Messages"); L.push(csvRow(["conversation","expediteur","sens","date_utc","type","contenu","media","fichier_source"]));
+  for(const c of S.conversations) for(const m of c.messages)
+    L.push(csvRow([c.title,m.sender||"",m.direction,msToIso(m.ts)||UNKNOWN,m.type,
+      m.content||"",(m.media||[]).join(" "),m.sourceFile]));
+  L.push(""); L.push("# Chronologie"); L.push(csvRow(["date","type","titre","detail","confiance","source"]));
+  for(const e of S.events)
+    L.push(csvRow([msToIso(e.ts)||UNKNOWN,KIND_LABEL[e.kind]||e.kind,e.title,e.detail||"",
+      CONF_LABEL[e.confidence]||e.confidence,e.source||""]));
+  L.push(""); L.push("# Éléments potentiellement manquants");
+  L.push(csvRow(["type","confiance","description","indice","fenetre_debut","fenetre_fin","source"]));
+  for(const g of S.gaps)
+    L.push(csvRow([g.type,CONF_LABEL[g.confidence]||g.confidence,g.description,g.indicator||"",
+      g.windowStart||"",g.windowEnd||"",g.source||""]));
+  L.push(""); L.push("# Fichiers et empreintes");
+  L.push(csvRow(["chemin","categorie","taille_octets","sha256","crc32","date_fichier"]));
+  for(const f of S.files)
+    L.push(csvRow([f.path,CAT_LABEL[f.cat]||f.cat,f.size,f.sha||"",
+      (f.crc!==null&&f.crc!==undefined)?("0x"+(f.crc>>>0).toString(16)):"",f.mtime||""]));
+  return "﻿"+L.join("\r\n");
+}
+function period(){
+  const all=[];
+  for(const c of S.conversations) for(const m of c.messages) if(m.ts) all.push(m.ts);
+  for(const e of S.events) if(e.ts) all.push(e.ts);
+  if(!all.length) return {start:null,end:null};
+  return {start:msToIso(Math.min(...all)), end:msToIso(Math.max(...all))};
+}
+function buildReportHtml(){
+  const st=stats(), per=period();
+  const T=(hdr,rows,empty)=>rows&&rows.length
+    ? "<table><thead><tr>"+hdr.map(h=>"<th>"+esc(h)+"</th>").join("")+"</tr></thead><tbody>"+
+      rows.map(r=>"<tr>"+r.map(c=>"<td>"+esc(c===null||c===undefined?"":c)+"</td>").join("")+"</tr>").join("")+
+      "</tbody></table>"
+    : "<p class='muted'>"+esc(empty||"Aucune donnée.")+"</p>";
+  const B=(c)=>"<span class='badge "+esc(c)+"'>"+esc(CONF_LABEL[c]||c)+"</span>";
+
+  let h="<!DOCTYPE html><html lang='fr'><head><meta charset='utf-8'>"+
+    "<meta name='viewport' content='width=device-width, initial-scale=1'>"+
+    "<title>Rapport Instagram Evidence Recovery — @"+esc(S.username)+"</title><style>"+
+    "body{font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#14161a;background:#fff;"+
+    "margin:0;padding:26px;line-height:1.55;font-size:14px}"+
+    "h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 9px;padding-bottom:5px;"+
+    "border-bottom:2px solid #dfe3ea}h3{font-size:14.5px;margin:18px 0 7px}"+
+    ".sub{color:#5b6270;margin:0 0 20px}"+
+    "table{border-collapse:collapse;width:100%;margin:9px 0 16px;font-size:12.5px}"+
+    "th,td{border:1px solid #dfe3ea;padding:6px 8px;text-align:left;vertical-align:top}"+
+    "th{background:#f4f6fa}tr:nth-child(even) td{background:#fbfcfe}"+
+    ".badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}"+
+    ".CONFIRME{background:#e3f4ea;color:#1c6b45}.PROBABLE{background:#fdf0d8;color:#8a5a00}"+
+    ".POSSIBLE{background:#f0eefb;color:#4b3fa0}.INCONNU{background:#eef0f4;color:#5b6270}"+
+    ".missing{background:#fdeaec;border-left:4px solid #a11d2b;padding:10px 13px;margin:8px 0}"+
+    ".missing .lb{font-weight:800;color:#a11d2b;font-size:11.5px}"+
+    ".note{background:#f4f6fa;border-left:4px solid #2f5bd0;padding:10px 13px;margin:11px 0}"+
+    ".src{color:#5b6270;font-size:11px;font-family:Consolas,monospace;word-break:break-all}"+
+    ".muted{color:#5b6270}.day{font-weight:700;margin-top:12px}.ev{margin-left:12px;padding:3px 0;"+
+    "border-bottom:1px dotted #dfe3ea}footer{margin-top:36px;color:#5b6270;font-size:12px;"+
+    "border-top:1px solid #dfe3ea;padding-top:11px}</style></head><body>";
+
+  h+="<h1>Rapport Instagram Evidence Recovery</h1>";
+  h+="<p class='sub'>Compte @"+esc(S.username)+" — généré le "+esc(new Date().toISOString())+
+     " — version mobile 1.0 — mode preuve : "+(S.evidenceMode?"actif":"inactif")+"</p>";
+
+  h+="<h2>1. Compte concerné</h2>";
+  h+=T(["Champ","Valeur"],[["Nom d'utilisateur","@"+S.username],
+    ["Nom affiché (issu des sources)",(S.profile&&S.profile.full_name)||"Non renseigné"],
+    ["Biographie (issue de l'export)",(S.profile&&S.profile.biography)||"Non renseignée"],
+    ["Adresse e-mail (issue de l'export)",(S.profile&&S.profile.email)||"Non renseignée"],
+    ["Dossier créé le",S.createdAt||"—"]]);
+  h+="<p class='muted'>Cette version mobile ne consulte pas la page publique du profil : "+
+     "un navigateur interdit cette requête depuis un fichier local.</p>";
+
+  h+="<h2>2. Période étudiée</h2>";
+  h+=T(["Champ","Valeur"],[["Début des données datées",per.start||UNKNOWN],
+    ["Fin des données datées",per.end||UNKNOWN]]);
+  h+="<div class='note'>Période couverte par les données effectivement importées. Elle ne préjuge "+
+     "pas de la durée réelle d'existence du compte.</div>";
+
+  h+="<h2>3. Sources utilisées</h2>";
+  h+=T(["#","Libellé","Type","Provenance déclarée","Date déclarée","Fichiers","Taille","Importée le","SHA-256 de l'archive"],
+    S.sources.map(s=>[s.id,s.label,s.kind,s.origin||"—",s.declaredDate||UNKNOWN,s.fileCount,
+      fmtSize(s.bytes),s.importedAt,s.archiveSha||"non calculée"]),"Aucune source importée.");
+
+  h+="<h2>4. Intégrité des fichiers</h2>";
+  h+=T(["Champ","Valeur"],[["Algorithme","SHA-256 (fichiers texte analysés) et CRC-32 (catalogue ZIP)"],
+    ["Fichiers répertoriés",st.files],["Fichiers avec empreinte SHA-256",st.hashed],
+    ["Mode preuve",S.evidenceMode?"actif : le dossier est figé":"inactif"]]);
+  h+="<h3>Empreintes (extrait)</h3>";
+  h+=T(["Fichier","SHA-256","CRC-32","Taille","Date du fichier"],
+    S.files.slice(0,400).map(f=>[f.path,f.sha||"—",
+      (f.crc!==null&&f.crc!==undefined)?("0x"+(f.crc>>>0).toString(16).padStart(8,"0")):"—",
+      fmtSize(f.size),f.mtime||UNKNOWN]));
+  if(S.files.length>400) h+="<p class='muted'>"+(S.files.length-400)+
+    " fichier(s) supplémentaire(s) détaillés dans l'export JSON et l'export CSV.</p>";
+
+  h+="<h2>5. Conversations retrouvées</h2>";
+  const groups={};
+  for(const c of S.conversations){
+    const g=groups[c.key]=groups[c.key]||{title:c.title,participants:c.participants,msgs:new Map(),files:new Set()};
+    for(const m of c.messages) g.msgs.set(m.dk,m);
+    c.files.forEach(f=>g.files.add(f));
+  }
+  h+=T(["Conversation","Participants","Messages","Envoyés","Reçus","Du","Au","Fichiers source"],
+    Object.values(groups).map(g=>{
+      const ms=[...g.msgs.values()], dated=ms.filter(m=>m.ts).map(m=>m.ts).sort((a,b)=>a-b);
+      return [g.title,cut(g.participants.join(", "),80),ms.length,
+        ms.filter(m=>m.direction==="sent").length, ms.filter(m=>m.direction==="received").length,
+        dated.length?msToIso(dated[0]):UNKNOWN, dated.length?msToIso(dated[dated.length-1]):UNKNOWN,
+        cut([...g.files].join(", "),90)];
+    }),"Aucune conversation : aucun export contenant des messages n'a été importé.");
+
+  h+="<h2>6. Chronologie</h2>";
+  h+="<div class='note'>Chaque événement indique sa source et son niveau de confiance. "+
+     "<b>CONFIRMÉ</b> : donnée présente telle quelle dans une source vérifiée. "+
+     "<b>PROBABLE</b> : plusieurs indices concordants. "+
+     "<b>POSSIBLE</b> : indice unique ou anomalie statistique. "+
+     "<b>INCONNU</b> : indice insuffisant.</div>";
+  const days={}, und=[];
+  for(const e of S.events){ const iso=msToIso(e.ts);
+    if(iso)(days[iso.slice(0,10)]=days[iso.slice(0,10)]||[]).push({...e,iso}); else und.push(e); }
+  for(const d of Object.keys(days).sort()){
+    h+="<div class='day'>"+esc(d)+"</div>";
+    for(const e of days[d].sort((a,b)=>a.iso.localeCompare(b.iso)))
+      h+="<div class='ev'>"+esc(e.iso.slice(11,16))+" — <b>"+esc(e.title)+"</b> "+B(e.confidence)+
+         "<br>"+esc(cut(e.detail,300))+"<br><span class='src'>SOURCE : "+esc(e.source)+"</span></div>";
+  }
+  if(und.length){
+    h+="<h3>Événements sans date précise</h3>";
+    for(const e of und){
+      const w=(e.periodStart||e.periodEnd)
+        ? "entre "+String(e.periodStart||"?").slice(0,10)+" et "+String(e.periodEnd||"?").slice(0,10) : UNKNOWN;
+      h+="<div class='ev'><b>"+esc(e.title)+"</b> "+B(e.confidence)+" <i>("+esc(w)+")</i><br>"+
+         esc(cut(e.detail,300))+"<br><span class='src'>SOURCE : "+esc(e.source)+"</span></div>";
+    }
+  }
+
+  for(const [num,kind,titre] of [["7","followers","Abonnés"],["8","following","Abonnements"]]){
+    h+="<h2>"+num+". "+titre+"</h2>";
+    h+=T(["Compte","Date dans la source","Export","Fichier source"],
+      S.relations.filter(r=>r.status===kind).map(r=>[
+        r.username?"@"+r.username:(r.display||"inconnu"), msToIso(r.ts)||UNKNOWN,
+        (S.sources.find(s=>s.id===r.sourceId)||{}).label||"—", r.sourceFile||""]),
+      "Aucune donnée de relation importée.");
+  }
+  const others=S.relations.filter(r=>r.status!=="followers"&&r.status!=="following");
+  if(others.length){
+    h+="<h3>Autres relations (demandes, blocages, amis proches)</h3>";
+    h+=T(["Type","Compte","Date dans la source","Fichier source"],
+      others.map(r=>[REL_LABEL[r.status]||r.status, r.username?"@"+r.username:"inconnu",
+        msToIso(r.ts)||UNKNOWN, r.sourceFile||""]));
+  }
+
+  h+="<h2>9. Changements détectés entre exports</h2>";
+  if(!cmpResult) h+="<p class='muted'>Aucune comparaison enregistrée. Deux exports de dates "+
+    "différentes sont nécessaires pour dater les changements.</p>";
+  else{
+    h+="<h3>"+esc(cmpResult.a.label)+" → "+esc(cmpResult.b.label)+"</h3>";
+    h+="<div class='note'>Fenêtre de comparaison : entre "+esc(cmpResult.la)+" et "+esc(cmpResult.lb)+
+       ". Tout changement listé ci-dessous est intervenu entre ces deux dates ; l'outil n'attribue "+
+       "jamais de date précise à un changement.</div>";
+    for(const k in cmpResult.relations){
+      const b=cmpResult.relations[k];
+      if(!b.added.length&&!b.removed.length) continue;
+      h+="<h3>"+esc(b.label)+"</h3>";
+      h+=T(["Sens","Compte","Date dans la source","Constat"],
+        b.added.map(e=>["Apparu","@"+e.username,e.date,e.statement])
+          .concat(b.removed.map(e=>["Disparu","@"+e.username,e.date,e.statement])));
+    }
+    if(cmpResult.messages.added.length||cmpResult.messages.removed.length){
+      h+="<h3>Messages</h3>";
+      h+=T(["Sens","Conversation","Expéditeur","Date","Extrait"],
+        cmpResult.messages.added.slice(0,300).map(e=>["Ajouté",e.conv,e.sender,e.ts,e.excerpt])
+          .concat(cmpResult.messages.removed.slice(0,300)
+            .map(e=>["Absent du plus récent",e.conv,e.sender,e.ts,e.excerpt])));
+    }
+  }
+
+  h+="<h2>10. Médias</h2>";
+  h+=T(["Chemin","Type","Date","Contexte"],
+    S.media.slice(0,600).map(m=>[m.path,m.kind,m.ts||UNKNOWN,m.context||""]),"Aucun média importé.");
+
+  h+="<h2>11. Éléments potentiellement manquants</h2>";
+  h+="<div class='note'>Ces éléments ne sont PAS des contenus retrouvés. Ce sont des indices "+
+     "d'absence relevés dans les données, avec leur niveau de confiance. Aucun contenu manquant "+
+     "n'a été reconstitué, deviné ou complété.</div>";
+  if(!S.gaps.length) h+="<p class='muted'>Aucun indice d'élément manquant détecté.</p>";
+  for(const g of S.gaps.slice().sort((a,b)=>CONF_ORDER[a.confidence]-CONF_ORDER[b.confidence])){
+    const w=(g.windowStart||g.windowEnd)?" — fenêtre : "+(g.windowStart||"?")+" → "+(g.windowEnd||"?"):"";
+    h+="<div class='missing'><span class='lb'>ÉLÉMENT POTENTIELLEMENT MANQUANT</span> "+B(g.confidence)+
+       "<br>"+esc(g.description)+"<br><span class='src'>Indice : "+esc(g.indicator||"—")+
+       " — SOURCE : "+esc((g.source||"")+w)+"</span></div>";
+  }
+
+  h+="<h2>12. Limites de la récupération</h2><ul>"+
+     LIMITS.concat(NOT_RECOVERABLE).map(l=>"<li>"+esc(l)+"</li>").join("")+"</ul>";
+  const c=checklist();
+  h+="<h3>Ce qui améliorerait encore la récupération</h3>";
+  h+=T(["État","Élément","Comment l'obtenir"],
+    c.items.map(i=>[i.done?"OK":"MANQUANT",i.label,i.advice]));
+
+  h+="<footer>Instagram Evidence Recovery — version mobile 1.0. Traitement intégralement réalisé "+
+     "sur l'appareil, aucune donnée transmise à un service tiers. Ce rapport reprend uniquement des "+
+     "informations présentes dans les sources fournies.</footer></body></html>";
+  return h;
+}
+
+/* ---------- recherche globale ---------- */
+RENDER.search=()=>{
+  const q=window.__q||"";
+  const f={kind:window.__sk||"", person:window.__sp||"", source:window.__ss||""};
+  const res=search(q,f);
+  let h=head("Recherche globale","Résultats pour « "+q+" »");
+  h+='<div class="grid">'+
+    '<div><label>Type d\'élément</label><select id="sk"><option value="">Tous</option>'+
+    [["message","Messages"],["personne","Personnes"],["evenement","Événements"],
+     ["conversation","Conversations"],["manquant","Éléments manquants"],["fichier","Fichiers"],
+     ["media","Médias"]].map(([v,l])=>'<option value="'+v+'"'+(f.kind===v?" selected":"")+">"+l+"</option>").join("")+
+    "</select></div>"+
+    '<div><label>Personne</label><input type="text" id="sp" value="'+esc(f.person)+'"></div>'+
+    '<div><label>Fichier / source</label><input type="text" id="ss" value="'+esc(f.source)+'"></div>'+
+    "</div>";
+  h+='<p class="vs">'+res.length+" résultat(s).</p>";
+  h+=table(["Type","Titre","Extrait","Date","Source"],
+    res.map(r=>['<span class="badge tag">'+esc(r.kind)+"</span>", r.title, r.excerpt,
+      r.ts?fmtDate(r.ts):UNKNOWN, '<span class="src">'+esc(cut(r.source,40))+"</span>"]),
+    "Aucun résultat.");
+  return h;
+};
+BIND.search=()=>{
+  const k=$("sk"), p=$("sp"), s=$("ss");
+  if(k) k.onchange=()=>{ window.__sk=k.value; show("search"); };
+  if(p) p.onchange=()=>{ window.__sp=p.value; show("search"); };
+  if(s) s.onchange=()=>{ window.__ss=s.value; show("search"); };
+};
+
+/* ================================================== démarrage ============ */
+function cleanUsername(raw){
+  let v=String(raw||"").trim().replace(/\\/g,"/");
+  if(v.includes("instagram.com")) v=v.split("instagram.com")[1]||"";
+  v=v.replace(/^[\/@\s]+|[\/\s]+$/g,"").split("/")[0].split("?")[0];
+  return v.trim().toLowerCase();
+}
+function validUsername(u){ return /^[A-Za-z0-9._]{1,30}$/.test(u); }
+
+async function openCase(username, saved){
+  S.username=username;
+  S.createdAt=(saved&&saved.createdAt)||new Date().toISOString().replace(/\.\d{3}Z$/,"+00:00");
+  if(saved) restore(saved);
+  $("home").classList.add("hide");
+  $("app").classList.remove("hide");
+  $("hcase").textContent="@"+S.username;
+  $("pmode").classList.toggle("hide",!S.evidenceMode);
+  const empty=!S.sources.length;
+  show(empty?"import":"dash");
+  if(empty) toast("Dossier créé. Commence par importer ton archive Instagram.");
+  await save();
+}
+
+$("mkcase").onclick=async()=>{
+  const err=$("mkerr");
+  err.classList.add("hide");
+  const u=cleanUsername($("uname").value);
+  if(!u){ err.textContent="Saisis le nom d'utilisateur du compte concerné."; err.classList.remove("hide"); return; }
+  if(!validUsername(u)){
+    err.textContent="Nom d'utilisateur Instagram invalide. Caractères autorisés : lettres, chiffres, "+
+      "point et tiret bas (30 maximum).";
+    err.classList.remove("hide"); return;
+  }
+  const all=await listSaved();
+  const found=all.find(r=>r.username===u);
+  await openCase(u, found||null);
+};
+$("uname").addEventListener("keydown",e=>{ if(e.key==="Enter") $("mkcase").click(); });
+$("switch").onclick=async()=>{ await save(); location.reload(); };
+$("q").addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return;
+  const v=$("q").value.trim();
+  if(!v){ toast("Saisis un terme à rechercher.","bad"); return; }
+  window.__q=v; current="search"; renderNav();
+  $("view").innerHTML=RENDER.search(); BIND.search();
+  window.scrollTo(0,0);
+});
+
+(async function boot(){
+  renderNav();
+  const saved=await listSaved();
+  if(saved.length){
+    const box=$("resumebox");
+    box.innerHTML=saved.map(r=>{
+      const nb=(r.conversations||[]).reduce((a,c)=>a+c.messages.length,0);
+      return '<button class="row" data-u="'+esc(r.username)+'"><div class="t">@'+esc(r.username)+"</div>"+
+        '<div class="m">'+(r.sources||[]).length+" source(s) · "+nb+" message(s) · enregistré le "+
+        esc(fmtDate(r.savedAt))+"</div></button>";
+    }).join("");
+    for(const b of box.querySelectorAll(".row")) b.onclick=async()=>{
+      const rec=saved.find(r=>r.username===b.getAttribute("data-u"));
+      await openCase(rec.username, rec);
+    };
+    $("resume").classList.remove("hide");
+  }
+  /* Vérification de l'empreinte de repli au démarrage : si elle est fausse,
+     on ne l'utilise jamais (mieux vaut aucune empreinte qu'une empreinte erronée). */
+  if(sha256js(new TextEncoder().encode("abc"))
+     !== "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"){
+    CRYPTO_OK = (self.crypto && self.crypto.subtle) ? null : false;
+    console.warn("Empreinte de repli invalide : elle ne sera pas utilisée.");
+  }
+})();
+</script>
+</body>
+</html>

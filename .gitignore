@@ -1,0 +1,21 @@
+# Dossiers d'enquete : donnees personnelles, jamais versionnees
+cases/
+*.db
+*.db-wal
+*.db-shm
+
+# Environnement Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Construction de l'executable
+build/
+dist/
+*.manifest
+
+# Systeme
+.DS_Store
+Thumbs.db
