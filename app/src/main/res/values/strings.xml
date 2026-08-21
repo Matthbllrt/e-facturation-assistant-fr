@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Deliberately neutral: this is what the launcher and the recents list show. -->
+    <string name="app_name">Mosaic</string>
+
+    <!-- Authentication -->
+    <string name="auth_title">Mosaic</string>
+    <string name="auth_subtitle">Authentification requise</string>
+    <string name="auth_use_pin">Utiliser le code</string>
+    <string name="lock_unlock">Déverrouiller</string>
+    <string name="lock_use_biometric">Utiliser la biométrie</string>
+    <string name="lock_pin_label">Code</string>
+    <plurals name="lock_pin_wrong">
+        <item quantity="one">Code incorrect. %1$d essai restant.</item>
+        <item quantity="other">Code incorrect. %1$d essais restants.</item>
+    </plurals>
+    <string name="lock_locked_out">Trop d\'essais. Réessayez dans %1$d s.</string>
+    <string name="lock_no_pin">Aucun code n\'est configuré sur cet appareil.</string>
+    <string name="lock_biometric_changed">La biométrie de l\'appareil a changé. Saisissez le code.</string>
+    <string name="lock_biometric_unavailable">Biométrie indisponible. Saisissez le code.</string>
+
+    <!-- Conversation -->
+    <string name="conversation_empty">Aucun élément enregistré pour le moment.</string>
+    <string name="composer_placeholder">Message</string>
+    <string name="composer_no_direct_reply">Aucune réponse intégrée disponible actuellement.</string>
+    <string name="action_send">Envoyer</string>
+    <string name="action_open_instagram">Ouvrir Instagram</string>
+    <string name="action_open_instagram_short">Ouvrir</string>
+    <string name="action_menu">Menu</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="action_erase">Effacer</string>
+    <string name="action_lock_now">Verrouiller</string>
+    <string name="action_back">Retour</string>
+    <string name="action_ok">OK</string>
+    <string name="action_done">Terminé</string>
+    <string name="action_save">Enregistrer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_continue">Continuer</string>
+    <string name="action_export">Exporter</string>
+    <string name="action_grant_notification_access">Ouvrir les réglages Android</string>
+
+    <string name="status_synced">Synchronisé</string>
+    <string name="status_local">Local</string>
+    <string name="status_paused">En pause</string>
+    <string name="status_vault_error">Coffre illisible</string>
+    <string name="status_failed">échec</string>
+    <string name="status_pending">envoi…</string>
+
+    <string name="media_image">[image]</string>
+    <string name="media_video">[vidéo]</string>
+    <string name="media_audio">[audio]</string>
+    <string name="media_share">[partage]</string>
+    <string name="media_sticker">[sticker]</string>
+    <string name="media_unavailable">[contenu non récupérable]</string>
+
+    <!-- Cleanup: never claims anything was deleted on Instagram. -->
+    <string name="cleanup_ready_title">Nettoyage prêt</string>
+    <string name="cleanup_ready_body">La copie locale est conservée. La suppression côté Instagram doit être faite manuellement.</string>
+
+    <!-- Warnings -->
+    <string name="warning_name_only_matching">Identification par nom affiché uniquement : un homonyme pourrait être capturé.</string>
+    <string name="warning_capture_inactive">La capture est inactive : autorisation ou jeton manquant.</string>
+    <string name="error_vault_unreadable">Le coffre local ne peut pas être déchiffré. Aucune donnée n\'a été supprimée.</string>
+    <string name="error_vault_unavailable">Coffre indisponible.</string>
+    <string name="error_send_failed">L\'envoi a échoué.</string>
+    <string name="error_reply_expired">La réponse rapide n\'est plus disponible. Ouvrez Instagram.</string>
+    <string name="error_messaging_window">Fenêtre de réponse de 24 h dépassée (règle Meta).</string>
+    <string name="error_instagram_missing">Instagram n\'est pas installé.</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Paramètres</string>
+    <string name="settings_section_identity">Identité</string>
+    <string name="settings_section_sync">Synchronisation</string>
+    <string name="settings_section_cooldown">Cooldown</string>
+    <string name="settings_section_notifications">Notifications</string>
+    <string name="settings_section_lock">Verrouillage</string>
+    <string name="settings_section_data">Données</string>
+    <string name="settings_alias">Alias local</string>
+    <string name="settings_reveal_identity">Afficher l\'identité Instagram réelle</string>
+    <string name="settings_hide_identity">Masquer</string>
+    <string name="settings_screenshot_protection">Bloquer captures d\'écran et aperçu Récents</string>
+    <string name="settings_set_pin">Définir ou modifier le code</string>
+    <string name="settings_export">Export local chiffré</string>
+    <string name="settings_erase_all">Effacer les données locales</string>
+
+    <string name="reveal_auth_title">Identité réelle</string>
+    <string name="reveal_auth_subtitle">Authentification requise pour afficher</string>
+    <string name="reveal_unavailable">Impossible de vérifier votre identité.</string>
+
+    <string name="sync_mode_notifications">Notifications Android</string>
+    <string name="sync_mode_api">API officielle Instagram</string>
+
+    <string name="cooldown_explainer">À l\'expiration du délai, Mosaic affiche « Nettoyage prêt ». Aucune suppression n\'est effectuée sur Instagram : l\'API officielle ne le permet pas.</string>
+    <string name="cooldown_off">Désactivé</string>
+    <string name="cooldown_30s">30 secondes</string>
+    <string name="cooldown_2m">2 minutes</string>
+    <string name="cooldown_5m">5 minutes</string>
+    <string name="cooldown_15m">15 minutes</string>
+    <string name="cooldown_custom">Personnalisé</string>
+    <string name="cooldown_custom_minutes">Minutes</string>
+
+    <string name="notifications_none">Aucune notification</string>
+    <string name="notifications_neutral">Notification neutre (sans contenu)</string>
+    <string name="notification_channel_name">Activité</string>
+    <string name="notification_channel_description">Signal neutre, sans contenu.</string>
+    <string name="notification_neutral_title">Nouvel élément</string>
+
+    <string name="autolock_immediate">Immédiat</string>
+    <string name="autolock_15s">15 secondes</string>
+    <string name="autolock_1m">1 minute</string>
+    <string name="autolock_5m">5 minutes</string>
+    <string name="autolock_never">Jamais</string>
+
+    <string name="pin_title">Code de secours</string>
+    <string name="pin_requirements">6 à 12 chiffres. Les suites et les répétitions sont refusées.</string>
+    <string name="pin_new">Nouveau code</string>
+    <string name="pin_confirm">Confirmer</string>
+    <string name="pin_saved">Code enregistré.</string>
+    <string name="pin_rejected">Code refusé : trop court ou trop prévisible.</string>
+
+    <string name="export_title">Export chiffré</string>
+    <string name="export_explainer">Le fichier exporté est chiffré par une phrase secrète que vous choisissez. Il ne contient ni identifiant Instagram ni identifiant de conversation.</string>
+    <string name="export_passphrase">Phrase secrète (10 caractères min.)</string>
+    <string name="export_passphrase_warning">Cette phrase est la seule protection du fichier exporté. Elle ne peut pas être récupérée.</string>
+    <string name="export_done">Export terminé.</string>
+    <string name="export_failed">Export impossible.</string>
+
+    <string name="erase_title">Effacer</string>
+    <string name="erase_body">Action irréversible. Aucune corbeille, aucune sauvegarde.</string>
+    <string name="erase_conversation_only">Effacer la conversation locale</string>
+    <string name="erase_reset_everything">Réinitialiser entièrement Mosaic</string>
+    <string name="erase_auth_required">Authentification requise.</string>
+    <string name="erase_done">Conversation locale effacée.</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_mode_title">Méthode</string>
+    <string name="onboarding_mode_notifications_body">Fonctionne avec un compte Instagram personnel. Mosaic lit les notifications Instagram de cette personne, à partir de maintenant. Aucun identifiant Instagram n\'est demandé, aucun serveur n\'est utilisé. L\'historique antérieur n\'est pas récupérable.</string>
+    <string name="onboarding_mode_api_body">Réservé aux comptes professionnels (Business/Creator) éligibles à l\'API Meta. Nécessite un jeton d\'accès longue durée que vous générez depuis votre propre application Meta.</string>
+
+    <string name="onboarding_permission_title">Accès aux notifications</string>
+    <string name="onboarding_permission_body">Android va demander l\'accès aux notifications. Cet accès est nécessaire parce qu\'il n\'existe aucun autre moyen officiel de lire les messages d\'un compte Instagram personnel. Mosaic ne conserve que les notifications de la personne choisie et ignore tout le reste.</string>
+
+    <string name="onboarding_token_title">Jeton d\'accès</string>
+    <string name="onboarding_token_body">Collez un jeton d\'accès longue durée obtenu depuis votre propre application Meta. Mosaic n\'intègre aucun secret Meta et ne demande jamais votre mot de passe Instagram. Le jeton est chiffré par le Keystore Android.</string>
+    <string name="onboarding_token_label">Jeton d\'accès</string>
+
+    <string name="onboarding_target_title">Personne suivie</string>
+    <string name="onboarding_target_body_notifications">Sélectionnez la conversation dans la liste ci-dessous dès qu\'une notification arrive, ou saisissez le nom affiché manuellement.</string>
+    <string name="onboarding_target_body_api">Indiquez le nom d\'utilisateur Instagram de la personne.</string>
+    <string name="onboarding_target_name">Nom affiché</string>
+    <string name="onboarding_target_handle">Nom d\'utilisateur (facultatif)</string>
+
+    <string name="onboarding_alias_title">Alias local</string>
+    <string name="onboarding_alias_body">Ce nom remplace l\'identité réelle partout dans l\'application. Il n\'est appliqué que localement et ne change rien sur Instagram.</string>
+
+    <string name="onboarding_done_title">Terminé</string>
+    <string name="onboarding_done_body">Le coffre est prêt. Il se verrouille à chaque fermeture.</string>
+</resources>

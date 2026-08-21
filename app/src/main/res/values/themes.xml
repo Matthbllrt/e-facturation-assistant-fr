@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      A plain dark window with no action bar. The launch background matches the
+      Compose background exactly so there is no bright flash that would draw the
+      eye on an unlock.
+    -->
+    <style name="Theme.Mosaic" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/mosaic_ink</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

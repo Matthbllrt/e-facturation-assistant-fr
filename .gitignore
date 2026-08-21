@@ -1,0 +1,22 @@
+# Gradle / build
+.gradle/
+build/
+local.properties
+captures/
+.cxx/
+
+# IDE
+.idea/
+*.iml
+.DS_Store
+
+# Real publication signing material must never be committed.
+# The throwaway development key in keystore/ is committed on purpose
+# (see docs/SIGNING.md) so that private side-loaded updates keep the
+# same signature. Replace it before any public distribution.
+signing-release.properties
+*-upload.jks
+*-release.jks
+
+# Local exports / vault dumps
+*.mosaicvault

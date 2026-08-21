@@ -1,0 +1,2 @@
+06447a90ced2107e732abb96defa04433cb63ffa50251b0bf86226271ed872af  Mosaic-release.apk
+d82e1198bdd7de48d5273b8bf0da4f23b373f2937910c1673ef6faa60aa746fc  Mosaic-release.aab
